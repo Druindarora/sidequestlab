@@ -1,0 +1,17 @@
+{
+    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+    // Pointez pour afficher la description des attributs existants.
+    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Sidequestlab - Spring Boot (dev)",
+            "request": "launch",
+            "mainClass": "dev.sidequestlab.backend.SideQuestLabBackendApplication",
+            "projectName": "sidequestlab-backend",
+            "envFile": "${workspaceFolder}/.env.local",
+            "console": "integratedTerminal"              // pour voir les logs dans le terminal intégré
+        }
+    ]
+}

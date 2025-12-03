@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:16
+    container_name: sidequestlab-db
+    env_file:
+      - ../.env.local
+    environment:
+      POSTGRES_DB: ${POSTGRESQL_DATABASE}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - sidequestlab-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  sidequestlab-db-data:

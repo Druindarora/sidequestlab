@@ -1,0 +1,17 @@
+# Java / Maven
+backend/target/
+backend/.mvn/
+backend/.idea/
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+
+# OS / divers
+.DS_Store
+*.log
+
+# Env files
+.env
+.env.*
+!.env.example
