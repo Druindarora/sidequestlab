@@ -1,0 +1,156 @@
+.profil {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+/* HEADER */
+
+.profil__header {
+  margin-bottom: 2rem;
+}
+
+.profil__title {
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+  margin-bottom: 0.5rem;
+}
+
+.profil__subtitle {
+  font-size: 1rem;
+  color: #555;
+  max-width: 48rem;
+}
+
+/* SECTIONS GLOBALES */
+
+.profil__section {
+  margin-bottom: 2.5rem;
+}
+
+.profil__section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.profil__section p {
+  margin-bottom: 0.75rem;
+}
+
+/* COMPÉTENCES */
+
+.profil__skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.profil__skill-block {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+}
+
+.profil__skill-block h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.profil__skill-block ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.profil__skill-block li {
+  margin-bottom: 0.35rem;
+}
+
+/* EXPÉRIENCES */
+
+.profil__xp-block {
+  border-left: 3px solid #1976d2;
+  padding-left: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profil__xp-block h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.profil__xp-intro {
+  margin-bottom: 0.5rem;
+}
+
+/* PROJETS */
+
+.profil__projects-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.profil__project-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+}
+
+.profil__project-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.profil__project-card ul {
+  margin: 0 0 0.75rem;
+  padding-left: 1.2rem;
+}
+
+.profil__project-role {
+  margin-bottom: 0.5rem;
+}
+
+.profil__project-link {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .profil {
+    padding-top: 1.5rem;
+  }
+
+  .profil__skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profil__xp-block {
+    border-left-width: 2px;
+  }
+}
+
+.btn {
+  display: inline-block;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #1976d2;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  border-color: #1976d2;
+  color: #1976d2;
+}

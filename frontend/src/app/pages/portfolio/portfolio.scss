@@ -1,0 +1,152 @@
+.portfolio {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+/* INTRO */
+
+.portfolio__header {
+  margin-bottom: 2rem;
+}
+
+.portfolio__title {
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+  margin-bottom: 0.5rem;
+}
+
+.portfolio__subtitle {
+  font-size: 1rem;
+  color: #555;
+  max-width: 48rem;
+}
+
+.portfolio__header-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* SECTIONS */
+
+.portfolio__section {
+  margin-bottom: 2.5rem;
+}
+
+.portfolio__section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+/* PROJETS PRINCIPAUX */
+
+.portfolio__projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.portfolio__project-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+}
+
+.portfolio__project-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+}
+
+.portfolio__project-tag {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.6rem;
+}
+
+.portfolio__project-card p {
+  margin-bottom: 0.5rem;
+}
+
+.portfolio__project-card ul {
+  margin: 0 0 0.5rem;
+  padding-left: 1.2rem;
+}
+
+.portfolio__project-note {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.portfolio__project-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.portfolio__project-status {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* MODULES / IDÉES */
+
+.portfolio__ideas-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.2rem;
+}
+
+.portfolio__ideas-list li {
+  margin-bottom: 0.5rem;
+}
+
+.portfolio__ideas-note {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Boutons réutilisés (si pas déjà globaux) */
+
+.btn {
+  display: inline-block;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #1976d2;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  filter: brightness(0.95);
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .portfolio {
+    padding-top: 1.5rem;
+  }
+
+  .portfolio__header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,8 +1,15 @@
 .app-main {
-  flex: 1; /* prend tout l’espace entre header et footer */
+  flex: 1;
   display: flex;
-  justify-content: center; /* centre horizontalement le contenu (Home)   */
-  align-items: center; /* centre verticalement le contenu (Home)     */
+  justify-content: center;
+  align-items: center;
   padding: 2rem;
   box-sizing: border-box;
+}
+
+app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #f5f5f5;
 }
