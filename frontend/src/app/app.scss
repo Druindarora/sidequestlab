@@ -1,0 +1,8 @@
+.app-main {
+  flex: 1; /* prend tout l’espace entre header et footer */
+  display: flex;
+  justify-content: center; /* centre horizontalement le contenu (Home)   */
+  align-items: center; /* centre verticalement le contenu (Home)     */
+  padding: 2rem;
+  box-sizing: border-box;
+}

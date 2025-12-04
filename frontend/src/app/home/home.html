@@ -1,0 +1,92 @@
+<main class="home">
+  <!-- HERO -->
+  <section class="home__hero">
+    <h1 class="home__hero-title">William — développeur full-stack Angular / Java orienté front</h1>
+
+    <p class="home__hero-subtitle">
+      Je conçois des applications web de bout en bout, avec un vrai soin pour l’interface, la
+      lisibilité du code… et le plaisir d’utilisation.
+    </p>
+
+    <div class="home__hero-actions">
+      <button class="btn btn-primary" routerLink="/profil">Voir mon profil</button>
+      <button class="btn btn-secondary" routerLink="/portfolio">Voir mes projets</button>
+    </div>
+
+    <p class="home__hero-note">
+      SidequestLab est mon terrain de jeu pour expérimenter, documenter et faire évoluer mes projets
+      perso.
+    </p>
+  </section>
+
+  <!-- QUI JE SUIS + AVATAR -->
+  <section class="home__about">
+    <div class="home__about-text">
+      <h2>Qui je suis</h2>
+      <p>
+        Je suis développeur full-stack Angular / Java, avec un fort tropisme pour le front&nbsp;:
+        ergonomie, clarté des interfaces, micro-interactions qui rendent une appli agréable à
+        utiliser.
+      </p>
+      <p>
+        Aujourd’hui, je cherche à rejoindre une équipe où je peux à la fois contribuer sur
+        l’architecture back et pousser la qualité côté front.
+      </p>
+      <p class="home__about-link">
+        Pour le détail de mon parcours, de mes compétences et de mon expérience&nbsp;:
+        <a routerLink="/profil">consulter mon profil complet</a>.
+      </p>
+    </div>
+
+    <div class="home__about-avatar">
+      <!-- TODO: remplacer par ton avatar / ta photo -->
+      <div class="home__avatar-placeholder">Avatar / photo ici</div>
+    </div>
+  </section>
+
+  <!-- PROJETS EN BREF -->
+  <section class="home__projects">
+    <h2>Mes projets en bref</h2>
+
+    <div class="home__projects-grid">
+      <!-- Carte MémoQuiz -->
+      <article class="home__project-card">
+        <h3>MémoQuiz</h3>
+        <p>
+          Une application web que je développe pour mes propres révisions techniques, basée sur la
+          méthode de Leitner (cartes de questions-réponses).
+        </p>
+        <p>
+          V1 centrée sur l’essentiel&nbsp;: création de cartes, sessions de révision, gestion de la
+          progression.
+        </p>
+        <div class="home__project-actions">
+          <a
+            class="btn btn-secondary"
+            href="https://github.com/TON-USER/TON-REPO-MEMOQUIZ"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Voir MémoQuiz sur GitHub
+          </a>
+        </div>
+      </article>
+
+      <!-- Carte SidequestLab -->
+      <article class="home__project-card">
+        <h3>SidequestLab</h3>
+        <p>
+          Ce site est mon laboratoire public&nbsp;: il me permet de tester des idées, de travailler
+          mon UX/UI et de montrer comment j’organise un projet Angular / Java.
+        </p>
+        <p>
+          La V1 met l’accent sur la clarté du code, une architecture propre et l’intégration
+          progressive de nouvelles fonctionnalités.
+        </p>
+        <div class="home__project-actions">
+          <button class="btn btn-primary" routerLink="/portfolio">Découvrir le portfolio</button>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
