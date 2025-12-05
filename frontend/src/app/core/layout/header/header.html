@@ -1,17 +1,37 @@
-<header class="app-header">
-  <div class="app-header__brand">SidequestLab</div>
+<mat-toolbar class="app-header" role="navigation">
+  <!-- Brand -->
+  <button
+    matButton
+    class="app-header__brand"
+    routerLink="/"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <span>SidequestLab</span>
+  </button>
 
-  <nav class="app-header__nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-      >Accueil</a
+  <span class="app-header__spacer"></span>
+
+  <!-- Navigation principale -->
+  <nav class="app-header__nav" aria-label="Navigation principale">
+    <button
+      matButton
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
     >
-    <a routerLink="/profil" routerLinkActive="active"> À propos </a>
-    <a routerLink="/portfolio" routerLinkActive="active">Portfolio</a>
-    <a routerLink="/memo-quiz" routerLinkActive="active">MémoQuiz</a>
+      Accueil
+    </button>
+
+    <button matButton routerLink="/profil" routerLinkActive="active">À propos</button>
+
+    <button matButton routerLink="/portfolio" routerLinkActive="active">Portfolio</button>
+
+    <button matButton routerLink="/memo-quiz" routerLinkActive="active">MémoQuiz</button>
   </nav>
 
+  <!-- Auth -->
   <div class="app-header__auth">
-    <!-- Pour plus tard : bouton/login -->
-    <button type="button" class="app-header__login-btn">Se connecter</button>
+    <button matButton="filled" class="app-header__login-btn" type="button">Se connecter</button>
   </div>
-</header>
+</mat-toolbar>

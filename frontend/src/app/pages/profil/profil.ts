@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { MATERIAL_IMPORTS } from '../../shared/material-imports';
 
 @Component({
   selector: 'app-profil',
-  imports: [],
+  imports: [MATERIAL_IMPORTS],
   templateUrl: './profil.html',
-  styleUrl: './profil.scss',
+  styleUrls: ['./profil.scss'],
 })
-export class Profil {
-
-}
+export class Profil {}
