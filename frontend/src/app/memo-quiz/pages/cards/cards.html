@@ -1,0 +1,91 @@
+<div class="mq-cards">
+  <mat-card class="mq-card">
+    <mat-card-header>
+      <div class="mq-cards-header">
+        <div>
+          <mat-card-title>Gestion des cartes</mat-card-title>
+          <mat-card-subtitle> Cartes du quiz actuel (données mockées en V1). </mat-card-subtitle>
+        </div>
+        <div class="mq-cards-header-actions">
+          <button mat-flat-button color="primary" (click)="createCard()">
+            <mat-icon>add</mat-icon>
+            Nouvelle carte
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="mq-cards-toolbar">
+        <mat-form-field appearance="outline" class="mq-cards-filter">
+          <mat-label>Filtrer les cartes</mat-label>
+          <input
+            matInput
+            (keyup)="applyFilter($event)"
+            placeholder="Rechercher par question ou réponse"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="mq-cards-table-container">
+        <table mat-table [dataSource]="dataSource" matSort>
+          <!-- Question -->
+          <ng-container matColumnDef="question">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Question</th>
+            <td mat-cell *matCellDef="let element" class="mq-question-cell">
+              <span [matTooltip]="element.question" matTooltipShowDelay="400">
+                {{ element.question }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Réponse -->
+          <ng-container matColumnDef="answer">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Réponse</th>
+            <td mat-cell *matCellDef="let element" class="mq-answer-cell">
+              <span [matTooltip]="element.answer" matTooltipShowDelay="400">
+                {{ element.answer }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element" class="mq-actions-cell">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="editCard(element); $event.stopPropagation()"
+                aria-label="Modifier la carte"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="deleteCard(element); $event.stopPropagation()"
+                aria-label="Supprimer la carte"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            (click)="editCard(row)"
+            class="mq-cards-row"
+          ></tr>
+        </table>
+      </div>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 25]" [pageSize]="10" showFirstLastButtons>
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

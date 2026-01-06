@@ -1,0 +1,283 @@
+.mq-home {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mq-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+  }
+}
+
+.mq-header-subtitle {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.95rem;
+}
+
+.mq-header-meta {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 70%, transparent);
+  border: 1px solid var(--mat-sys-outline-variant);
+  font-size: 0.85rem;
+}
+
+.mq-header-date,
+.mq-header-day {
+  display: flex;
+  flex-direction: column;
+}
+
+.mq-header-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mq-header-value {
+  font-weight: 500;
+}
+
+/* Grille principale : session + récap */
+
+.mq-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
+  gap: 1.5rem;
+}
+
+.mq-card {
+  border-radius: 1rem;
+}
+
+.mq-card-session mat-card-content {
+  padding-top: 0.75rem;
+}
+
+.mq-session-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mq-session-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mq-session-stat-label {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+.mq-session-stat-value {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.mq-box-chips {
+  display: flex;
+  justify-content: flex-end;
+
+  mat-chip-listbox {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  mat-chip {
+    border-radius: 999px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Récap du jour */
+
+.mq-card-recap mat-card-content {
+  padding-top: 0.75rem;
+}
+
+.mq-recap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.mq-recap-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.mq-recap-label {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mq-recap-value {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Vue d'ensemble des boîtes */
+
+.mq-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+}
+
+.mq-section-intro {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mq-card-boxes mat-card-content {
+  padding-top: 0.75rem;
+}
+
+.mq-boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.mq-box-item {
+  border-radius: 0.9rem;
+  padding: 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 70%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mq-box-today {
+  border-color: var(--mat-sys-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+}
+
+.mq-box-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.mq-box-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mq-box-label {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mq-box-count {
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.mq-box-count-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.mq-box-count-label {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mq-box-tag {
+  margin-top: 0.25rem;
+  align-self: flex-start;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+}
+
+/* Bloc info Leitner */
+
+.mq-section-light .mq-card {
+  background-color: color-mix(in srgb, var(--mat-sys-surface-container-low) 80%, transparent);
+}
+
+.mq-card-info h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.mq-card-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .mq-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mq-header-meta {
+    align-self: flex-start;
+  }
+
+  .mq-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mq-recap-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mq-boxes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .mq-boxes-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mq-recap-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mq-session-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

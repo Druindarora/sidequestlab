@@ -1,0 +1,110 @@
+.mq-cards {
+  /* prend plus de place, mais reste centré */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+}
+
+.mq-card {
+  border-radius: 1rem;
+}
+
+.mq-cards-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
+
+  mat-card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  mat-card-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+.mq-cards-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.mq-cards-toolbar {
+  margin: 0.75rem 0 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mq-cards-filter {
+  width: 260px;
+  max-width: 100%;
+}
+
+/* Tableau */
+
+/* 1) Table stable : les colonnes arrêtent de “danser” */
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* 2) Même padding / align vertical pour header et cells (MDC) */
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+/* 3) Largeurs de colonnes (ajuste si tu veux) */
+.mat-column-question {
+  width: 45%;
+}
+.mat-column-answer {
+  width: 45%;
+}
+.mat-column-actions {
+  width: 110px; /* assez pour 2 icônes + gap */
+}
+
+/* 4) Alignement de la colonne actions */
+.mat-mdc-header-cell.mat-column-actions {
+  text-align: right;
+}
+.mq-actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 5) Ellipsis propre (sans te prendre la tête) */
+.mq-question-cell span,
+.mq-answer-cell span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .mq-cards {
+    padding: 1rem;
+  }
+
+  .mq-cards-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mq-cards-toolbar {
+    justify-content: stretch;
+  }
+
+  .mq-cards-filter {
+    width: 100%;
+  }
+}

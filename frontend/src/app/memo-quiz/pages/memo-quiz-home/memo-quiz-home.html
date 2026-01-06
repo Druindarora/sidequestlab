@@ -1,1 +1,137 @@
-<p>memo-quiz-home works!</p>
+<div class="mq-home">
+  <header class="mq-header">
+    <div>
+      <h1>MémoQuiz — Session du jour</h1>
+      <p class="mq-header-subtitle">
+        Révisions espacées avec la méthode de Leitner. Focus sur ce qui compte aujourd’hui.
+      </p>
+    </div>
+    <div class="mq-header-meta">
+      <div class="mq-header-date">
+        <span class="mq-header-label">Aujourd'hui</span>
+        <span class="mq-header-value">
+          {{ today | date : 'EEEE d MMMM yyyy' }}
+        </span>
+      </div>
+      <div class="mq-header-day">
+        <span class="mq-header-label">Jour</span>
+        <span class="mq-header-value">#{{ dayIndex }}</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="mq-main-grid">
+    <!-- Bloc session du jour -->
+    <mat-card class="mq-card mq-card-session">
+      <mat-card-header>
+        <mat-card-title>Session du jour</mat-card-title>
+        <mat-card-subtitle> Boîtes à réviser : {{ boxesToday.join(', ') }} </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="mq-session-stats">
+          <div class="mq-session-stat">
+            <span class="mq-session-stat-label">Cartes à réviser</span>
+            <span class="mq-session-stat-value">
+              {{ daySummary.totalCards }}
+            </span>
+          </div>
+          <div class="mq-session-stat">
+            <span class="mq-session-stat-label">Boîtes du jour</span>
+            <div class="mq-box-chips">
+              <mat-chip-listbox>
+                <mat-chip *ngFor="let box of boxesToday" color="primary">
+                  Boîte {{ box }}
+                </mat-chip>
+              </mat-chip-listbox>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end" class="mq-session-actions">
+        <button mat-stroked-button color="primary" (click)="onManageQuizzes()">
+          Gérer les quiz
+        </button>
+
+        <button mat-stroked-button (click)="onManageCards()">Gérer les cartes</button>
+
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="startSession()"
+          [disabled]="!hasCardsToday"
+        >
+          Lancer la session
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Bloc récap du jour -->
+    <mat-card class="mq-card mq-card-recap">
+      <mat-card-header>
+        <mat-card-title>Récap du jour</mat-card-title>
+        <mat-card-subtitle> Dernière session de révision </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="mq-recap-grid">
+          <div class="mq-recap-item">
+            <span class="mq-recap-label">Cartes révisées</span>
+            <span class="mq-recap-value">
+              {{ daySummary.reviewedCards }}
+            </span>
+          </div>
+          <div class="mq-recap-item">
+            <span class="mq-recap-label">Bonnes réponses</span>
+            <span class="mq-recap-value">
+              {{ daySummary.goodAnswers }}
+            </span>
+          </div>
+          <div class="mq-recap-item">
+            <span class="mq-recap-label">Taux de réussite</span>
+            <span class="mq-recap-value"> {{ daySummary.successRate }}&nbsp;% </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <!-- Vue d'ensemble des boîtes -->
+  <section class="mq-section">
+    <h2>Vue d’ensemble des boîtes</h2>
+    <p class="mq-section-intro">Répartition actuelle des cartes par boîte de Leitner.</p>
+
+    <mat-card class="mq-card mq-card-boxes">
+      <mat-card-content>
+        <div class="mq-boxes-grid">
+          <div class="mq-box-item" *ngFor="let box of boxes" [class.mq-box-today]="box.isToday">
+            <div class="mq-box-header">
+              <span class="mq-box-number">Boîte {{ box.boxNumber }}</span>
+              <span class="mq-box-label">{{ box.label }}</span>
+            </div>
+            <div class="mq-box-count">
+              <span class="mq-box-count-value">{{ box.cardCount }}</span>
+              <span class="mq-box-count-label">cartes</span>
+            </div>
+            <div class="mq-box-tag" *ngIf="box.isToday">Aujourd’hui</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <!-- Petit texte sur le planning Leitner (version V1 light) -->
+  <section class="mq-section mq-section-light">
+    <mat-card class="mq-card mq-card-info">
+      <mat-card-content>
+        <h3>Planning de révision</h3>
+        <p>
+          Le planning s’appuie sur la méthode de Leitner&nbsp;: plus une carte est dans une boîte
+          élevée, plus l’intervalle entre deux révisions est long. L’écran du jour te propose
+          automatiquement les boîtes à travailler.
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</div>
