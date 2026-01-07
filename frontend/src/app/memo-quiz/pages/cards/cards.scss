@@ -1,34 +1,27 @@
 .mq-cards {
-  /* prend plus de place, mais reste centré */
+  /* Structure : taille max et centrage ; theme Material gère couleurs/éspacements */
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 2.5rem;
+  padding: 2rem;
 }
 
 .mq-card {
-  border-radius: 1rem;
+  border-radius: 1rem; /* léger arrondi ; Material fournit déjà l'essentiel */
 }
 
 .mq-cards-header {
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  align-items: center;
-
-  mat-card-title {
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
-
-  mat-card-subtitle {
-    font-size: 0.9rem;
-  }
+  gap: 16px;
+  align-items: flex-start;
 }
 
-.mq-cards-header-actions {
+.mq-cards-header-right {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
 }
 
 .mq-cards-toolbar {
@@ -42,44 +35,29 @@
   max-width: 100%;
 }
 
-/* Tableau */
-
-/* 1) Table stable : les colonnes arrêtent de “danser” */
+/* Table : garder table-layout fixe et ellipsis pour les cellules longues. */
 table {
   width: 100%;
   table-layout: fixed;
 }
 
-/* 2) Même padding / align vertical pour header et cells (MDC) */
+/* Ensure MDC table header/cell padding match so columns align */
 .mat-mdc-header-cell,
 .mat-mdc-cell {
   padding: 12px 16px;
   vertical-align: middle;
 }
 
-/* 3) Largeurs de colonnes (ajuste si tu veux) */
-.mat-column-question {
-  width: 45%;
-}
-.mat-column-answer {
-  width: 45%;
-}
+/* Reserve a fixed width for the actions column so rows don't jump */
 .mat-column-actions {
-  width: 110px; /* assez pour 2 icônes + gap */
+  width: 110px; /* enough for two icon buttons */
 }
 
-/* 4) Alignement de la colonne actions */
+/* Right-align header for actions column */
 .mat-mdc-header-cell.mat-column-actions {
   text-align: right;
 }
-.mq-actions-cell {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
-}
 
-/* 5) Ellipsis propre (sans te prendre la tête) */
 .mq-question-cell span,
 .mq-answer-cell span {
   display: block;
@@ -88,8 +66,14 @@ table {
   text-overflow: ellipsis;
 }
 
-/* Responsive */
+.mq-actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
 
+/* Responsive minimal */
 @media (max-width: 768px) {
   .mq-cards {
     padding: 1rem;
@@ -107,4 +91,10 @@ table {
   .mq-cards-filter {
     width: 100%;
   }
+}
+
+.mq-page-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
 }

@@ -1,0 +1,130 @@
+.mq-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.mq-header h1 {
+  margin: 0 0 4px 0;
+}
+.subtitle {
+  margin: 0 0 16px 0;
+  /* inherit color from Material theme so it adapts to light/dark */
+  color: inherit;
+  opacity: 0.85;
+}
+
+.mq-stats {
+  margin-bottom: 12px;
+}
+
+.mq-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.mq-filter {
+  width: 320px;
+}
+
+.mq-table {
+  margin-top: 12px;
+}
+
+/* Keep the table cell as table-cell to preserve separators; use an internal flex wrapper */
+.mq-actions-cell {
+  /* no display:flex on the td to avoid breaking cell borders/separators */
+  padding: 0; /* cell padding handled by the global rule below */
+}
+
+.actions-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px; /* horizontal padding inside the cell */
+}
+
+.actions-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 36px; /* match typical Material button height */
+}
+
+.mq-material-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Fixed column widths to keep vertical separators aligned */
+.mat-column-box {
+  width: 80px;
+}
+.mat-column-actions {
+  width: 160px;
+}
+
+/* Uniform padding and vertical alignment for MDC table cells */
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.mq-material-table td span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mq-chip-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.mq-chip {
+  background: rgba(0, 0, 0, 0.04);
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+}
+
+.mq-chip--primary {
+  background: rgba(25, 118, 210, 0.12);
+}
+
+/* Status pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  height: 28px;
+  white-space: nowrap;
+}
+
+.status-pill mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.status-pill--active {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.status-pill--archived {
+  background: transparent;
+  border: 1px solid var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface-variant);
+}

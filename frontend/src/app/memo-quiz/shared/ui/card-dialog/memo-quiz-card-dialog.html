@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ mode === 'create' ? 'Nouvelle carte' : 'Modifier la carte' }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <mat-form-field appearance="outline">
+    <mat-label>Question</mat-label>
+    <textarea matInput rows="4" [formControl]="form.controls.question"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Réponse</mat-label>
+    <textarea matInput rows="4" [formControl]="form.controls.answer"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Annuler</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
+    Enregistrer
+  </button>
+</mat-dialog-actions>

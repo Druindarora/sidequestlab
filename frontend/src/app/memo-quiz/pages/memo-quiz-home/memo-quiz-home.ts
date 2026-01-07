@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +28,7 @@ interface LeitnerBoxSummary {
   styleUrl: './memo-quiz-home.scss',
 })
 export class MemoQuizHome {
+  constructor(private router: Router) {}
   // Mock : date du jour
   readonly today = new Date();
   readonly dayIndex = 42; // mock : "Jour 42" juste pour le visuel
@@ -63,12 +65,12 @@ export class MemoQuizHome {
   }
 
   onManageQuizzes(): void {
-    // TODO: navigation vers l'écran de gestion des quiz (ex: /memo-quiz/quizzes)
-    console.log('[MémoQuiz] Gérer les quiz (navigation à implémenter)');
+    // Navigate to the quiz management view
+    this.router.navigate(['/memo-quiz', 'quiz']);
   }
 
   onManageCards(): void {
-    // TODO: navigation vers l'écran de gestion des cartes
-    console.log('[MémoQuiz] Gérer les cartes (navigation à implémenter)');
+    // Navigate to the cards management view
+    this.router.navigate(['/memo-quiz', 'cards']);
   }
 }

@@ -9,6 +9,12 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {
+  CardDialogData,
+  CardDialogResult,
+  MemoQuizCardDialog,
+} from '../../shared/ui/card-dialog/memo-quiz-card-dialog';
 
 export interface MemoQuizCard {
   id: number;
@@ -67,11 +73,14 @@ const MOCK_CARDS: MemoQuizCard[] = [
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
+    MatDialogModule,
+    MemoQuizCardDialog,
   ],
   templateUrl: './cards.html',
   styleUrl: './cards.scss',
 })
 export class Cards implements AfterViewInit {
+  constructor(private dialog: MatDialog) {}
   displayedColumns: string[] = ['question', 'answer', 'actions'];
   dataSource = new MatTableDataSource<MemoQuizCard>(MOCK_CARDS);
 
@@ -101,14 +110,38 @@ export class Cards implements AfterViewInit {
     }
   }
 
-  createCard(): void {
-    console.log('[MémoQuiz] Créer une nouvelle carte (navigation/form à implémenter)');
-    // plus tard : ouverture d’un dialog ou navigation vers un écran de création
+  openCreateCardDialog(): void {
+    const ref = this.dialog.open(MemoQuizCardDialog, {
+      width: '560px',
+      data: { mode: 'create' } as CardDialogData,
+    });
+
+    ref.afterClosed().subscribe((result: CardDialogResult | undefined) => {
+      if (result && result.question && result.answer) {
+        const nextId = (this.dataSource.data.reduce((m, c) => Math.max(m, c.id), 0) || 0) + 1;
+        const newCard: MemoQuizCard = {
+          id: nextId,
+          question: result.question,
+          answer: result.answer,
+        };
+        this.dataSource.data = [newCard, ...this.dataSource.data];
+      }
+    });
   }
 
-  editCard(card: MemoQuizCard): void {
-    console.log('[MémoQuiz] Modifier la carte', card.id, card);
-    // plus tard : navigation ou dialog pré-rempli
+  openEditCardDialog(card: MemoQuizCard): void {
+    const ref = this.dialog.open(MemoQuizCardDialog, {
+      width: '560px',
+      data: { mode: 'edit', question: card.question, answer: card.answer } as CardDialogData,
+    });
+
+    ref.afterClosed().subscribe((result: CardDialogResult | undefined) => {
+      if (result && result.question && result.answer) {
+        this.dataSource.data = this.dataSource.data.map((c) =>
+          c.id === card.id ? { ...c, question: result.question, answer: result.answer } : c
+        );
+      }
+    });
   }
 
   deleteCard(card: MemoQuizCard): void {
