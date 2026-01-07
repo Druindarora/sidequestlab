@@ -2,8 +2,7 @@
   width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
-  box-sizing: border-box;
+  padding: 2rem var(--app-spacing-md) 3rem;
 }
 
 /* HERO */
@@ -35,7 +34,7 @@
 
 .home__hero-note {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--app-muted);
 }
 
 /* ABOUT + AVATAR */
@@ -43,7 +42,7 @@
 .home__about {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: 1.5rem;
+  gap: var(--app-spacing-md);
   align-items: center;
   margin-bottom: 3rem;
 }
@@ -74,12 +73,12 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  border: 2px dashed #bbb;
+  border: 2px dashed var(--app-border-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
-  color: #888;
+  color: var(--app-muted);
 }
 
 /* PROJETS */
@@ -100,8 +99,8 @@
 }
 
 .home__project-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius);
   padding: 1rem 1.25rem;
 }
 

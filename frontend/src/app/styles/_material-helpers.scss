@@ -1,0 +1,29 @@
+/* Shared helpers referencing Angular Material system variables
+   - Définit quelques variables d'espacement / couleurs réutilisables
+   - Applique box-sizing global
+   - Fournit une utilité pour images d'avatar
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --app-spacing-xs: 0.5rem;
+  --app-spacing-sm: 0.75rem;
+  --app-spacing-md: 1.5rem;
+  --app-spacing-lg: 2rem;
+  --app-radius: 8px;
+  --app-border-color: var(--mat-sys-outline, #e0e0e0);
+  --app-muted: var(--mat-sys-on-surface, #666);
+}
+
+/* Utility for avatar images */
+.app-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
