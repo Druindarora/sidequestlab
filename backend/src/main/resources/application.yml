@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate   # ou update au début si tu veux qu'il crée les tables
+      ddl-auto: validate # ou update au début si tu veux qu'il crée les tables
     properties:
       hibernate:
         format_sql: true
@@ -19,3 +19,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui

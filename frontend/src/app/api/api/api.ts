@@ -1,0 +1,13 @@
+export * from './cardController.service';
+import { CardControllerApi } from './cardController.service';
+export * from './dashboardController.service';
+import { DashboardControllerApi } from './dashboardController.service';
+export * from './healthController.service';
+import { HealthControllerApi } from './healthController.service';
+export * from './profileController.service';
+import { ProfileControllerApi } from './profileController.service';
+export * from './quizController.service';
+import { QuizControllerApi } from './quizController.service';
+export * from './sessionController.service';
+import { SessionControllerApi } from './sessionController.service';
+export const APIS = [CardControllerApi, DashboardControllerApi, HealthControllerApi, ProfileControllerApi, QuizControllerApi, SessionControllerApi];
