@@ -1,118 +1,129 @@
-<div class="mq-page">
-  <mat-card>
-    <div class="mq-header">
-      <div>
-        <h1>Gérer le quiz</h1>
-        <mat-card-subtitle class="subtitle">Quiz actuel: {{ quiz.name }}</mat-card-subtitle>
+<div class="page mq-quiz-admin">
+  <mat-card class="mq-card">
+    <mat-card-header>
+      <div class="mq-card-header">
+        <div class="mq-title">
+          <mat-card-title class="mq-page-title">Gérer le quiz</mat-card-title>
+          <mat-card-subtitle class="mq-page-subtitle">
+            Quiz actuel : {{ quiz.name }}
+          </mat-card-subtitle>
+        </div>
       </div>
-    </div>
+    </mat-card-header>
 
-    <div class="mq-stats">
-      <div class="mq-chip-list">
-        <span class="mq-chip">Inactives: {{ inactiveCount }}</span>
-        <span class="mq-chip mq-chip--primary">Archivées: {{ archivedCount }}</span>
-        <ng-container *ngFor="let i of [1, 2, 3, 4, 5, 6, 7]">
-          <span class="mq-chip">Boîte {{ i }}: {{ boxCount(i) }}</span>
-        </ng-container>
-      </div>
-    </div>
+    <mat-card-content class="mq-card-content">
+      <!-- Récap : Inactives / Boîtes / Archivées -->
+      <section class="mq-stats">
+        <div class="mq-chip-list" aria-label="Récapitulatif des statuts et boîtes">
+          <span class="mq-chip mq-chip--neutral">Inactives : {{ inactiveCount }}</span>
 
-    <div class="mq-controls">
-      <mat-form-field appearance="outline" class="mq-filter">
-        <mat-label>Filtrer</mat-label>
-        <input matInput (input)="applyFilter($event)" placeholder="Question ou réponse" />
-      </mat-form-field>
+          <ng-container *ngFor="let i of [1, 2, 3, 4, 5, 6, 7]">
+            <span class="mq-chip mq-chip--neutral">Boîte {{ i }} : {{ boxCount(i) }}</span>
+          </ng-container>
 
-      <mat-slide-toggle
-        color="primary"
-        aria-label="Afficher uniquement les inactives"
-        (change)="toggleView($event.checked ? 'inactive' : 'all')"
-      >
-        Inactives
-      </mat-slide-toggle>
-    </div>
+          <span class="mq-chip mq-chip--emphasis">Archivées : {{ archivedCount }}</span>
+        </div>
+      </section>
 
-    <div class="mq-table">
-      <table mat-table [dataSource]="dataSource" class="mq-material-table" matSort>
-        <ng-container matColumnDef="question">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Question</th>
-          <td mat-cell *matCellDef="let element">
-            <span matTooltip="{{ element.question }}">{{ element.question }}</span>
-          </td>
-        </ng-container>
+      <!-- Contrôles : filtre + toggle -->
+      <section class="mq-controls">
+        <mat-form-field appearance="outline" class="mq-filter">
+          <mat-label>Filtrer</mat-label>
+          <input matInput (input)="applyFilter($event)" placeholder="Question ou réponse" />
+        </mat-form-field>
 
-        <ng-container matColumnDef="answer">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Réponse</th>
-          <td mat-cell *matCellDef="let element">
-            <span matTooltip="{{ element.answer }}">{{ element.answer }}</span>
-          </td>
-        </ng-container>
+        <mat-slide-toggle
+          class="mq-toggle"
+          color="primary"
+          aria-label="Afficher uniquement les inactives"
+          (change)="toggleView($event.checked ? 'inactive' : 'all')"
+        >
+          Inactives
+        </mat-slide-toggle>
+      </section>
 
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Statut</th>
-          <td mat-cell *matCellDef="let element">
-            <span
-              *ngIf="element.status === 'active'"
-              class="status-pill status-pill--active"
-              style="display: inline-flex; align-items: center; gap: 6px; vertical-align: middle"
-            >
-              <mat-icon aria-hidden="true" style="font-size: 18px; line-height: 1"
-                >check_circle</mat-icon
-              >
-              <span>Active</span>
-            </span>
+      <!-- Table -->
+      <section class="mq-table">
+        <table mat-table [dataSource]="dataSource" class="mq-material-table" matSort>
+          <!-- Question -->
+          <ng-container matColumnDef="question">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Question</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="mq-truncate" [matTooltip]="element.question">
+                {{ element.question }}
+              </span>
+            </td>
+          </ng-container>
 
-            <span
-              *ngIf="element.status === 'archived'"
-              class="status-pill status-pill--archived"
-              style="display: inline-flex; align-items: center; gap: 6px; vertical-align: middle"
-            >
-              <mat-icon aria-hidden="true" style="font-size: 18px; line-height: 1"
-                >archive</mat-icon
-              >
-              <span>Archivée</span>
-            </span>
+          <!-- Réponse -->
+          <ng-container matColumnDef="answer">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Réponse</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="mq-truncate" [matTooltip]="element.answer">
+                {{ element.answer }}
+              </span>
+            </td>
+          </ng-container>
 
-            <span
-              *ngIf="element.status !== 'active' && element.status !== 'archived'"
-              style="display: inline-flex; align-items: center; vertical-align: middle"
-            >
-              {{ element.status }}
-            </span>
-          </td>
-        </ng-container>
+          <!-- Statut -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let element">
+              <span *ngIf="element.status === 'active'" class="status-pill status-pill--active">
+                <mat-icon aria-hidden="true">check_circle</mat-icon>
+                <span>Active</span>
+              </span>
 
-        <ng-container matColumnDef="box">
-          <th mat-header-cell *matHeaderCellDef>Boîte</th>
-          <td mat-cell *matCellDef="let element">{{ element.box ?? '—' }}</td>
-        </ng-container>
+              <span *ngIf="element.status === 'archived'" class="status-pill status-pill--archived">
+                <mat-icon aria-hidden="true">archive</mat-icon>
+                <span>Archivée</span>
+              </span>
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let element" class="mq-actions-cell">
-            <div class="actions-wrap">
-              <button
-                mat-flat-button
-                color="primary"
-                *ngIf="element.status === 'inactive'"
-                (click)="activateCard(element)"
-              >
-                Activer
-              </button>
-              <span *ngIf="element.status === 'active'" class="actions-label">Active</span>
-              <span *ngIf="element.status === 'archived'" class="actions-label">Archivée</span>
-            </div>
-          </td>
-        </ng-container>
+              <span *ngIf="element.status === 'inactive'" class="status-pill status-pill--inactive">
+                <mat-icon aria-hidden="true">pause_circle</mat-icon>
+                <span>Inactive</span>
+              </span>
+            </td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-      <mat-paginator
-        [pageSizeOptions]="[5, 10, 25]"
-        [pageSize]="10"
-        showFirstLastButtons
-      ></mat-paginator>
-    </div>
+          <!-- Boîte -->
+          <ng-container matColumnDef="box">
+            <th mat-header-cell *matHeaderCellDef>Boîte</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.box ?? '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element" class="mq-actions-cell">
+              <div class="mq-actions-wrap">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  *ngIf="element.status === 'inactive'"
+                  (click)="activateCard(element)"
+                >
+                  Activer
+                </button>
+
+                <span *ngIf="element.status === 'active'" class="mq-actions-label">Active</span>
+                <span *ngIf="element.status === 'archived'" class="mq-actions-label">Archivée</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 25]"
+          [pageSize]="10"
+          showFirstLastButtons
+        ></mat-paginator>
+      </section>
+    </mat-card-content>
   </mat-card>
 </div>

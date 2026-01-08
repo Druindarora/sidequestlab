@@ -1,57 +1,87 @@
-.mq-page {
+/* Même logique que tes autres pages : container + 1 grosse card */
+.page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }
 
-.mq-header h1 {
-  margin: 0 0 4px 0;
-}
-.subtitle {
-  margin: 0 0 16px 0;
-  /* inherit color from Material theme so it adapts to light/dark */
-  color: inherit;
-  opacity: 0.85;
+.mq-card {
+  border-radius: 16px;
 }
 
-.mq-stats {
-  margin-bottom: 12px;
+.mq-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
+/* Header */
+.mq-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.mq-page-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mq-page-subtitle {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* Chips stats (simple, theme-friendly) */
+.mq-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mq-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+}
+
+.mq-chip--emphasis {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-color: color-mix(in srgb, var(--mat-sys-on-secondary-container) 20%, transparent);
+}
+
+/* Controls */
 .mq-controls {
   display: flex;
   gap: 16px;
   align-items: center;
-  margin: 12px 0;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .mq-filter {
   width: 320px;
+  max-width: 100%;
 }
 
+.mq-toggle {
+  margin-left: auto;
+}
+
+/* Table */
 .mq-table {
-  margin-top: 12px;
-}
-
-/* Keep the table cell as table-cell to preserve separators; use an internal flex wrapper */
-.mq-actions-cell {
-  /* no display:flex on the td to avoid breaking cell borders/separators */
-  padding: 0; /* cell padding handled by the global rule below */
-}
-
-.actions-wrap {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 0 16px; /* horizontal padding inside the cell */
-}
-
-.actions-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 36px; /* match typical Material button height */
 }
 
 .mq-material-table {
@@ -59,44 +89,47 @@
   table-layout: fixed;
 }
 
-/* Fixed column widths to keep vertical separators aligned */
-.mat-column-box {
-  width: 80px;
-}
-.mat-column-actions {
-  width: 160px;
-}
-
-/* Uniform padding and vertical alignment for MDC table cells */
 .mat-mdc-header-cell,
 .mat-mdc-cell {
   padding: 12px 16px;
   vertical-align: middle;
 }
 
-.mq-material-table td span {
+/* Largeurs fixes pour garder les séparateurs propres */
+.mat-column-box {
+  width: 80px;
+}
+.mat-column-actions {
+  width: 170px;
+}
+
+/* Troncature question/réponse */
+.mq-truncate {
   display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.mq-chip-list {
+/* Actions : garder les séparateurs (pas de flex sur le td) */
+.mq-actions-cell {
+  padding: 0; /* padding géré par .mat-mdc-cell, on gère l'intérieur */
+}
+
+.mq-actions-wrap {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
+  gap: 8px;
+  padding: 0 16px;
 }
 
-.mq-chip {
-  background: rgba(0, 0, 0, 0.04);
-  padding: 6px 10px;
-  border-radius: 16px;
-  font-size: 0.9rem;
-}
-
-.mq-chip--primary {
-  background: rgba(25, 118, 210, 0.12);
+.mq-actions-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 36px; /* proche hauteur boutons */
+  color: var(--mat-sys-on-surface-variant);
 }
 
 /* Status pills */
@@ -127,4 +160,29 @@
   background: transparent;
   border: 1px solid var(--mat-sys-outline-variant);
   color: var(--mat-sys-on-surface-variant);
+}
+
+.status-pill--inactive {
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+/* Responsive léger */
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+
+  .mq-controls {
+    align-items: stretch;
+  }
+
+  .mq-toggle {
+    margin-left: 0;
+  }
+
+  .mat-column-actions {
+    width: 150px;
+  }
 }
