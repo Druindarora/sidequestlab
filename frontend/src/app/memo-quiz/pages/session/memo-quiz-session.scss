@@ -1,0 +1,141 @@
+/* Minimal : layout + lisibilité, pas de design fancy */
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.mq-session-card {
+  border-radius: 16px;
+}
+
+.mq-session-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.mq-session-counter {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.mq-session-body {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mq-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.mq-text {
+  line-height: 1.5;
+}
+
+.mq-text--question {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.mq-question {
+  margin: 30px 0 30px 0;
+}
+
+.mq-text--answer {
+  font-size: 1.05rem;
+}
+
+.mq-session-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.mq-empty {
+  margin-top: 16px;
+  opacity: 0.75;
+}
+
+.mq-recap {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.mq-recap-item {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.mq-recap-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.mq-recap-value {
+  margin-top: 4px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+
+  .mq-recap {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Fixed card layout: header + progress on top, scrollable content, actions stuck to bottom */
+.mq-session-card--fixed {
+  height: min(70vh, 680px);
+  display: flex;
+  flex-direction: column;
+  /* 50% de la largeur de l'écran */
+  width: 50vw;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Remove default mat-card-content padding inside the fixed card so we can control spacing */
+.mq-session-card--fixed mat-card-content {
+  padding: 15px;
+}
+
+.mq-session-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+  min-height: 260px;
+}
+
+/* Responsive: sur petits écrans, prendre 100% de la largeur disponible */
+@media (max-width: 768px) {
+  .mq-session-card--fixed {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.mq-session-actions--sticky {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mat-mdc-card-actions {
+  padding: 20px;
+}

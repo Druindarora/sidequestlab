@@ -62,6 +62,7 @@ export class MemoQuizHome {
   startSession(): void {
     // TODO : navigation vers l'écran de session
     console.log('Lancer la session de révision du jour (mock)');
+    this.router.navigate(['/memo-quiz', 'session']);
   }
 
   onManageQuizzes(): void {

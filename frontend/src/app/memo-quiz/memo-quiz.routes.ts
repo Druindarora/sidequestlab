@@ -14,4 +14,8 @@ export const MEMO_QUIZ_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/memo-quiz-quiz-admin/memo-quiz-quiz-admin').then((m) => m.MemoQuizQuizAdmin),
   },
+  {
+    path: 'session',
+    loadComponent: () => import('./pages/session/memo-quiz-session').then((m) => m.MemoQuizSession),
+  },
 ];

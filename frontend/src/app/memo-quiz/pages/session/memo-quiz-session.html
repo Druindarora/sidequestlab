@@ -1,0 +1,120 @@
+<div class="mq-session page">
+  <mat-card class="mq-session-card mq-session-card--fixed" *ngIf="phase !== 'DONE'">
+    <mat-card-header>
+      <div class="mq-session-header">
+        <div class="mq-session-title">
+          <mat-card-title>Session de révision</mat-card-title>
+          <mat-card-subtitle *ngIf="currentCard">
+            <mat-chip-set aria-label="Infos carte">
+              <mat-chip>Boîte {{ currentCard.box }}</mat-chip>
+            </mat-chip-set>
+          </mat-card-subtitle>
+        </div>
+
+        <div class="mq-session-progress">
+          <div class="mq-session-counter">{{ currentNumber }} / {{ total }}</div>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="progressPercent"
+        aria-label="Progression de la session"
+      ></mat-progress-bar>
+      <div class="mq-session-scroll">
+        <div class="mq-session-body" *ngIf="currentCard; else emptyState">
+          <div class="mq-question">
+            <div class="mq-label">Question</div>
+            <div class="mq-text mq-text--question">
+              {{ currentCard.question }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="mq-answer" *ngIf="phase === 'ANSWER'">
+            <div class="mq-label">Réponse</div>
+            <div class="mq-text mq-text--answer">
+              {{ currentCard.answer }}
+            </div>
+          </div>
+        </div>
+
+        <ng-template #emptyState>
+          <div class="mq-empty">Aucune carte à réviser aujourd’hui (mock).</div>
+        </ng-template>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end" class="mq-session-actions mq-session-actions--sticky">
+      <!-- Phase QUESTION : afficher la réponse -->
+      <button
+        *ngIf="phase === 'QUESTION'"
+        mat-flat-button
+        color="primary"
+        (click)="revealAnswer()"
+        [disabled]="!currentCard"
+      >
+        Afficher la réponse
+      </button>
+
+      <!-- Phase ANSWER : ✅ / ❌ -->
+      <ng-container *ngIf="phase === 'ANSWER'">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="markAnswer(true)"
+          aria-label="J’ai bien répondu"
+        >
+          <mat-icon>check</mat-icon>
+          J’ai bon
+        </button>
+
+        <button
+          mat-stroked-button
+          color="warn"
+          (click)="markAnswer(false)"
+          aria-label="Je me suis trompé"
+        >
+          <mat-icon>close</mat-icon>
+          J’ai faux
+        </button>
+      </ng-container>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- FIN : mini récap -->
+  <mat-card class="mq-session-card" *ngIf="phase === 'DONE'">
+    <mat-card-header>
+      <mat-card-title>Session terminée</mat-card-title>
+      <mat-card-subtitle>Récapitulatif</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="mq-recap">
+        <div class="mq-recap-item">
+          <div class="mq-recap-label">Bonnes réponses</div>
+          <div class="mq-recap-value">{{ goodCount }}</div>
+        </div>
+
+        <div class="mq-recap-item">
+          <div class="mq-recap-label">Mauvaises réponses</div>
+          <div class="mq-recap-value">{{ badCount }}</div>
+        </div>
+
+        <div class="mq-recap-item">
+          <div class="mq-recap-label">Total</div>
+          <div class="mq-recap-value">{{ total }}</div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-flat-button color="primary" (click)="backToDashboard()">
+        Retour au dashboard
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

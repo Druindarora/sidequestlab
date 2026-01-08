@@ -74,7 +74,6 @@ const MOCK_CARDS: MemoQuizCard[] = [
     MatInputModule,
     MatTooltipModule,
     MatDialogModule,
-    MemoQuizCardDialog,
   ],
   templateUrl: './cards.html',
   styleUrl: './cards.scss',
