@@ -35,13 +35,13 @@ jobs:
       - name: Run Maven tests
         working-directory: .
         run: |
-          chmod +x ./mvnw
-          ./mvnw -f backend/pom.xml -B -DskipTests=false test
+          chmod +x ./backend/mvnw
+          ./backend/mvnw -f backend/pom.xml -B -DskipTests=false test
 
       - name: Package backend
         if: success()
         run: |
-          ./mvnw -f backend/pom.xml -B -DskipTests package
+          ./backend/mvnw -f backend/pom.xml -B -DskipTests package
 
   frontend:
     name: Frontend (Angular)
