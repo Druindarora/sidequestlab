@@ -1,3 +1,16 @@
 package dev.sidequestlab.backend.api.dto;
 
-public record AnswerRequest(Long sessionId, Long cardId, String answer) {}
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+public record AnswerRequest(
+	@NotNull
+	Long sessionId,
+
+	@NotNull
+	Long cardId,
+
+	@NotBlank
+	@Size(max = 10000)
+	String answer) {}

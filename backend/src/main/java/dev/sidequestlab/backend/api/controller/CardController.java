@@ -6,11 +6,16 @@ import dev.sidequestlab.backend.api.dto.UpdateCardRequest;
 import dev.sidequestlab.backend.api.enums.CardStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import java.time.Instant;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/api/memoquiz")
 public class CardController {
 
@@ -18,9 +23,9 @@ public class CardController {
     public ResponseEntity<List<CardDto>> listCards(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) CardStatus status,
-            @RequestParam(required = false) Integer box,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) @Min(1) Integer box,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) int size,
             @RequestParam(required = false) String sort
     ) {
         var now = Instant.now();
@@ -29,14 +34,14 @@ public class CardController {
     }
 
     @PostMapping("/cards")
-    public ResponseEntity<CardDto> createCard(@RequestBody CreateCardRequest req) {
+    public ResponseEntity<CardDto> createCard(@Valid @RequestBody CreateCardRequest req) {
         var now = Instant.now();
         var dto = new CardDto(42L, req.front(), req.back(), CardStatus.INACTIVE, req.box() == null ? 1 : req.box(), now);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/cards/{id}")
-    public ResponseEntity<CardDto> updateCard(@PathVariable Long id, @RequestBody UpdateCardRequest req) {
+    public ResponseEntity<CardDto> updateCard(@PathVariable @Min(1) Long id, @Valid @RequestBody UpdateCardRequest req) {
         var now = Instant.now();
         var status = req.status() == null ? CardStatus.INACTIVE : req.status();
         var dto = new CardDto(id, req.front(), req.back(), status, req.box() == null ? 1 : req.box(), now);
@@ -44,7 +49,7 @@ public class CardController {
     }
 
     @PostMapping("/cards/{id}/activate")
-    public ResponseEntity<CardDto> activateCard(@PathVariable Long id) {
+    public ResponseEntity<CardDto> activateCard(@PathVariable @Min(1) Long id) {
         var now = Instant.now();
         var dto = new CardDto(id, "Activated front", "Activated back", CardStatus.ACTIVE, 1, now);
         return ResponseEntity.ok(dto);

@@ -10,8 +10,8 @@
 
 
 export interface CreateCardRequest { 
-    front?: string;
-    back?: string;
+    front: string;
+    back: string;
     box?: number;
 }
 

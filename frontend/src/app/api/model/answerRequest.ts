@@ -10,8 +10,8 @@
 
 
 export interface AnswerRequest { 
-    sessionId?: number;
-    cardId?: number;
-    answer?: string;
+    sessionId: number;
+    cardId: number;
+    answer: string;
 }
 

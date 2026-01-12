@@ -1,15 +1,18 @@
 package dev.sidequestlab.backend.api.controller;
 
 import dev.sidequestlab.backend.api.dto.*;
-import dev.sidequestlab.backend.api.enums.CardStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 import java.time.Instant;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/memoquiz")
+@Validated
 public class SessionController {
 
     @GetMapping("/session/today")
@@ -20,7 +23,7 @@ public class SessionController {
     }
 
     @PostMapping("/session/answer")
-    public ResponseEntity<AnswerResponse> answer(@RequestBody AnswerRequest req) {
+    public ResponseEntity<AnswerResponse> answer(@Valid @RequestBody AnswerRequest req) {
         var next = Instant.now().plusSeconds(60 * 60 * 24);
         var resp = new AnswerResponse(true, next);
         return ResponseEntity.ok(resp);

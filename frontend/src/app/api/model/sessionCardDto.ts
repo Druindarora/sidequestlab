@@ -10,9 +10,9 @@
 
 
 export interface SessionCardDto { 
-    cardId?: number;
-    front?: string;
-    back?: string;
-    box?: number;
+    cardId: number;
+    front: string;
+    back: string;
+    box: number;
 }
 

@@ -1,6 +1,17 @@
 package dev.sidequestlab.backend.api.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 
-public record SessionDto(Long id, Instant startedAt, List<SessionCardDto> cards) {}
+public record SessionDto(
+	@NotNull
+	Long id,
+
+	@NotNull
+	Instant startedAt,
+
+	@NotNull
+	@Size(min = 0)
+	List<SessionCardDto> cards) {}

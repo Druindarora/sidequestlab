@@ -11,8 +11,8 @@ import { SessionCardDto } from './sessionCardDto';
 
 
 export interface SessionDto { 
-    id?: number;
-    startedAt?: string;
-    cards?: Array<SessionCardDto>;
+    id: number;
+    startedAt: string;
+    cards: Array<SessionCardDto>;
 }
 
