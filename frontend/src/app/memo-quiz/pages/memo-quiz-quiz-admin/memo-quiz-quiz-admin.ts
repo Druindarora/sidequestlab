@@ -30,7 +30,7 @@ export interface MemoQuiz {
 
 @Component({
   standalone: true,
-  selector: 'memo-quiz-quiz-admin',
+  selector: 'app-memo-quiz-quiz-admin',
   imports: [
     MatCardModule,
     MatTableModule,
@@ -42,8 +42,8 @@ export interface MemoQuiz {
     MatIconModule,
     MatTooltipModule,
     MatPaginatorModule,
-    MatSortModule
-],
+    MatSortModule,
+  ],
   templateUrl: './memo-quiz-quiz-admin.html',
   styleUrls: ['./memo-quiz-quiz-admin.scss'],
 })
@@ -87,6 +87,7 @@ export class MemoQuizQuizAdmin implements AfterViewInit {
           data.question.toLowerCase().includes(text) || data.answer.toLowerCase().includes(text)
         );
       } catch (e) {
+        console.error('Error parsing filter', e);
         return true;
       }
     };

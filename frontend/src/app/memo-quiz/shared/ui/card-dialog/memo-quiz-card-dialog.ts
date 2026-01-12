@@ -22,15 +22,15 @@ export interface CardDialogResult {
 
 @Component({
   standalone: true,
-  selector: 'memo-quiz-card-dialog',
+  selector: 'app-memo-quiz-card-dialog',
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
-],
+    MatIconModule,
+  ],
   templateUrl: './memo-quiz-card-dialog.html',
   styleUrls: ['./memo-quiz-card-dialog.scss'],
 })
@@ -44,7 +44,7 @@ export class MemoQuizCardDialog {
 
   constructor(
     private dialogRef: MatDialogRef<MemoQuizCardDialog, CardDialogResult | undefined>,
-    @Inject(MAT_DIALOG_DATA) data: CardDialogData
+    @Inject(MAT_DIALOG_DATA) data: CardDialogData,
   ) {
     this.mode = data?.mode ?? 'create';
     if (data?.mode === 'edit') {
