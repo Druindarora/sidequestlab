@@ -52,6 +52,11 @@ module.exports = defineConfig([
       'prefer-const': 'off',
       // Angular style rule hitting generated services
       '@angular-eslint/prefer-inject': 'off',
+      // regex / escapes in generated code
+      'no-useless-escape': 'off',
+      'no-control-regex': 'off',
+      // "A record is preferred over an index signature"
+      '@typescript-eslint/consistent-indexed-object-style': 'off',
     },
   },
 ]);
