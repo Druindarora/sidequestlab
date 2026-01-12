@@ -8,19 +8,11 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "overrides": [
-      {
-        "files": "*.html",
-        "options": {
-          "parser": "angular"
-        }
-      }
-    ]
+    "lint:ng": "ng lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "private": true,
   "packageManager": "npm@10.9.3",
@@ -37,12 +29,13 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.5.0",
     "@angular/build": "^21.0.0",
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
+    "@openapitools/openapi-generator-cli": "^2.5.0",
     "angular-eslint": "21.0.1",
     "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.46.4",
