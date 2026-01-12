@@ -39,12 +39,19 @@ module.exports = defineConfig([
     rules: {},
   },
   {
-    files: ['src/app/api/**/*.ts'], // si eslint est lancé depuis front-end/
+    files: ['src/app/api/**/*.ts'],
     rules: {
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/ban-tslint-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      // nouveaux (OpenAPI generator style)
+      '@typescript-eslint/array-type': 'off',
+      '@typescript-eslint/consistent-type-assertions': 'off',
+      '@typescript-eslint/no-inferrable-types': 'off',
+      'prefer-const': 'off',
+      // Angular style rule hitting generated services
+      '@angular-eslint/prefer-inject': 'off',
     },
   },
 ]);
