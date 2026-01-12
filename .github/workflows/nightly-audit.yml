@@ -1,0 +1,68 @@
+name: Nightly Audit
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # daily at 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  frontend-audit:
+    name: Frontend npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Install
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run npm audit (non-failing)
+        run: |
+          cd frontend
+          npm audit --json > ../frontend-audit.json || true
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-npm-audit
+          path: frontend-audit.json
+
+  backend-deps:
+    name: Backend dependency report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/backend/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Generate dependency tree
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -f backend/pom.xml -B -DskipTests dependency:tree -DoutputFile=backend-deps.txt || true
+
+      - name: Upload backend dependency report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-deps
+          path: backend-deps.txt

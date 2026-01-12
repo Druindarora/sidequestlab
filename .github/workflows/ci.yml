@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - "**"
+  pull_request:
+    paths:
+      - "**"
+
+jobs:
+  backend:
+    name: Backend (Maven)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Cache Maven local repository
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/backend/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Run Maven tests
+        working-directory: .
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -f backend/pom.xml -B -DskipTests=false test
+
+      - name: Package backend
+        if: success()
+        run: |
+          ./mvnw -f backend/pom.xml -B -DskipTests package
+
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Lint
+        run: |
+          cd frontend
+          if npm run | grep -q "lint"; then npm run lint; else npx ng lint; fi
+
+      - name: Build
+        run: |
+          cd frontend
+          if npm run | grep -q "build"; then npm run build --if-present; else npx ng build --configuration production; fi
+
+      - name: Test (if script exists)
+        run: |
+          cd frontend
+          if npm run | grep -q "test"; then npm test -- --watch=false; else echo "No test script, skipping"; fi
