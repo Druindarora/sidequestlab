@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
@@ -24,15 +24,14 @@ interface SessionCard {
   templateUrl: './memo-quiz-session.html',
   styleUrls: ['./memo-quiz-session.scss'],
   imports: [
-    CommonModule,
     RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatDividerModule,
     MatProgressBarModule,
-    MatChipsModule,
-  ],
+    MatChipsModule
+],
 })
 export class MemoQuizSession {
   // Mock: cartes sélectionnées (boîtes du jour)

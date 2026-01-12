@@ -40,9 +40,11 @@
             <span class="mq-session-stat-label">Boîtes du jour</span>
             <div class="mq-box-chips">
               <mat-chip-listbox>
-                <mat-chip *ngFor="let box of boxesToday" color="primary">
-                  Boîte {{ box }}
-                </mat-chip>
+                @for (box of boxesToday; track box) {
+                  <mat-chip color="primary">
+                    Boîte {{ box }}
+                  </mat-chip>
+                }
               </mat-chip-listbox>
             </div>
           </div>
@@ -61,7 +63,7 @@
           color="primary"
           (click)="startSession()"
           [disabled]="!hasCardsToday"
-        >
+          >
           Lancer la session
         </button>
       </mat-card-actions>
@@ -105,17 +107,21 @@
     <mat-card class="mq-card mq-card-boxes">
       <mat-card-content>
         <div class="mq-boxes-grid">
-          <div class="mq-box-item" *ngFor="let box of boxes" [class.mq-box-today]="box.isToday">
-            <div class="mq-box-header">
-              <span class="mq-box-number">Boîte {{ box.boxNumber }}</span>
-              <span class="mq-box-label">{{ box.label }}</span>
+          @for (box of boxes; track box) {
+            <div class="mq-box-item" [class.mq-box-today]="box.isToday">
+              <div class="mq-box-header">
+                <span class="mq-box-number">Boîte {{ box.boxNumber }}</span>
+                <span class="mq-box-label">{{ box.label }}</span>
+              </div>
+              <div class="mq-box-count">
+                <span class="mq-box-count-value">{{ box.cardCount }}</span>
+                <span class="mq-box-count-label">cartes</span>
+              </div>
+              @if (box.isToday) {
+                <div class="mq-box-tag">Aujourd’hui</div>
+              }
             </div>
-            <div class="mq-box-count">
-              <span class="mq-box-count-value">{{ box.cardCount }}</span>
-              <span class="mq-box-count-label">cartes</span>
-            </div>
-            <div class="mq-box-tag" *ngIf="box.isToday">Aujourd’hui</div>
-          </div>
+          }
         </div>
       </mat-card-content>
     </mat-card>

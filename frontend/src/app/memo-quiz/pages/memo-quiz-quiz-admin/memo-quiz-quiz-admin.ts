@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,7 +32,6 @@ export interface MemoQuiz {
   standalone: true,
   selector: 'memo-quiz-quiz-admin',
   imports: [
-    CommonModule,
     MatCardModule,
     MatTableModule,
     MatFormFieldModule,
@@ -43,8 +42,8 @@ export interface MemoQuiz {
     MatIconModule,
     MatTooltipModule,
     MatPaginatorModule,
-    MatSortModule,
-  ],
+    MatSortModule
+],
   templateUrl: './memo-quiz-quiz-admin.html',
   styleUrls: ['./memo-quiz-quiz-admin.scss'],
 })

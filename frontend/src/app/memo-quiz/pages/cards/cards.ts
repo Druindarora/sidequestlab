@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -63,7 +63,6 @@ const MOCK_CARDS: MemoQuizCard[] = [
 @Component({
   selector: 'app-cards',
   imports: [
-    CommonModule,
     MatCardModule,
     MatTableModule,
     MatPaginatorModule,
@@ -73,8 +72,8 @@ const MOCK_CARDS: MemoQuizCard[] = [
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
-    MatDialogModule,
-  ],
+    MatDialogModule
+],
   templateUrl: './cards.html',
   styleUrl: './cards.scss',
 })
