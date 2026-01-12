@@ -57,6 +57,8 @@ module.exports = defineConfig([
       'no-control-regex': 'off',
       // "A record is preferred over an index signature"
       '@typescript-eslint/consistent-indexed-object-style': 'off',
+      '@typescript-eslint/consistent-generic-constructors': 'off',
+      '@typescript-eslint/no-namespace': 'off',
     },
   },
 ]);
