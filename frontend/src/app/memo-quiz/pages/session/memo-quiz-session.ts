@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
 
@@ -34,6 +34,8 @@ interface SessionCard {
 ],
 })
 export class MemoQuizSession {
+  private readonly router = inject(Router);
+
   // Mock: cartes sélectionnées (boîtes du jour)
   readonly cards: SessionCard[] = [
     {
@@ -68,8 +70,6 @@ export class MemoQuizSession {
 
   goodCount = 0;
   badCount = 0;
-
-  constructor(private readonly router: Router) {}
 
   get total(): number {
     return this.cards.length;

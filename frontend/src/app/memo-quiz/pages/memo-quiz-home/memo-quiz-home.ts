@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -28,7 +28,8 @@ interface LeitnerBoxSummary {
   styleUrl: './memo-quiz-home.scss',
 })
 export class MemoQuizHome {
-  constructor(private router: Router) {}
+  private router = inject(Router);
+
   // Mock : date du jour
   readonly today = new Date();
   readonly dayIndex = 42; // mock : "Jour 42" juste pour le visuel

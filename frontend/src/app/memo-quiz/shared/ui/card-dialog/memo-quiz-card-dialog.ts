@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +35,8 @@ export interface CardDialogResult {
   styleUrls: ['./memo-quiz-card-dialog.scss'],
 })
 export class MemoQuizCardDialog {
+  private dialogRef = inject<MatDialogRef<MemoQuizCardDialog, CardDialogResult | undefined>>(MatDialogRef);
+
   readonly mode: CardDialogMode;
 
   form = new FormGroup({
@@ -42,10 +44,9 @@ export class MemoQuizCardDialog {
     answer: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
   });
 
-  constructor(
-    private dialogRef: MatDialogRef<MemoQuizCardDialog, CardDialogResult | undefined>,
-    @Inject(MAT_DIALOG_DATA) data: CardDialogData,
-  ) {
+  constructor() {
+    const data = inject<CardDialogData>(MAT_DIALOG_DATA);
+
     this.mode = data?.mode ?? 'create';
     if (data?.mode === 'edit') {
       this.form.setValue({ question: data.question ?? '', answer: data.answer ?? '' });

@@ -1,5 +1,5 @@
 
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -78,7 +78,8 @@ const MOCK_CARDS: MemoQuizCard[] = [
   styleUrl: './cards.scss',
 })
 export class Cards implements AfterViewInit {
-  constructor(private dialog: MatDialog) {}
+  private dialog = inject(MatDialog);
+
   displayedColumns: string[] = ['question', 'answer', 'actions'];
   dataSource = new MatTableDataSource<MemoQuizCard>(MOCK_CARDS);
 
