@@ -36,7 +36,7 @@ jobs:
         working-directory: backend
         run: |
           chmod +x ./mvnw
-          ./mvnw -B test
+          ./mvnw -B test -Dspring.profiles.active=test
 
       - name: Package backend
         working-directory: backend
