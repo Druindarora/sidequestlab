@@ -31,6 +31,18 @@ Livrer une PR petite, vérifiable, CI verte, avec un minimum de churn.
    - commandes exécutées + résultat
    - points à tester manuellement (si UI)
 
+## PR template (copier/coller)
+
+Objectif :
+
+Changements :
+
+Checks exécutés :
+- `./scripts/check.sh` — OK
+
+Tests manuels :
+- N/A
+
 ## Politique OpenAPI
 
 - Ne pas modifier `frontend/src/app/api/**` à la main.
