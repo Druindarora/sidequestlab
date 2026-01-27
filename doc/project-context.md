@@ -19,6 +19,14 @@ La CI exécute (ordre logique) :
 - Backend : `./mvnw -B test -Dspring.profiles.active=test` puis `./mvnw -B -DskipTests package`
 - Frontend : `npm ci` puis `npm run lint` puis `npm run build` puis `npm test -- --watch=false` (si script test présent)
 
+## Quickstart (5 min)
+
+- Pré-requis : Node.js LTS + JDK 21
+- Install front : `cd frontend && npm ci`
+- Vérif globale : `./scripts/check.sh`
+- Dev : se référer aux commandes “Backend” / “Frontend” ci-dessous (pas de script unique)
+- Rappel : `frontend/src/app/api/**` est généré (ne pas modifier à la main)
+
 ## Commandes locales (dev)
 
 ### Check global (doit être vert avant PR)
