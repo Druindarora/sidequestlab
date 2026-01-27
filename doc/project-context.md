@@ -27,6 +27,11 @@ La CI exécute (ordre logique) :
 - Dev : se référer aux commandes “Backend” / “Frontend” ci-dessous (pas de script unique)
 - Rappel : `frontend/src/app/api/**` est généré (ne pas modifier à la main)
 
+## Diagnostics
+
+- `./scripts/doctor.sh` : affiche l’OS et les versions des outils clés (git, node/npm, java).
+  Utile pour diagnostiquer rapidement l’environnement local.
+
 ## Commandes locales (dev)
 
 ### Check global (doit être vert avant PR)
