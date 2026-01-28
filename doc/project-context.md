@@ -37,6 +37,7 @@ La CI exécute (ordre logique) :
 - Option docker compose :
   - `./scripts/run-compose.sh`
   - `./scripts/stop-compose.sh`
+  - Postgres a un healthcheck, le backend dépend de sa disponibilité
 
 ## Diagnostics
 

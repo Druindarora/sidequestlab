@@ -7,6 +7,11 @@ services:
       POSTGRES_USER: sidequestlab
       POSTGRES_PASSWORD: sidequestlab
       POSTGRES_DB: sidequestlab
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sidequestlab -d sidequestlab"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -19,8 +24,13 @@ services:
     command: bash -lc "chmod +x ./mvnw && ./mvnw spring-boot:run"
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sidequestlab
+      SPRING_DATASOURCE_USERNAME: sidequestlab
+      SPRING_DATASOURCE_PASSWORD: sidequestlab
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
     image: node:lts
