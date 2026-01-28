@@ -38,6 +38,10 @@ La CI exécute (ordre logique) :
 
 - `./scripts/check.sh`
 
+### VS Code
+
+- Config `Sidequestlab - Full Stack (dev)` : lance backend + frontend
+
 ### Backend
 
 - Tests (profil test, sans DB) :

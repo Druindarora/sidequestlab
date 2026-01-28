@@ -12,6 +12,21 @@
             "projectName": "sidequestlab-backend",
             "envFile": "${workspaceFolder}/.env.local",
             "console": "integratedTerminal"              // pour voir les logs dans le terminal intégré
+        },
+        {
+            "type": "node-terminal",
+            "name": "Sidequestlab - Frontend (dev)",
+            "request": "launch",
+            "command": "cd frontend && npm run start"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Sidequestlab - Full Stack (dev)",
+            "configurations": [
+                "Sidequestlab - Spring Boot (dev)",
+                "Sidequestlab - Frontend (dev)"
+            ]
         }
     ]
 }
