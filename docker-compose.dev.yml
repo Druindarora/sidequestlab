@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sidequestlab
+      POSTGRES_PASSWORD: sidequestlab
+      POSTGRES_DB: sidequestlab
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: maven:3-eclipse-temurin-21
+    working_dir: /workspace/backend
+    volumes:
+      - ./backend:/workspace/backend
+      - maven_repo:/root/.m2
+    command: bash -lc "chmod +x ./mvnw && ./mvnw spring-boot:run"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  frontend:
+    image: node:lts
+    working_dir: /workspace/frontend
+    volumes:
+      - ./frontend:/workspace/frontend
+      - frontend_node_modules:/workspace/frontend/node_modules
+    command: bash -lc "npm ci && npm run start -- --host 0.0.0.0"
+    ports:
+      - "4200:4200"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  maven_repo:
+  frontend_node_modules:

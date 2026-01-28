@@ -27,6 +27,17 @@ La CI exécute (ordre logique) :
 - Dev : se référer aux commandes “Backend” / “Frontend” ci-dessous (pas de script unique)
 - Rappel : `frontend/src/app/api/**` est généré (ne pas modifier à la main)
 
+## Démarrage
+
+- Option VS Code : config `Sidequestlab - Full Stack (dev)`
+- Option scripts :
+  - `./scripts/run-backend.sh`
+  - `./scripts/run-frontend.sh`
+  - `./scripts/gen-api.sh`
+- Option docker compose :
+  - `./scripts/run-compose.sh`
+  - `./scripts/stop-compose.sh`
+
 ## Diagnostics
 
 - `./scripts/doctor.sh` : affiche l’OS et les versions des outils clés (git, node/npm, java).
