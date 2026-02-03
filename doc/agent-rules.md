@@ -1,29 +1,43 @@
 # Agent Rules (V0) — SideQuestLab
 
-## Objectif
+## Goal
 
-Produire des PR petites, vérifiables, et garder la CI verte.
+Produce small, reviewable PRs and keep CI green.
 
-## Règles de scope (garde-fous)
+## Scope rules (guardrails)
 
-- Ne jamais travailler directement sur `main` ou `dev`. Travailler uniquement sur une branche `work/<sujet>`.
-- Pas de refacto large, pas de renommage massif, pas de changements d’architecture sans demande explicite.
-- Ne pas toucher à `infra/` et `.github/` sauf demande explicite.
-- Code généré OpenAPI : `frontend/src/app/api/**`
-  - Interdit de modifier à la main.
-  - Si un changement est nécessaire, utiliser la génération (`npm run generate:api`) et reviewer le diff.
+- Never work directly on `main` or `dev`. Work only on a `work/<topic>` branch.
+- No broad refactors, no massive renames, and no architecture changes unless explicitly requested.
+- Do not touch `infra/` or `.github/` unless explicitly requested.
+- OpenAPI generated code: `frontend/src/app/api/**`
+  - Never modify it manually.
+  - If a change is needed, regenerate it (`npm run generate:api`) and review the diff.
 
-## Définition de Done (DoD)
+## Definition of Done (DoD)
 
-- La commande `scripts/check.sh` doit être verte avant de proposer une PR.
-- La PR doit inclure un résumé : objectifs, fichiers touchés, commandes exécutées, et points à vérifier manuellement.
+- `scripts/check.sh` must be green before proposing a PR.
+- The PR must include a summary: goals, touched files, executed commands, and manual verification points.
 
 ## Backend (tests)
 
-- Les tests CI s’exécutent sans DB via le profil `test` (`-Dspring.profiles.active=test`).
-- Ne pas “skipper” les tests Maven en CI.
+- CI tests run without a DB using the `test` profile (`-Dspring.profiles.active=test`).
+- Do not skip Maven tests in CI.
 
 ## Frontend (standards)
 
-- Respecter les standards Angular déjà actés (inject(), @if/@for, etc.).
-- Lint via ESLint (comme la CI).
+- Follow the agreed Angular standards (inject(), @if/@for, etc.).
+- Lint via ESLint (same as CI).
+
+## Safety & Logging
+
+### Logging policy (V1)
+
+- Do not add "business logs" in services/controllers (e.g., "creating card...", "answer received...").
+- Log only unexpected errors (5xx / unhandled exceptions) in the global exception handler.
+- Avoid logging stack traces for expected client errors (4xx) unless explicitly requested.
+
+### Destructive actions policy
+
+- Never run destructive commands (e.g., `rm -rf`, recursive deletes) or perform mass deletions.
+- Never delete or rename files/directories outside the explicitly requested scope.
+- If deletion is truly necessary, explain why, list exactly what will be deleted, and wait for explicit confirmation before proceeding.
