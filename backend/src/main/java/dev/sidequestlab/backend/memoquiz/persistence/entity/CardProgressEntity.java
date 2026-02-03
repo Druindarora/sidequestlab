@@ -1,4 +1,4 @@
-package dev.sidequestlab.backend.card;
+package dev.sidequestlab.backend.memoquiz.persistence.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;

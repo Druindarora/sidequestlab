@@ -1,7 +1,7 @@
-package dev.sidequestlab.backend.api.controller;
+package dev.sidequestlab.backend.memoquiz.api.controller;
 
-import dev.sidequestlab.backend.api.dto.QuizDto;
-import dev.sidequestlab.backend.api.dto.QuizOverviewDto;
+import dev.sidequestlab.backend.memoquiz.api.dto.QuizDto;
+import dev.sidequestlab.backend.memoquiz.api.dto.QuizOverviewDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

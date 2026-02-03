@@ -1,4 +1,4 @@
-package dev.sidequestlab.backend.api.error;
+package dev.sidequestlab.backend.shared.api.error;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
