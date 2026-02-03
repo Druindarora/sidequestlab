@@ -2,7 +2,7 @@ name: Nightly Audit
 
 on:
   schedule:
-    - cron: "0 2 * * *" # daily at 02:00 UTC
+    - cron: "0 2 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -57,9 +57,10 @@ jobs:
             ${{ runner.os }}-m2-
 
       - name: Generate dependency tree
+        working-directory: backend
         run: |
           chmod +x ./mvnw
-          ./mvnw -f backend/pom.xml -B -DskipTests dependency:tree -DoutputFile=backend-deps.txt || true
+          ./mvnw -B -DskipTests dependency:tree -DoutputFile=../backend-deps.txt || true
 
       - name: Upload backend dependency report
         uses: actions/upload-artifact@v4
