@@ -1,6 +1,6 @@
-package dev.sidequestlab.backend.card;
+package dev.sidequestlab.backend.memoquiz.persistence.entity;
 
-import dev.sidequestlab.backend.api.enums.CardStatus;
+import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 

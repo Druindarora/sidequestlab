@@ -1,10 +1,10 @@
-package dev.sidequestlab.backend.api.controller;
+package dev.sidequestlab.backend.memoquiz.api.controller;
 
-import dev.sidequestlab.backend.api.dto.CardDto;
-import dev.sidequestlab.backend.api.dto.CreateCardRequest;
-import dev.sidequestlab.backend.api.dto.UpdateCardRequest;
-import dev.sidequestlab.backend.api.enums.CardStatus;
-import dev.sidequestlab.backend.card.CardService;
+import dev.sidequestlab.backend.memoquiz.api.dto.CardDto;
+import dev.sidequestlab.backend.memoquiz.api.dto.CreateCardRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.UpdateCardRequest;
+import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
+import dev.sidequestlab.backend.memoquiz.service.CardService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

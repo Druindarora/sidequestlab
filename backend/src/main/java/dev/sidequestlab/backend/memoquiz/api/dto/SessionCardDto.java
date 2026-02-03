@@ -1,4 +1,4 @@
-package dev.sidequestlab.backend.api.dto;
+package dev.sidequestlab.backend.memoquiz.api.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

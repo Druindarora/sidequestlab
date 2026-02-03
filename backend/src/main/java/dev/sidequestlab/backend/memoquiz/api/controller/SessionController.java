@@ -1,6 +1,6 @@
-package dev.sidequestlab.backend.api.controller;
+package dev.sidequestlab.backend.memoquiz.api.controller;
 
-import dev.sidequestlab.backend.api.dto.*;
+import dev.sidequestlab.backend.memoquiz.api.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

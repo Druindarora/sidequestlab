@@ -1,8 +1,11 @@
-package dev.sidequestlab.backend.card;
+package dev.sidequestlab.backend.memoquiz.service;
 
-import dev.sidequestlab.backend.api.dto.CreateCardRequest;
-import dev.sidequestlab.backend.api.dto.UpdateCardRequest;
-import dev.sidequestlab.backend.api.enums.CardStatus;
+import dev.sidequestlab.backend.memoquiz.api.dto.CreateCardRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.UpdateCardRequest;
+import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
+import dev.sidequestlab.backend.memoquiz.persistence.entity.CardEntity;
+import dev.sidequestlab.backend.memoquiz.persistence.entity.CardProgressEntity;
+import dev.sidequestlab.backend.memoquiz.persistence.repository.CardRepository;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
