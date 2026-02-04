@@ -4,6 +4,7 @@ import dev.sidequestlab.backend.memoquiz.api.dto.AnswerRequest;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.CardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
+import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizReviewLogEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionItemEntity;
@@ -104,11 +105,13 @@ class SessionServiceTest {
         membership.setEnabled(true);
         membership.setBox(4);
 
+        SessionCardProjection projection = new SessionCardProjection(card.getId(), card.getFront(), card.getBack(), 4);
+
         when(settingsRepository.findTopByOrderByIdAsc()).thenReturn(Optional.of(settings));
         when(scheduleProvider.boxesForDay(anyInt())).thenReturn(List.of(4));
         when(quizService.getDefaultQuizId()).thenReturn(1L);
         when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
-            .thenReturn(List.of(membership));
+            .thenReturn(List.of(projection));
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> {
             MemoQuizSessionEntity saved = invocation.getArgument(0);
             saved.setId(99L);

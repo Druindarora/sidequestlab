@@ -36,15 +36,18 @@ public interface MemoQuizQuizCardRepository extends JpaRepository<MemoQuizQuizCa
     List<SessionCardDto> findEnabledSessionCardsByQuizId(@Param("quizId") Long quizId);
 
     @Query("""
-        select qc
-        from MemoQuizQuizCardEntity qc
-        join qc.card c
-        where qc.quizId = :quizId
-          and qc.enabled = true
-          and qc.box in :boxes
-          and c.status = :status
-        """)
-    List<MemoQuizQuizCardEntity> findEnabledForSession(
+                select new dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection(
+                    qc.cardId, c.front, c.back, qc.box
+                )
+                from MemoQuizQuizCardEntity qc
+                join qc.card c
+                where qc.quizId = :quizId
+                    and qc.enabled = true
+                    and qc.box in :boxes
+                    and c.status = :status
+                order by qc.cardId asc
+                """)
+        List<dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection> findEnabledForSession(
         @Param("quizId") Long quizId,
         @Param("boxes") Collection<Integer> boxes,
         @Param("status") CardStatus status,

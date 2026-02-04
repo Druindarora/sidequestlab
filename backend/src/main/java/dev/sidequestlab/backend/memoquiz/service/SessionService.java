@@ -7,6 +7,7 @@ import dev.sidequestlab.backend.memoquiz.api.dto.SessionDto;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.CardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
+import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizReviewLogEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionItemEntity;
@@ -77,7 +78,18 @@ public class SessionService {
 
         Long quizId = quizService.getDefaultQuizId();
         Pageable pageable = PageRequest.of(0, SESSION_CARD_LIMIT, Sort.by(Sort.Direction.ASC, "cardId"));
-        List<MemoQuizQuizCardEntity> memberships = quizCardRepository.findEnabledForSession(
+
+        // If there are no boxes scheduled today, create an empty session and return
+        if (boxesToday == null || boxesToday.isEmpty()) {
+            Instant now = Instant.now();
+            MemoQuizSessionEntity session = new MemoQuizSessionEntity();
+            session.setStartedAt(now);
+            session.setDayIndex(dayIndex);
+            MemoQuizSessionEntity savedSession = sessionRepository.save(session);
+            return new SessionDto(savedSession.getId(), savedSession.getStartedAt(), List.of());
+        }
+
+        List<SessionCardProjection> memberships = quizCardRepository.findEnabledForSession(
             quizId,
             boxesToday,
             CardStatus.ACTIVE,
@@ -91,11 +103,11 @@ public class SessionService {
         MemoQuizSessionEntity savedSession = sessionRepository.save(session);
 
         List<MemoQuizSessionItemEntity> items = new ArrayList<>();
-        for (MemoQuizQuizCardEntity membership : memberships) {
-            int box = membership.getBox();
+        for (SessionCardProjection membership : memberships) {
+            int box = membership.box();
             MemoQuizSessionItemEntity item = new MemoQuizSessionItemEntity();
             item.setSessionId(savedSession.getId());
-            item.setCardId(membership.getCardId());
+            item.setCardId(membership.cardId());
             item.setBox(box);
             items.add(item);
         }
@@ -105,10 +117,10 @@ public class SessionService {
 
         List<SessionCardDto> cardDtos = memberships.stream()
             .map(membership -> new SessionCardDto(
-                membership.getCardId(),
-                membership.getCard().getFront(),
-                membership.getCard().getBack(),
-                membership.getBox()
+                membership.cardId(),
+                membership.front(),
+                membership.back(),
+                membership.box()
             ))
             .toList();
 
