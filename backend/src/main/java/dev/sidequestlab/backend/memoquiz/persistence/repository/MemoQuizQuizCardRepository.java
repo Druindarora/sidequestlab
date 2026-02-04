@@ -4,6 +4,8 @@ import dev.sidequestlab.backend.memoquiz.api.dto.SessionCardDto;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardId;
+import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +49,7 @@ public interface MemoQuizQuizCardRepository extends JpaRepository<MemoQuizQuizCa
                     and c.status = :status
                 order by qc.cardId asc
                 """)
-        List<dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection> findEnabledForSession(
+        List<SessionCardProjection> findEnabledForSession(
         @Param("quizId") Long quizId,
         @Param("boxes") Collection<Integer> boxes,
         @Param("status") CardStatus status,
