@@ -1,31 +1,34 @@
 package dev.sidequestlab.backend.memoquiz.api.controller;
 
-import dev.sidequestlab.backend.memoquiz.api.dto.*;
+import dev.sidequestlab.backend.memoquiz.api.dto.AnswerRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.AnswerResponse;
+import dev.sidequestlab.backend.memoquiz.api.dto.SessionDto;
+import dev.sidequestlab.backend.memoquiz.service.SessionService;
+import jakarta.validation.Valid;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
-import java.time.Instant;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/memoquiz")
 @Validated
+@Profile("!test")
 public class SessionController {
+
+    private final SessionService sessionService;
+
+    public SessionController(SessionService sessionService) {
+        this.sessionService = sessionService;
+    }
 
     @GetMapping("/session/today")
     public ResponseEntity<SessionDto> todaySession() {
-        var cards = List.of(new SessionCardDto(1L, "Front A", "Back A", 1));
-        var session = new SessionDto(100L, Instant.now(), cards);
-        return ResponseEntity.ok(session);
+        return ResponseEntity.ok(sessionService.getTodaySession());
     }
 
     @PostMapping("/session/answer")
     public ResponseEntity<AnswerResponse> answer(@Valid @RequestBody AnswerRequest req) {
-        var next = Instant.now().plusSeconds(60 * 60 * 24);
-        var resp = new AnswerResponse(true, next);
-        return ResponseEntity.ok(resp);
+        return ResponseEntity.ok(sessionService.answer(req));
     }
 }
