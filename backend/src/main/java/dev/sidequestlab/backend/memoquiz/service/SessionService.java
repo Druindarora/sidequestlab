@@ -6,18 +6,17 @@ import dev.sidequestlab.backend.memoquiz.api.dto.SessionCardDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.SessionDto;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.CardEntity;
-import dev.sidequestlab.backend.memoquiz.persistence.entity.CardProgressEntity;
+import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizReviewLogEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionItemEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSettingsEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.CardRepository;
+import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizQuizCardRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizReviewLogRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionItemRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSettingsRepository;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -27,7 +26,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +45,8 @@ public class SessionService {
     private final MemoQuizSessionItemRepository sessionItemRepository;
     private final MemoQuizReviewLogRepository reviewLogRepository;
     private final ScheduleProvider scheduleProvider;
+    private final MemoQuizQuizCardRepository quizCardRepository;
+    private final QuizService quizService;
 
     public SessionService(
         CardRepository cardRepository,
@@ -54,7 +54,9 @@ public class SessionService {
         MemoQuizSessionRepository sessionRepository,
         MemoQuizSessionItemRepository sessionItemRepository,
         MemoQuizReviewLogRepository reviewLogRepository,
-        ScheduleProvider scheduleProvider
+        ScheduleProvider scheduleProvider,
+        MemoQuizQuizCardRepository quizCardRepository,
+        QuizService quizService
     ) {
         this.cardRepository = cardRepository;
         this.settingsRepository = settingsRepository;
@@ -62,6 +64,8 @@ public class SessionService {
         this.sessionItemRepository = sessionItemRepository;
         this.reviewLogRepository = reviewLogRepository;
         this.scheduleProvider = scheduleProvider;
+        this.quizCardRepository = quizCardRepository;
+        this.quizService = quizService;
     }
 
     @Transactional
@@ -71,8 +75,14 @@ public class SessionService {
         int dayIndex = computeDayIndex(settings.getStartDate(), today);
         List<Integer> boxesToday = scheduleProvider.boxesForDay(dayIndex);
 
-        Pageable pageable = PageRequest.of(0, SESSION_CARD_LIMIT, Sort.by(Sort.Direction.ASC, "id"));
-        List<CardEntity> cards = cardRepository.findAll(activeCardsInBoxes(boxesToday), pageable).getContent();
+        Long quizId = quizService.getDefaultQuizId();
+        Pageable pageable = PageRequest.of(0, SESSION_CARD_LIMIT, Sort.by(Sort.Direction.ASC, "cardId"));
+        List<MemoQuizQuizCardEntity> memberships = quizCardRepository.findEnabledForSession(
+            quizId,
+            boxesToday,
+            CardStatus.ACTIVE,
+            pageable
+        );
 
         Instant now = Instant.now();
         MemoQuizSessionEntity session = new MemoQuizSessionEntity();
@@ -81,11 +91,11 @@ public class SessionService {
         MemoQuizSessionEntity savedSession = sessionRepository.save(session);
 
         List<MemoQuizSessionItemEntity> items = new ArrayList<>();
-        for (CardEntity card : cards) {
-            int box = card.getProgress() == null ? 1 : card.getProgress().getBox();
+        for (MemoQuizQuizCardEntity membership : memberships) {
+            int box = membership.getBox();
             MemoQuizSessionItemEntity item = new MemoQuizSessionItemEntity();
             item.setSessionId(savedSession.getId());
-            item.setCardId(card.getId());
+            item.setCardId(membership.getCardId());
             item.setBox(box);
             items.add(item);
         }
@@ -93,12 +103,12 @@ public class SessionService {
             sessionItemRepository.saveAll(items);
         }
 
-        List<SessionCardDto> cardDtos = cards.stream()
-            .map(card -> new SessionCardDto(
-                card.getId(),
-                card.getFront(),
-                card.getBack(),
-                card.getProgress() == null ? 1 : card.getProgress().getBox()
+        List<SessionCardDto> cardDtos = memberships.stream()
+            .map(membership -> new SessionCardDto(
+                membership.getCardId(),
+                membership.getCard().getFront(),
+                membership.getCard().getBack(),
+                membership.getBox()
             ))
             .toList();
 
@@ -116,22 +126,20 @@ public class SessionService {
         CardEntity card = cardRepository.findById(req.cardId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
 
-        CardProgressEntity progress = card.getProgress();
-        if (progress == null) {
-            progress = new CardProgressEntity();
-            progress.setBox(1);
-            card.setProgress(progress);
+        Long quizId = quizService.getDefaultQuizId();
+        MemoQuizQuizCardEntity membership = quizCardRepository.findByQuizIdAndCardId(quizId, req.cardId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz membership not found"));
+        if (!membership.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz membership not found");
         }
 
-        int previousBox = progress.getBox();
+        int previousBox = membership.getBox();
         boolean correct = normalize(req.answer()).equals(normalize(card.getBack()));
         int nextBox = correct ? Math.min(previousBox + 1, MAX_BOX) : 1;
 
         Instant now = Instant.now();
-        progress.setBox(nextBox);
-        progress.setUpdatedAt(now);
-        card.setUpdatedAt(now);
-        cardRepository.save(card);
+        membership.setBox(nextBox);
+        quizCardRepository.save(membership);
 
         MemoQuizReviewLogEntity log = new MemoQuizReviewLogEntity();
         log.setSessionId(session.getId());
@@ -166,15 +174,6 @@ public class SessionService {
         }
 
         return settings;
-    }
-
-    private Specification<CardEntity> activeCardsInBoxes(List<Integer> boxes) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("status"), CardStatus.ACTIVE));
-            predicates.add(root.join("progress", JoinType.INNER).get("box").in(boxes));
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
     }
 
     private String normalize(String value) {
