@@ -63,6 +63,15 @@ class SessionServiceTest {
     }
 
     @Test
+    void computeDayIndexWithToday() {
+        LocalDate today = LocalDate.now();
+
+        assertThat(SessionService.computeDayIndex(today, today)).isEqualTo(1);
+        assertThat(SessionService.computeDayIndex(today.minusDays(1), today)).isEqualTo(2);
+        assertThat(SessionService.computeDayIndex(today.minusDays(64), today)).isEqualTo(1);
+    }
+
+    @Test
     void answerCorrectAdvancesBox() {
         MemoQuizSessionEntity session = new MemoQuizSessionEntity();
         session.setId(10L);
@@ -180,5 +189,88 @@ class SessionServiceTest {
             .isEqualTo(HttpStatus.NOT_FOUND);
 
         verify(reviewLogRepository, never()).save(any(MemoQuizReviewLogEntity.class));
+    }
+
+    @Test
+    void answerKeepsBoxSevenWhenCorrect() {
+        MemoQuizSessionEntity session = new MemoQuizSessionEntity();
+        session.setId(30L);
+
+        MemoQuizSessionItemEntity item = new MemoQuizSessionItemEntity();
+        item.setSessionId(30L);
+        item.setCardId(40L);
+        item.setBox(7);
+
+        CardEntity card = new CardEntity();
+        card.setId(40L);
+        card.setFront("Front");
+        card.setBack("Paris");
+        CardProgressEntity progress = new CardProgressEntity();
+        progress.setBox(7);
+        card.setProgress(progress);
+
+        when(sessionRepository.findById(30L)).thenReturn(Optional.of(session));
+        when(sessionItemRepository.findBySessionIdAndCardId(30L, 40L)).thenReturn(Optional.of(item));
+        when(cardRepository.findById(40L)).thenReturn(Optional.of(card));
+        when(cardRepository.save(any(CardEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(reviewLogRepository.save(any(MemoQuizReviewLogEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // answer matches after trim+lowercase
+        AnswerRequest req = new AnswerRequest(30L, 40L, " paris ");
+        var resp = sessionService.answer(req);
+
+        ArgumentCaptor<CardEntity> cardCaptor = ArgumentCaptor.forClass(CardEntity.class);
+        verify(cardRepository).save(cardCaptor.capture());
+        assertThat(cardCaptor.getValue().getProgress().getBox()).isEqualTo(7);
+
+        ArgumentCaptor<MemoQuizReviewLogEntity> logCaptor = ArgumentCaptor.forClass(MemoQuizReviewLogEntity.class);
+        verify(reviewLogRepository).save(logCaptor.capture());
+        assertThat(logCaptor.getValue().getPreviousBox()).isEqualTo(7);
+        assertThat(logCaptor.getValue().getNextBox()).isEqualTo(7);
+        assertThat(logCaptor.getValue().isCorrect()).isTrue();
+
+        assertThat(resp.correct()).isTrue();
+        assertThat(resp.nextReview()).isNotNull();
+    }
+
+    @Test
+    void answerResetsBoxFromSevenWhenIncorrect() {
+        MemoQuizSessionEntity session = new MemoQuizSessionEntity();
+        session.setId(31L);
+
+        MemoQuizSessionItemEntity item = new MemoQuizSessionItemEntity();
+        item.setSessionId(31L);
+        item.setCardId(41L);
+        item.setBox(7);
+
+        CardEntity card = new CardEntity();
+        card.setId(41L);
+        card.setFront("Front");
+        card.setBack("Paris");
+        CardProgressEntity progress = new CardProgressEntity();
+        progress.setBox(7);
+        card.setProgress(progress);
+
+        when(sessionRepository.findById(31L)).thenReturn(Optional.of(session));
+        when(sessionItemRepository.findBySessionIdAndCardId(31L, 41L)).thenReturn(Optional.of(item));
+        when(cardRepository.findById(41L)).thenReturn(Optional.of(card));
+        when(cardRepository.save(any(CardEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(reviewLogRepository.save(any(MemoQuizReviewLogEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AnswerRequest req = new AnswerRequest(31L, 41L, "wrong answer");
+        var resp = sessionService.answer(req);
+
+        ArgumentCaptor<CardEntity> cardCaptor = ArgumentCaptor.forClass(CardEntity.class);
+        verify(cardRepository).save(cardCaptor.capture());
+        assertThat(cardCaptor.getValue().getProgress().getBox()).isEqualTo(1);
+
+        ArgumentCaptor<MemoQuizReviewLogEntity> logCaptor = ArgumentCaptor.forClass(MemoQuizReviewLogEntity.class);
+        verify(reviewLogRepository).save(logCaptor.capture());
+        assertThat(logCaptor.getValue().getPreviousBox()).isEqualTo(7);
+        assertThat(logCaptor.getValue().getNextBox()).isEqualTo(1);
+        assertThat(logCaptor.getValue().isCorrect()).isFalse();
+
+        assertThat(resp.correct()).isFalse();
+        assertThat(resp.nextReview()).isNotNull();
     }
 }
