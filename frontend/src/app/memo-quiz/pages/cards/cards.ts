@@ -168,8 +168,26 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
     this.loading = true;
     this.errorMessage = null;
     this.cardApi.listCards(undefined, 'ACTIVE', undefined, 0, 200).subscribe({
-      next: (cards: CardDto[]) => {
-        const mapped = (cards ?? [])
+      next: (cards: CardDto[] | { content?: CardDto[] } | null) => {
+        const cardList = Array.isArray(cards)
+          ? cards
+          : Array.isArray(cards?.content)
+            ? cards.content
+            : null;
+        if (!cardList) {
+          console.error('[MemoQuiz] listCards unexpected response', cards);
+          this.errorMessage = 'Impossible de charger les cartes.';
+          this.dataSource.data = [];
+          setTimeout(() => {
+            if (this.destroyed) {
+              return;
+            }
+            this.loading = false;
+          });
+          return;
+        }
+
+        const mapped = cardList
           .filter((card): card is CardDto & { id: number } => typeof card.id === 'number')
           .map((card) => ({
             id: card.id,
