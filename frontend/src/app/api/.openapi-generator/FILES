@@ -5,6 +5,7 @@ api.module.ts
 api/api.ts
 api/cardController.service.ts
 api/dashboardController.service.ts
+api/faviconController.service.ts
 api/healthController.service.ts
 api/profileController.service.ts
 api/quizController.service.ts
