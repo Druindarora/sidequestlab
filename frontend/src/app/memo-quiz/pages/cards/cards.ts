@@ -179,12 +179,12 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
     this.errorMessage = null;
     // no status filter so listCards returns all cards (ACTIVE + INACTIVE + ARCHIVED)
     this.cardApi.listCards(undefined, undefined, undefined, 0, 200).subscribe({
-      next: (cards: any) => {
-        const handleList = (payload: any) => {
+      next: (cards: unknown) => {
+        const handleList = (payload: unknown) => {
           const cardList = Array.isArray(payload)
-            ? payload
-            : Array.isArray(payload?.content)
-              ? payload.content
+            ? (payload as unknown[])
+            : Array.isArray((payload as { content?: unknown }).content)
+              ? (payload as { content: unknown[] }).content
               : null;
 
           if (!cardList) {
@@ -202,7 +202,8 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
 
           const mapped = cardList
             .filter(
-              (card: any): card is CardDto & { id: number } => typeof (card as any).id === 'number',
+              (card: unknown): card is CardDto & { id: number } =>
+                typeof (card as { id?: unknown }).id === 'number',
             )
             .map((card: CardDto & { id: number }) => ({
               id: card.id,
