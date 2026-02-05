@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,6 +53,7 @@ interface ViewCard {
 export class Cards implements AfterViewInit, OnDestroy, OnInit {
   private dialog = inject(MatDialog);
   private cardApi = inject(CardControllerApi);
+  private cdr = inject(ChangeDetectorRef);
   private destroyed = false;
   private reloadTimerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -87,7 +96,6 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
         data.answer.toLowerCase().includes(normalized)
       );
     };
-
   }
 
   applyFilter(event: Event): void {
@@ -166,41 +174,75 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
 
   private reloadCards(): void {
     this.loading = true;
+    // ensure Angular acknowledges this change when triggered from async callbacks
+    this.cdr.detectChanges();
     this.errorMessage = null;
-    this.cardApi.listCards(undefined, 'ACTIVE', undefined, 0, 200).subscribe({
-      next: (cards: CardDto[] | { content?: CardDto[] } | null) => {
-        const cardList = Array.isArray(cards)
-          ? cards
-          : Array.isArray(cards?.content)
-            ? cards.content
-            : null;
-        if (!cardList) {
-          console.error('[MemoQuiz] listCards unexpected response', cards);
-          this.errorMessage = 'Impossible de charger les cartes.';
-          this.dataSource.data = [];
+    // no status filter so listCards returns all cards (ACTIVE + INACTIVE + ARCHIVED)
+    this.cardApi.listCards(undefined, undefined, undefined, 0, 200).subscribe({
+      next: (cards: any) => {
+        const handleList = (payload: any) => {
+          const cardList = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload?.content)
+              ? payload.content
+              : null;
+
+          if (!cardList) {
+            console.error('[MemoQuiz] listCards unexpected response', payload);
+            this.errorMessage = 'Impossible de charger les cartes.';
+            this.dataSource.data = [];
+            setTimeout(() => {
+              if (this.destroyed) {
+                return;
+              }
+              this.loading = false;
+            });
+            return;
+          }
+
+          const mapped = cardList
+            .filter(
+              (card: any): card is CardDto & { id: number } => typeof (card as any).id === 'number',
+            )
+            .map((card: CardDto & { id: number }) => ({
+              id: card.id,
+              question: card.front ?? '',
+              answer: card.back ?? '',
+            }));
+
+          // Update the table data on the next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
           setTimeout(() => {
             if (this.destroyed) {
               return;
             }
+            this.dataSource.data = mapped;
             this.loading = false;
+            this.cdr.detectChanges();
           });
-          return;
-        }
+        };
 
-        const mapped = cardList
-          .filter((card): card is CardDto & { id: number } => typeof card.id === 'number')
-          .map((card) => ({
-            id: card.id,
-            question: card.front ?? '',
-            answer: card.back ?? '',
-          }));
-        this.dataSource.data = mapped;
-        setTimeout(() => {
-          if (this.destroyed) {
-            return;
-          }
-          this.loading = false;
-        });
+        // Some responses can come as a Blob (responseType 'blob') with application/json
+        if (cards instanceof Blob) {
+          cards
+            .text()
+            .then((txt) => {
+              try {
+                const parsed = JSON.parse(txt);
+                handleList(parsed);
+              } catch (err) {
+                console.error('[MemoQuiz] failed to parse blob response', err);
+                this.errorMessage = 'Impossible de charger les cartes.';
+                this.loading = false;
+              }
+            })
+            .catch((err) => {
+              console.error('[MemoQuiz] failed to read blob response', err);
+              this.errorMessage = 'Impossible de charger les cartes.';
+              this.loading = false;
+            });
+        } else {
+          handleList(cards);
+        }
       },
       error: (error) => {
         console.error('[MemoQuiz] listCards failed', error);
