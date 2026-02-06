@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { Router, RouterModule } from '@angular/router';
 
@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
+
+import { SessionCardDto, SessionControllerApi, SessionDto } from '../../../api';
 
 type SessionPhase = 'QUESTION' | 'ANSWER' | 'DONE';
 
@@ -30,40 +32,18 @@ interface SessionCard {
     MatIconModule,
     MatDividerModule,
     MatProgressBarModule,
-    MatChipsModule
-],
+    MatChipsModule,
+  ],
 })
-export class MemoQuizSession {
+export class MemoQuizSession implements OnInit {
   private readonly router = inject(Router);
+  private readonly sessionApi = inject(SessionControllerApi);
 
-  // Mock: cartes sélectionnées (boîtes du jour)
-  readonly cards: SessionCard[] = [
-    {
-      id: 1,
-      box: 1,
-      question: 'Différence entre let / const / var ?',
-      answer: 'var: portée fonction; let/const: portée bloc; const non réassignable.',
-    },
-    {
-      id: 2,
-      box: 3,
-      question: 'Que fait switchMap en RxJS ?',
-      answer: 'Switch vers un nouvel observable et annule le précédent.',
-    },
-    {
-      id: 3,
-      box: 1,
-      question: 'Bean Spring : définition ?',
-      answer: 'Objet géré par le conteneur IoC Spring (cycle de vie, injection, scopes).',
-    },
-    {
-      id: 4,
-      box: 5,
-      question: 'JSONB (PostgreSQL) : intérêt ?',
-      answer: 'Stockage JSON indexable, requêtage plus efficace que JSON simple, flexible.',
-    },
-    // … ajoute-en autant que tu veux pour tester
-  ];
+  cards: SessionCard[] = [];
+  sessionId: number | null = null;
+  loading = false;
+  loadingAnswer = false;
+  errorMessage: string | null = null;
 
   phase: SessionPhase = 'QUESTION';
   index = 0;
@@ -98,18 +78,47 @@ export class MemoQuizSession {
     return this.phase === 'ANSWER' && !!this.currentCard;
   }
 
+  ngOnInit(): void {
+    this.loadTodaySession();
+  }
+
   revealAnswer(): void {
     if (!this.canReveal) return;
     this.phase = 'ANSWER';
   }
 
   markAnswer(isCorrect: boolean): void {
-    if (!this.canAnswer) return;
+    if (!this.canAnswer || this.loadingAnswer) return;
+    if (this.sessionId === null) {
+      this.errorMessage = 'La session n’est pas chargée.';
+      return;
+    }
 
-    if (isCorrect) this.goodCount += 1;
-    else this.badCount += 1;
+    const currentCard = this.currentCard;
+    if (!currentCard) return;
 
-    this.goNext();
+    this.loadingAnswer = true;
+    this.errorMessage = null;
+
+    this.sessionApi
+      .answer({
+        sessionId: this.sessionId,
+        cardId: currentCard.id,
+        answer: isCorrect ? 'correct' : 'incorrect',
+      })
+      .subscribe({
+        next: () => {
+          if (isCorrect) this.goodCount += 1;
+          else this.badCount += 1;
+
+          this.goNext();
+          this.loadingAnswer = false;
+        },
+        error: () => {
+          this.errorMessage = 'Impossible d’enregistrer la réponse.';
+          this.loadingAnswer = false;
+        },
+      });
   }
 
   private goNext(): void {
@@ -127,5 +136,43 @@ export class MemoQuizSession {
   backToDashboard(): void {
     // Retour à l’accueil MémoQuiz
     this.router.navigateByUrl('/memo-quiz');
+  }
+
+  private loadTodaySession(): void {
+    this.loading = true;
+    this.errorMessage = null;
+    this.sessionId = null;
+    this.cards = [];
+    this.index = 0;
+    this.phase = 'QUESTION';
+    this.goodCount = 0;
+    this.badCount = 0;
+
+    this.sessionApi.todaySession().subscribe({
+      next: (session: SessionDto) => {
+        this.sessionId = session.id;
+        this.cards = (session.cards ?? []).map((card) =>
+          this.mapCard(card)
+        );
+        this.index = 0;
+        this.phase = 'QUESTION';
+        this.goodCount = 0;
+        this.badCount = 0;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage = 'Impossible de charger la session du jour.';
+        this.loading = false;
+      },
+    });
+  }
+
+  private mapCard(card: SessionCardDto): SessionCard {
+    return {
+      id: card.cardId,
+      question: card.front,
+      answer: card.back,
+      box: card.box,
+    };
   }
 }
