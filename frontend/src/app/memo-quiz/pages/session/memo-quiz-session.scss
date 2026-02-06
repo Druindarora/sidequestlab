@@ -29,6 +29,19 @@
   gap: 16px;
 }
 
+.mq-session-alert {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.mq-session-alert--error {
+  border: 1px solid var(--mat-sys-error, #b00020);
+  background: rgba(176, 0, 32, 0.08);
+  color: var(--mat-sys-error, #b00020);
+}
+
 .mq-label {
   font-size: 0.85rem;
   opacity: 0.75;
