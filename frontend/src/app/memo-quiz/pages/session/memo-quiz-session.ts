@@ -151,9 +151,7 @@ export class MemoQuizSession implements OnInit {
     this.sessionApi.todaySession().subscribe({
       next: (session: SessionDto) => {
         this.sessionId = session.id;
-        this.cards = (session.cards ?? []).map((card) =>
-          this.mapCard(card)
-        );
+        this.cards = (session.cards ?? []).map((card) => this.mapCard(card));
         this.index = 0;
         this.phase = 'QUESTION';
         this.goodCount = 0;
