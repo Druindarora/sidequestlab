@@ -3,6 +3,7 @@ package dev.sidequestlab.backend.memoquiz.service;
 import dev.sidequestlab.backend.memoquiz.api.dto.QuizDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.QuizOverviewDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.SessionCardDto;
+import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.CardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizEntity;
@@ -79,13 +80,19 @@ public class QuizService {
             created.setEnabled(true);
             created.setBox(1);
             quizCardRepository.save(created);
-            return;
+        } else {
+            if (!membership.isEnabled()) {
+                membership.setEnabled(true);
+            }
+            quizCardRepository.save(membership);
         }
 
-        if (!membership.isEnabled()) {
-            membership.setEnabled(true);
+        if (card.getStatus() == CardStatus.INACTIVE) {
+            card.setStatus(CardStatus.ACTIVE);
+            cardRepository.save(card);
+        } else if (card.getStatus() == CardStatus.ARCHIVED) {
+            // Archived cards stay archived when re-added to the default quiz.
         }
-        quizCardRepository.save(membership);
     }
 
     @Transactional

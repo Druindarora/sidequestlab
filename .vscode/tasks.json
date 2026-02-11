@@ -1,31 +1,20 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Frontend: start",
-            "type": "shell",
-            "command": "npm",
-            "args": ["run", "start"],
-            "options": {
-                "cwd": "${workspaceFolder}/frontend"
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "isBackground": true,
-            "problemMatcher": {
-                "pattern": [
-                    {
-                        "regexp": ".*"
-                    }
-                ],
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": ".*(Starting development server|Generating browser application bundles|Watch mode enabled|Compiled successfully).*",
-                    "endsPattern": ".*(Compiled successfully|Watch mode enabled|complete\\.).*"
-                }
-            }
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Frontend: start",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "start"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "isBackground": true,
+      "problemMatcher": ["$tsc-watch"]
+    }
+  ]
 }
