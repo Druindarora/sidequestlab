@@ -96,6 +96,7 @@ export class MemoQuizSession implements OnInit {
 
     const currentCard = this.currentCard;
     if (!currentCard) return;
+    const submittedAnswer = this.buildSubmittedAnswer(currentCard.answer, isCorrect);
 
     this.loadingAnswer = true;
     this.errorMessage = null;
@@ -104,7 +105,7 @@ export class MemoQuizSession implements OnInit {
       .answer({
         sessionId: this.sessionId,
         cardId: currentCard.id,
-        answer: isCorrect ? 'correct' : 'incorrect',
+        answer: submittedAnswer,
       })
       .subscribe({
         next: () => {
@@ -172,5 +173,12 @@ export class MemoQuizSession implements OnInit {
       answer: card.back,
       box: card.box,
     };
+  }
+
+  private buildSubmittedAnswer(cardAnswer: string, isCorrect: boolean): string {
+    if (isCorrect) {
+      return cardAnswer;
+    }
+    return `${cardAnswer} __mq_incorrect__`;
   }
 }
