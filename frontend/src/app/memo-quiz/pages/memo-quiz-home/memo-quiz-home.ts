@@ -88,32 +88,64 @@ export class MemoQuizHome implements OnInit {
     this.errorMessage = null;
 
     this.dashboardApi.today().subscribe({
-      next: (dashboard: TodayDashboardDto) => {
-        this.today = this.toDisplayDate(dashboard.todayDate);
-        this.dayIndex = dashboard.dayIndex ?? 1;
-        this.canStartSession = dashboard.canStartSession ?? false;
-        this.boxesToday = dashboard.boxesToday ?? [];
-        this.dueToday = dashboard.dueToday ?? 0;
-        this.totalCards = dashboard.totalCards ?? 0;
-        this.lastSessionSummary = this.mapLastSessionSummary(dashboard.lastSessionSummary);
-        this.boxes = (dashboard.boxesOverview ?? [])
-          .filter((box): box is Required<Pick<BoxesOverviewItem, 'boxNumber' | 'cardCount' | 'isToday'>> =>
-            typeof box.boxNumber === 'number' &&
-            typeof box.cardCount === 'number' &&
-            typeof box.isToday === 'boolean')
-          .map((box) => ({
-            boxNumber: box.boxNumber,
-            label: this.boxLabels[box.boxNumber] ?? `Boîte ${box.boxNumber}`,
-            cardCount: box.cardCount,
-            isToday: box.isToday,
-          }));
-        this.loading = false;
+      next: (payload: TodayDashboardDto) => {
+        void this.applyDashboardPayload(payload as unknown);
       },
-      error: () => {
-        this.errorMessage = 'Impossible de charger le dashboard du jour.';
-        this.loading = false;
-      },
+      error: () => this.handleDashboardLoadError(),
     });
+  }
+
+  private async applyDashboardPayload(payload: unknown): Promise<void> {
+    const dashboard = await this.resolveDashboardPayload(payload);
+    if (!dashboard) {
+      this.handleDashboardLoadError();
+      return;
+    }
+
+    this.today = this.toDisplayDate(dashboard.todayDate);
+    this.dayIndex = dashboard.dayIndex ?? 1;
+    this.canStartSession = dashboard.canStartSession ?? false;
+    this.boxesToday = dashboard.boxesToday ?? [];
+    this.dueToday = dashboard.dueToday ?? 0;
+    this.totalCards = dashboard.totalCards ?? 0;
+    this.lastSessionSummary = this.mapLastSessionSummary(dashboard.lastSessionSummary);
+    this.boxes = (dashboard.boxesOverview ?? [])
+      .filter((box): box is Required<Pick<BoxesOverviewItem, 'boxNumber' | 'cardCount' | 'isToday'>> =>
+        typeof box.boxNumber === 'number' &&
+        typeof box.cardCount === 'number' &&
+        typeof box.isToday === 'boolean')
+      .map((box) => ({
+        boxNumber: box.boxNumber,
+        label: this.boxLabels[box.boxNumber] ?? `Boîte ${box.boxNumber}`,
+        cardCount: box.cardCount,
+        isToday: box.isToday,
+      }));
+    this.loading = false;
+  }
+
+  private async resolveDashboardPayload(payload: unknown): Promise<TodayDashboardDto | null> {
+    if (payload instanceof Blob) {
+      try {
+        const parsed = JSON.parse(await payload.text());
+        if (parsed && typeof parsed === 'object') {
+          return parsed as TodayDashboardDto;
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    }
+
+    if (payload && typeof payload === 'object') {
+      return payload as TodayDashboardDto;
+    }
+
+    return null;
+  }
+
+  private handleDashboardLoadError(): void {
+    this.errorMessage = 'Impossible de charger le dashboard du jour.';
+    this.loading = false;
   }
 
   private mapLastSessionSummary(
