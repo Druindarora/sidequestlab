@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemoQuizSessionItemRepository extends JpaRepository<MemoQuizSessionItemEntity, MemoQuizSessionItemId> {
     Optional<MemoQuizSessionItemEntity> findBySessionIdAndCardId(Long sessionId, Long cardId);
+
+    long countBySessionId(Long sessionId);
 }

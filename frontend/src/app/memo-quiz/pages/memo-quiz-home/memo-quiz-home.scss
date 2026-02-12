@@ -65,6 +65,15 @@
   border-radius: 1rem;
 }
 
+.mq-card-status {
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.mq-card-error {
+  border-color: var(--mat-sys-error);
+  color: var(--mat-sys-error);
+}
+
 .mq-card-session mat-card-content {
   padding-top: 0.75rem;
 }
@@ -90,6 +99,10 @@
 .mq-session-stat-value {
   font-size: 1.6rem;
   font-weight: 600;
+}
+
+.mq-session-stat-value-small {
+  font-size: 1.2rem;
 }
 
 .mq-box-chips {
@@ -132,6 +145,11 @@
 .mq-recap-value {
   font-size: 1.2rem;
   font-weight: 500;
+}
+
+.mq-empty-state {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
 }
 
 /* Vue d'ensemble des boîtes */

@@ -4,6 +4,7 @@ import dev.sidequestlab.backend.memoquiz.api.dto.SessionCardDto;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardId;
+import dev.sidequestlab.backend.memoquiz.persistence.projection.BoxOverviewProjection;
 import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProjection;
 
 import java.util.Collection;
@@ -49,10 +50,56 @@ public interface MemoQuizQuizCardRepository extends JpaRepository<MemoQuizQuizCa
                     and c.status = :status
                 order by qc.cardId asc
                 """)
-        List<SessionCardProjection> findEnabledForSession(
+    List<SessionCardProjection> findEnabledForSession(
         @Param("quizId") Long quizId,
         @Param("boxes") Collection<Integer> boxes,
         @Param("status") CardStatus status,
         Pageable pageable
+    );
+
+    @Query("""
+        select count(qc.cardId)
+        from MemoQuizQuizCardEntity qc
+        join qc.card c
+        where qc.quizId = :quizId
+          and qc.enabled = true
+          and qc.box in :boxes
+          and c.status = :status
+        """)
+    long countEligibleForSession(
+        @Param("quizId") Long quizId,
+        @Param("boxes") Collection<Integer> boxes,
+        @Param("status") CardStatus status
+    );
+
+    @Query("""
+        select count(qc.cardId)
+        from MemoQuizQuizCardEntity qc
+        join qc.card c
+        where qc.quizId = :quizId
+          and qc.enabled = true
+          and c.status = :status
+        """)
+    long countEnabledByQuizIdAndCardStatus(
+        @Param("quizId") Long quizId,
+        @Param("status") CardStatus status
+    );
+
+    @Query("""
+        select new dev.sidequestlab.backend.memoquiz.persistence.projection.BoxOverviewProjection(
+            qc.box,
+            count(qc.cardId)
+        )
+        from MemoQuizQuizCardEntity qc
+        join qc.card c
+        where qc.quizId = :quizId
+          and qc.enabled = true
+          and c.status = :status
+        group by qc.box
+        order by qc.box asc
+        """)
+    List<BoxOverviewProjection> findEnabledActiveBoxOverview(
+        @Param("quizId") Long quizId,
+        @Param("status") CardStatus status
     );
 }

@@ -1,4 +1,16 @@
 <div class="mq-home">
+  @if (loading) {
+    <mat-card class="mq-card mq-card-status">
+      <mat-card-content>Chargement du dashboard…</mat-card-content>
+    </mat-card>
+  }
+
+  @if (errorMessage) {
+    <mat-card class="mq-card mq-card-status mq-card-error">
+      <mat-card-content>{{ errorMessage }}</mat-card-content>
+    </mat-card>
+  }
+
   <header class="mq-header">
     <div>
       <h1>MémoQuiz — Session du jour</h1>
@@ -25,7 +37,7 @@
     <mat-card class="mq-card mq-card-session">
       <mat-card-header>
         <mat-card-title>Session du jour</mat-card-title>
-        <mat-card-subtitle> Boîtes à réviser : {{ boxesToday.join(', ') }} </mat-card-subtitle>
+        <mat-card-subtitle>Boîtes du jour</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
@@ -33,13 +45,20 @@
           <div class="mq-session-stat">
             <span class="mq-session-stat-label">Cartes à réviser</span>
             <span class="mq-session-stat-value">
-              {{ daySummary.totalCards }}
+              {{ dueToday }}
             </span>
+          </div>
+          <div class="mq-session-stat">
+            <span class="mq-session-stat-label">Cartes actives (total)</span>
+            <span class="mq-session-stat-value mq-session-stat-value-small">{{ totalCards }}</span>
           </div>
           <div class="mq-session-stat">
             <span class="mq-session-stat-label">Boîtes du jour</span>
             <div class="mq-box-chips">
               <mat-chip-listbox>
+                @if (boxesToday.length === 0) {
+                  <mat-chip>Aucune</mat-chip>
+                }
                 @for (box of boxesToday; track box) {
                   <mat-chip color="primary">
                     Boîte {{ box }}
@@ -62,7 +81,7 @@
           mat-flat-button
           color="primary"
           (click)="startSession()"
-          [disabled]="!hasCardsToday"
+          [disabled]="!canLaunchSession"
           >
           Lancer la session
         </button>
@@ -72,29 +91,43 @@
     <!-- Bloc récap du jour -->
     <mat-card class="mq-card mq-card-recap">
       <mat-card-header>
-        <mat-card-title>Récap du jour</mat-card-title>
-        <mat-card-subtitle> Dernière session de révision </mat-card-subtitle>
+        <mat-card-title>Dernière session</mat-card-title>
+        <mat-card-subtitle>
+          @if (lastSessionSummary) {
+            {{ lastSessionSummary.startedAt | date : 'EEEE d MMMM yyyy, HH:mm' }} · Jour #{{ lastSessionSummary.dayIndex }}
+          } @else {
+            Aucune session récente
+          }
+        </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
-        <div class="mq-recap-grid">
-          <div class="mq-recap-item">
-            <span class="mq-recap-label">Cartes révisées</span>
-            <span class="mq-recap-value">
-              {{ daySummary.reviewedCards }}
-            </span>
+        @if (lastSessionSummary) {
+          <div class="mq-recap-grid">
+            <div class="mq-recap-item">
+              <span class="mq-recap-label">Cartes révisées</span>
+              <span class="mq-recap-value">
+                {{ lastSessionSummary.reviewedCards }}
+              </span>
+            </div>
+            <div class="mq-recap-item">
+              <span class="mq-recap-label">Bonnes réponses</span>
+              <span class="mq-recap-value">
+                {{ lastSessionSummary.goodAnswers }}
+              </span>
+            </div>
+            <div class="mq-recap-item">
+              <span class="mq-recap-label">Taux de réussite</span>
+              <span class="mq-recap-value">
+                {{ lastSessionSummary.successRate | number : '1.0-1' }}&nbsp;%
+              </span>
+            </div>
           </div>
-          <div class="mq-recap-item">
-            <span class="mq-recap-label">Bonnes réponses</span>
-            <span class="mq-recap-value">
-              {{ daySummary.goodAnswers }}
-            </span>
+        } @else {
+          <div class="mq-empty-state">
+            Les statistiques apparaîtront après une première session terminée.
           </div>
-          <div class="mq-recap-item">
-            <span class="mq-recap-label">Taux de réussite</span>
-            <span class="mq-recap-value"> {{ daySummary.successRate }}&nbsp;% </span>
-          </div>
-        </div>
+        }
       </mat-card-content>
     </mat-card>
   </section>

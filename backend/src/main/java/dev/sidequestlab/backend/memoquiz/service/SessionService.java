@@ -37,7 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class SessionService {
 
     static final String SESSION_ALREADY_DONE_TODAY = "Session deja effectuee aujourd'hui.";
-    private static final int SESSION_CARD_LIMIT = 20;
+    static final int SESSION_CARD_LIMIT = 20;
     private static final int MAX_BOX = 7;
 
     private final CardRepository cardRepository;
