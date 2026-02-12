@@ -7,10 +7,18 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BoxesOverviewItem } from './boxesOverviewItem';
+import { LastSessionSummary } from './lastSessionSummary';
 
 
 export interface TodayDashboardDto { 
+    todayDate?: string;
+    dayIndex?: number;
+    canStartSession?: boolean;
+    boxesToday?: Array<number>;
     dueToday?: number;
     totalCards?: number;
+    lastSessionSummary?: LastSessionSummary;
+    boxesOverview?: Array<BoxesOverviewItem>;
 }
 

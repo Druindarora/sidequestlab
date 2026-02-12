@@ -4,4 +4,8 @@ import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizReviewLogEnt
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemoQuizReviewLogRepository extends JpaRepository<MemoQuizReviewLogEntity, Long> {
+
+    long countBySessionId(Long sessionId);
+
+    long countBySessionIdAndCorrectTrue(Long sessionId);
 }

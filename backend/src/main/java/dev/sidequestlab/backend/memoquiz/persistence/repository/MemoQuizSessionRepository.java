@@ -9,5 +9,10 @@ public interface MemoQuizSessionRepository extends JpaRepository<MemoQuizSession
 
     boolean existsByStartedAtGreaterThanEqualAndStartedAtLessThan(Instant startedAt, Instant endAt);
 
+    Optional<MemoQuizSessionEntity> findTopByStartedAtGreaterThanEqualAndStartedAtLessThanOrderByStartedAtDescIdDesc(
+        Instant startedAt,
+        Instant endAt
+    );
+
     Optional<MemoQuizSessionEntity> findTopByOrderByStartedAtDescIdDesc();
 }

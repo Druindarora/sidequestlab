@@ -16,8 +16,10 @@ git_push.sh
 index.ts
 model/answerRequest.ts
 model/answerResponse.ts
+model/boxesOverviewItem.ts
 model/cardDto.ts
 model/createCardRequest.ts
+model/lastSessionSummary.ts
 model/models.ts
 model/profileDto.ts
 model/quizDto.ts
