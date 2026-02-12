@@ -22,7 +22,7 @@
       <div class="mq-header-date">
         <span class="mq-header-label">Aujourd'hui</span>
         <span class="mq-header-value">
-          {{ today | date : 'EEEE d MMMM yyyy' }}
+          {{ todayLabel }}
         </span>
       </div>
       <div class="mq-header-day">
@@ -94,7 +94,7 @@
         <mat-card-title>Dernière session</mat-card-title>
         <mat-card-subtitle>
           @if (lastSessionSummary) {
-            {{ lastSessionSummary.startedAt | date : 'EEEE d MMMM yyyy, HH:mm' }} · Jour #{{ lastSessionSummary.dayIndex }}
+            {{ lastSessionSummary.startedAtLabel }} · Jour #{{ lastSessionSummary.dayIndex }}
           } @else {
             Aucune session récente
           }
@@ -140,7 +140,7 @@
     <mat-card class="mq-card mq-card-boxes">
       <mat-card-content>
         <div class="mq-boxes-grid">
-          @for (box of boxes; track box) {
+          @for (box of boxesOverviewAll; track box.boxNumber) {
             <div class="mq-box-item" [class.mq-box-today]="box.isToday">
               <div class="mq-box-header">
                 <span class="mq-box-number">Boîte {{ box.boxNumber }}</span>

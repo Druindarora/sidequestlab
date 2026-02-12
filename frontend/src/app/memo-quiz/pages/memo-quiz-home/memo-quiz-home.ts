@@ -17,6 +17,7 @@ interface MemoQuizLastSessionSummary {
   goodAnswers: number;
   successRate: number;
   startedAt: string;
+  startedAtLabel: string;
   dayIndex: number;
 }
 
@@ -49,13 +50,14 @@ export class MemoQuizHome implements OnInit {
   };
 
   today = new Date();
+  todayLabel = this.formatFrenchDate(this.today);
   dayIndex = 1;
   canStartSession = false;
   boxesToday: number[] = [];
   dueToday = 0;
   totalCards = 0;
   lastSessionSummary: MemoQuizLastSessionSummary | null = null;
-  boxes: LeitnerBoxSummary[] = [];
+  boxesOverviewAll: LeitnerBoxSummary[] = this.buildBoxesOverviewAll([], []);
 
   loading = false;
   errorMessage: string | null = null;
@@ -112,23 +114,14 @@ export class MemoQuizHome implements OnInit {
     }
 
     this.today = this.toDisplayDate(dashboard.todayDate);
+    this.todayLabel = this.formatFrenchDate(this.today);
     this.dayIndex = dashboard.dayIndex ?? 1;
     this.canStartSession = dashboard.canStartSession ?? false;
     this.boxesToday = dashboard.boxesToday ?? [];
     this.dueToday = dashboard.dueToday ?? 0;
     this.totalCards = dashboard.totalCards ?? 0;
     this.lastSessionSummary = this.mapLastSessionSummary(dashboard.lastSessionSummary);
-    this.boxes = (dashboard.boxesOverview ?? [])
-      .filter((box): box is Required<Pick<BoxesOverviewItem, 'boxNumber' | 'cardCount' | 'isToday'>> =>
-        typeof box.boxNumber === 'number' &&
-        typeof box.cardCount === 'number' &&
-        typeof box.isToday === 'boolean')
-      .map((box) => ({
-        boxNumber: box.boxNumber,
-        label: this.boxLabels[box.boxNumber] ?? `Boîte ${box.boxNumber}`,
-        cardCount: box.cardCount,
-        isToday: box.isToday,
-      }));
+    this.boxesOverviewAll = this.buildBoxesOverviewAll(dashboard.boxesOverview ?? [], this.boxesToday);
   }
 
   private async resolveDashboardPayload(payload: unknown): Promise<TodayDashboardDto | null> {
@@ -155,6 +148,26 @@ export class MemoQuizHome implements OnInit {
     this.errorMessage = 'Impossible de charger le dashboard du jour.';
   }
 
+  private buildBoxesOverviewAll(
+    boxesOverview: BoxesOverviewItem[],
+    boxesToday: number[],
+  ): LeitnerBoxSummary[] {
+    const countsByBox = new Map<number, number>();
+    for (const box of boxesOverview) {
+      if (typeof box.boxNumber === 'number' && typeof box.cardCount === 'number') {
+        countsByBox.set(box.boxNumber, box.cardCount);
+      }
+    }
+
+    const todayBoxes = new Set(boxesToday);
+    return Array.from({ length: 7 }, (_, index) => index + 1).map((boxNumber) => ({
+      boxNumber,
+      label: this.boxLabels[boxNumber] ?? `Boîte ${boxNumber}`,
+      cardCount: countsByBox.get(boxNumber) ?? 0,
+      isToday: todayBoxes.has(boxNumber),
+    }));
+  }
+
   private mapLastSessionSummary(
     summary: LastSessionSummary | null | undefined,
   ): MemoQuizLastSessionSummary | null {
@@ -177,8 +190,33 @@ export class MemoQuizHome implements OnInit {
       goodAnswers: summary.goodAnswers,
       successRate: summary.successRate,
       startedAt: summary.startedAt,
+      startedAtLabel: this.formatFrenchDateTime(summary.startedAt),
       dayIndex: summary.dayIndex,
     };
+  }
+
+  private formatFrenchDate(date: Date): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
+  }
+
+  private formatFrenchDateTime(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+    return new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   }
 
   private toDisplayDate(todayDate: string | undefined): Date {
