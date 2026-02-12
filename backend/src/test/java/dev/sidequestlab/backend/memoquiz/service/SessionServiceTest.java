@@ -8,14 +8,11 @@ import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProje
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizReviewLogEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionItemEntity;
-import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSettingsEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.CardRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizQuizCardRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizReviewLogRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionItemRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionRepository;
-import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSettingsRepository;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -32,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -43,9 +39,6 @@ class SessionServiceTest {
 
     @Mock
     private CardRepository cardRepository;
-
-    @Mock
-    private MemoQuizSettingsRepository settingsRepository;
 
     @Mock
     private MemoQuizSessionRepository sessionRepository;
@@ -69,30 +62,15 @@ class SessionServiceTest {
     private SessionService sessionService;
 
     @Test
-    void computeDayIndexWrapsAtCycleLength() {
-        LocalDate start = LocalDate.of(2026, 1, 1);
-
-        assertThat(SessionService.computeDayIndex(start, start)).isEqualTo(1);
-        assertThat(SessionService.computeDayIndex(start, start.plusDays(1))).isEqualTo(2);
-        assertThat(SessionService.computeDayIndex(start, start.plusDays(64))).isEqualTo(1);
-    }
-
-    @Test
-    void computeDayIndexWithToday() {
-        LocalDate today = LocalDate.now();
-
-        assertThat(SessionService.computeDayIndex(today, today)).isEqualTo(1);
-        assertThat(SessionService.computeDayIndex(today.minusDays(1), today)).isEqualTo(2);
-        assertThat(SessionService.computeDayIndex(today.minusDays(64), today)).isEqualTo(1);
+    void nextDayIndexWrapsAndStartsAtOne() {
+        assertThat(SessionService.nextDayIndex(null, 3)).isEqualTo(1);
+        assertThat(SessionService.nextDayIndex(1, 3)).isEqualTo(2);
+        assertThat(SessionService.nextDayIndex(3, 3)).isEqualTo(1);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    void todaySessionUsesQuizMembershipBoxes() {
-        LocalDate today = LocalDate.now();
-        MemoQuizSettingsEntity settings = new MemoQuizSettingsEntity();
-        settings.setStartDate(today);
-
+    void firstEverCallCreatesSessionWithDayIndexOne() {
         CardEntity card = new CardEntity();
         card.setId(5L);
         card.setFront("Front");
@@ -107,9 +85,11 @@ class SessionServiceTest {
 
         SessionCardProjection projection = new SessionCardProjection(card.getId(), card.getFront(), card.getBack(), 4);
 
-        when(settingsRepository.findTopByOrderByIdAsc()).thenReturn(Optional.of(settings));
-        when(scheduleProvider.boxesForDay(anyInt())).thenReturn(List.of(4));
-        when(quizService.getDefaultQuizId()).thenReturn(1L);
+        when(quizService.getDefaultQuizIdForUpdate()).thenReturn(1L);
+        when(sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any())).thenReturn(false);
+        when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.empty());
+        when(scheduleProvider.scheduleLength()).thenReturn(8);
+        when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(4));
         when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
             .thenReturn(List.of(projection));
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> {
@@ -124,10 +104,91 @@ class SessionServiceTest {
         assertThat(session.cards()).hasSize(1);
         assertThat(session.cards().get(0).box()).isEqualTo(4);
 
+        ArgumentCaptor<MemoQuizSessionEntity> sessionCaptor = ArgumentCaptor.forClass(MemoQuizSessionEntity.class);
+        verify(sessionRepository).save(sessionCaptor.capture());
+        assertThat(sessionCaptor.getValue().getDayIndex()).isEqualTo(1);
+
         ArgumentCaptor<List<MemoQuizSessionItemEntity>> itemsCaptor = ArgumentCaptor.forClass(List.class);
         verify(sessionItemRepository).saveAll(itemsCaptor.capture());
         assertThat(itemsCaptor.getValue()).hasSize(1);
         assertThat(itemsCaptor.getValue().get(0).getBox()).isEqualTo(4);
+    }
+
+    @Test
+    void secondCallSameDayReturnsConflictAndDoesNotCreateRow() {
+        when(quizService.getDefaultQuizIdForUpdate()).thenReturn(1L);
+        when(sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any())).thenReturn(true);
+
+        assertThatThrownBy(() -> sessionService.getTodaySession())
+            .isInstanceOf(ResponseStatusException.class)
+            .extracting("statusCode")
+            .isEqualTo(HttpStatus.CONFLICT);
+
+        verify(sessionRepository, never()).save(any(MemoQuizSessionEntity.class));
+        verify(sessionItemRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void nextSessionAfterLastDayIndexNCreatesNPlusOne() {
+        MemoQuizSessionEntity lastSession = new MemoQuizSessionEntity();
+        lastSession.setDayIndex(12);
+
+        when(quizService.getDefaultQuizIdForUpdate()).thenReturn(1L);
+        when(sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any())).thenReturn(false);
+        when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
+        when(scheduleProvider.scheduleLength()).thenReturn(64);
+        when(scheduleProvider.boxesForDay(13)).thenReturn(List.of(1));
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+            .thenReturn(List.of());
+        when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        sessionService.getTodaySession();
+
+        ArgumentCaptor<MemoQuizSessionEntity> sessionCaptor = ArgumentCaptor.forClass(MemoQuizSessionEntity.class);
+        verify(sessionRepository).save(sessionCaptor.capture());
+        assertThat(sessionCaptor.getValue().getDayIndex()).isEqualTo(13);
+    }
+
+    @Test
+    void wrapWhenLastDayIndexEqualsScheduleLengthCreatesDayOne() {
+        MemoQuizSessionEntity lastSession = new MemoQuizSessionEntity();
+        lastSession.setDayIndex(3);
+
+        when(quizService.getDefaultQuizIdForUpdate()).thenReturn(1L);
+        when(sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any())).thenReturn(false);
+        when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
+        when(scheduleProvider.scheduleLength()).thenReturn(3);
+        when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(1));
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+            .thenReturn(List.of());
+        when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        sessionService.getTodaySession();
+
+        ArgumentCaptor<MemoQuizSessionEntity> sessionCaptor = ArgumentCaptor.forClass(MemoQuizSessionEntity.class);
+        verify(sessionRepository).save(sessionCaptor.capture());
+        assertThat(sessionCaptor.getValue().getDayIndex()).isEqualTo(1);
+    }
+
+    @Test
+    void scheduleLengthComesFromProviderAndIsNotHardcoded() {
+        MemoQuizSessionEntity lastSession = new MemoQuizSessionEntity();
+        lastSession.setDayIndex(5);
+
+        when(quizService.getDefaultQuizIdForUpdate()).thenReturn(1L);
+        when(sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any())).thenReturn(false);
+        when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
+        when(scheduleProvider.scheduleLength()).thenReturn(2);
+        when(scheduleProvider.boxesForDay(2)).thenReturn(List.of(1));
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+            .thenReturn(List.of());
+        when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        sessionService.getTodaySession();
+
+        ArgumentCaptor<MemoQuizSessionEntity> sessionCaptor = ArgumentCaptor.forClass(MemoQuizSessionEntity.class);
+        verify(sessionRepository).save(sessionCaptor.capture());
+        assertThat(sessionCaptor.getValue().getDayIndex()).isEqualTo(2);
     }
 
     @Test

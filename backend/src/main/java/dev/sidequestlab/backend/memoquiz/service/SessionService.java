@@ -11,15 +11,14 @@ import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProje
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizReviewLogEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSessionItemEntity;
-import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizSettingsEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.CardRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizQuizCardRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizReviewLogRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionItemRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionRepository;
-import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSettingsRepository;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +35,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Profile("!test")
 public class SessionService {
 
-    static final int CYCLE_DAYS = 64;
+    static final String SESSION_ALREADY_DONE_TODAY = "Session deja effectuee aujourd'hui.";
     private static final int SESSION_CARD_LIMIT = 20;
     private static final int MAX_BOX = 7;
 
     private final CardRepository cardRepository;
-    private final MemoQuizSettingsRepository settingsRepository;
     private final MemoQuizSessionRepository sessionRepository;
     private final MemoQuizSessionItemRepository sessionItemRepository;
     private final MemoQuizReviewLogRepository reviewLogRepository;
@@ -51,7 +49,6 @@ public class SessionService {
 
     public SessionService(
         CardRepository cardRepository,
-        MemoQuizSettingsRepository settingsRepository,
         MemoQuizSessionRepository sessionRepository,
         MemoQuizSessionItemRepository sessionItemRepository,
         MemoQuizReviewLogRepository reviewLogRepository,
@@ -60,7 +57,6 @@ public class SessionService {
         QuizService quizService
     ) {
         this.cardRepository = cardRepository;
-        this.settingsRepository = settingsRepository;
         this.sessionRepository = sessionRepository;
         this.sessionItemRepository = sessionItemRepository;
         this.reviewLogRepository = reviewLogRepository;
@@ -71,12 +67,24 @@ public class SessionService {
 
     @Transactional
     public SessionDto getTodaySession() {
-        LocalDate today = LocalDate.now();
-        MemoQuizSettingsEntity settings = getOrCreateSettings(today);
-        int dayIndex = computeDayIndex(settings.getStartDate(), today);
-        List<Integer> boxesToday = scheduleProvider.boxesForDay(dayIndex);
+        Long quizId = quizService.getDefaultQuizIdForUpdate();
 
-        Long quizId = quizService.getDefaultQuizId();
+        LocalDate today = LocalDate.now();
+        Instant startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant startOfNextDay = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        if (sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(startOfDay, startOfNextDay)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, SESSION_ALREADY_DONE_TODAY);
+        }
+
+        int dayIndex = nextDayIndex(
+            sessionRepository.findTopByOrderByStartedAtDescIdDesc()
+                .map(MemoQuizSessionEntity::getDayIndex)
+                .orElse(null),
+            scheduleProvider.scheduleLength()
+        );
+
+        List<Integer> boxesToday = scheduleProvider.boxesForDay(dayIndex);
         Pageable pageable = PageRequest.of(0, SESSION_CARD_LIMIT, Sort.by(Sort.Direction.ASC, "cardId"));
 
         // If there are no boxes scheduled today, create an empty session and return
@@ -166,26 +174,14 @@ public class SessionService {
         return new AnswerResponse(correct, now.plus(1, ChronoUnit.DAYS));
     }
 
-    static int computeDayIndex(LocalDate startDate, LocalDate today) {
-        long daysBetween = ChronoUnit.DAYS.between(startDate, today);
-        long normalized = Math.floorMod(daysBetween, CYCLE_DAYS);
-        return (int) normalized + 1;
-    }
-
-    private MemoQuizSettingsEntity getOrCreateSettings(LocalDate today) {
-        MemoQuizSettingsEntity settings = settingsRepository.findTopByOrderByIdAsc()
-            .orElseGet(() -> {
-                MemoQuizSettingsEntity created = new MemoQuizSettingsEntity();
-                created.setStartDate(today);
-                return settingsRepository.save(created);
-            });
-
-        if (settings.getStartDate() == null) {
-            settings.setStartDate(today);
-            settings = settingsRepository.save(settings);
+    static int nextDayIndex(Integer lastDayIndex, int scheduleLength) {
+        if (scheduleLength < 1) {
+            throw new IllegalArgumentException("scheduleLength must be positive");
         }
-
-        return settings;
+        if (lastDayIndex == null) {
+            return 1;
+        }
+        return Math.floorMod(lastDayIndex, scheduleLength) + 1;
     }
 
     private String normalize(String value) {

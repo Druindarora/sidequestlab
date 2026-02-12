@@ -42,6 +42,11 @@ public class QuizService {
         return getDefaultQuiz().getId();
     }
 
+    @Transactional
+    public Long getDefaultQuizIdForUpdate() {
+        return getDefaultQuizForUpdate().getId();
+    }
+
     public List<QuizDto> listQuizzes() {
         List<MemoQuizQuizEntity> quizzes = quizRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
         return quizzes.stream()
@@ -109,6 +114,11 @@ public class QuizService {
 
     private MemoQuizQuizEntity getDefaultQuiz() {
         return quizRepository.findByCode(DEFAULT_QUIZ_CODE)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Default quiz not found"));
+    }
+
+    private MemoQuizQuizEntity getDefaultQuizForUpdate() {
+        return quizRepository.findByCodeForUpdate(DEFAULT_QUIZ_CODE)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Default quiz not found"));
     }
 }
