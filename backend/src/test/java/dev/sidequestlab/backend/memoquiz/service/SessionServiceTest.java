@@ -29,8 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -112,6 +115,60 @@ class SessionServiceTest {
         verify(sessionItemRepository).saveAll(itemsCaptor.capture());
         assertThat(itemsCaptor.getValue()).hasSize(1);
         assertThat(itemsCaptor.getValue().get(0).getBox()).isEqualTo(4);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void createdSessionShufflesCardsWithoutChangingReturnedCardSet() {
+        SessionService spySessionService = spy(new SessionService(
+            cardRepository,
+            sessionRepository,
+            sessionItemRepository,
+            reviewLogRepository,
+            scheduleProvider,
+            quizCardRepository,
+            quizService
+        ));
+
+        SessionCardProjection first = new SessionCardProjection(10L, "F1", "B1", 1);
+        SessionCardProjection second = new SessionCardProjection(20L, "F2", "B2", 2);
+        SessionCardProjection third = new SessionCardProjection(30L, "F3", "B3", 1);
+
+        when(quizService.getDefaultQuizIdForUpdate()).thenReturn(1L);
+        when(sessionRepository.existsByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any())).thenReturn(false);
+        when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.empty());
+        when(scheduleProvider.scheduleLength()).thenReturn(64);
+        when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(1, 2));
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+            .thenReturn(List.of(first, second, third));
+        when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> {
+            MemoQuizSessionEntity saved = invocation.getArgument(0);
+            saved.setId(99L);
+            return saved;
+        });
+        when(sessionItemRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        doAnswer(invocation -> {
+            List<SessionCardProjection> shuffled = invocation.getArgument(0);
+            shuffled.sort((a, b) -> Long.compare(b.cardId(), a.cardId()));
+            return null;
+        }).when(spySessionService).shuffleMemberships(anyList());
+
+        var session = spySessionService.getTodaySession();
+
+        assertThat(session.cards())
+            .extracting(card -> card.cardId())
+            .containsExactly(30L, 20L, 10L);
+        assertThat(session.cards())
+            .extracting(card -> card.cardId())
+            .containsExactlyInAnyOrder(10L, 20L, 30L);
+        verify(spySessionService).shuffleMemberships(anyList());
+
+        ArgumentCaptor<List<MemoQuizSessionItemEntity>> itemsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(sessionItemRepository).saveAll(itemsCaptor.capture());
+        assertThat(itemsCaptor.getValue())
+            .extracting(MemoQuizSessionItemEntity::getCardId)
+            .containsExactly(30L, 20L, 10L);
     }
 
     @Test

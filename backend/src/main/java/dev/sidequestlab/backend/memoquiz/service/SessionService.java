@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -97,12 +98,13 @@ public class SessionService {
             return new SessionDto(savedSession.getId(), savedSession.getStartedAt(), List.of());
         }
 
-        List<SessionCardProjection> memberships = quizCardRepository.findEnabledForSession(
+        List<SessionCardProjection> memberships = new ArrayList<>(quizCardRepository.findEnabledForSession(
             quizId,
             boxesToday,
             CardStatus.ACTIVE,
             pageable
-        );
+        ));
+        shuffleMemberships(memberships);
 
         Instant now = Instant.now();
         MemoQuizSessionEntity session = new MemoQuizSessionEntity();
@@ -133,6 +135,10 @@ public class SessionService {
             .toList();
 
         return new SessionDto(savedSession.getId(), savedSession.getStartedAt(), cardDtos);
+    }
+
+    void shuffleMemberships(List<SessionCardProjection> memberships) {
+        Collections.shuffle(memberships);
     }
 
     @Transactional
