@@ -72,13 +72,30 @@
   padding: 20px;
 }
 
-.mq-answer-btn--good.mat-mdc-unelevated-button:not(:disabled) {
+.mq-answer-button--good.mat-mdc-unelevated-button:not(:disabled) {
   background-color: #2e7d32;
   color: #ffffff;
 }
 
-.mq-answer-btn--good.mat-mdc-unelevated-button:not(:disabled):hover {
+.mq-answer-button--good.mat-mdc-unelevated-button:not(:disabled):hover {
   background-color: #1b5e20;
+}
+
+.mq-answer-button--bad.mat-mdc-outlined-button:not(:disabled) {
+  background-color: #c62828;
+  border-color: #c62828;
+  color: #ffffff;
+}
+
+.mq-answer-button--bad.mat-mdc-outlined-button:not(:disabled):hover {
+  background-color: #b71c1c;
+  border-color: #b71c1c;
+}
+
+.mq-answer-button--bad.mat-mdc-outlined-button:not(:disabled):focus-visible {
+  background-color: #b71c1c;
+  border-color: #b71c1c;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.3);
 }
 
 .mq-empty {

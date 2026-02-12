@@ -70,7 +70,7 @@
           <button
             mat-flat-button
             color="primary"
-            class="mq-answer-btn mq-answer-btn--good"
+            class="mq-answer-button mq-answer-button--good"
             (click)="markAnswer(true)"
             aria-label="J’ai bien répondu"
             [disabled]="loadingAnswer || !currentCard"
@@ -81,7 +81,7 @@
           <button
             mat-stroked-button
             color="warn"
-            class="mq-answer-btn mq-answer-btn--bad"
+            class="mq-answer-button mq-answer-button--bad"
             (click)="markAnswer(false)"
             aria-label="Je me suis trompé"
             [disabled]="loadingAnswer || !currentCard"
