@@ -17,8 +17,8 @@
 
 .app-header--primary {
   /* Use Material tokens so theme switches (light/dark) are automatic */
-  background: var(--mat-sys-primary);
-  color: var(--mat-sys-on-primary);
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-primary);
 }
 
 .app-header__nav .nav-link {
@@ -28,7 +28,9 @@
   background: transparent;
   border-radius: 6px;
   padding: 0.35rem 0.5rem;
-  transition: background-color 160ms linear, color 160ms linear;
+  transition:
+    background-color 160ms linear,
+    color 160ms linear;
   font-weight: 500;
 }
 
