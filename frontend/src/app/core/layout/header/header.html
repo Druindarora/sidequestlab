@@ -39,8 +39,20 @@
 
   <!-- Auth -->
   <div class="app-header__auth">
-    <button mat-flat-button color="accent" class="app-header__login-btn" type="button">
-      Se connecter
-    </button>
+    @if (authenticated()) {
+      <button mat-flat-button color="accent" class="app-header__login-btn" type="button" (click)="logout()">
+        Déconnexion
+      </button>
+    } @else {
+      <button
+        mat-flat-button
+        color="accent"
+        class="app-header__login-btn"
+        type="button"
+        (click)="openLoginDialog()"
+      >
+        Se connecter
+      </button>
+    }
   </div>
 </mat-toolbar>
