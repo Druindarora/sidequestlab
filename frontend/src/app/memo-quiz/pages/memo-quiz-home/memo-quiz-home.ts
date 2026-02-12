@@ -89,9 +89,18 @@ export class MemoQuizHome implements OnInit {
 
     this.dashboardApi.today().subscribe({
       next: (payload: TodayDashboardDto) => {
-        void this.applyDashboardPayload(payload as unknown);
+        void this.applyDashboardPayload(payload as unknown)
+          .catch(() => {
+            this.errorMessage = 'Impossible de charger le dashboard du jour.';
+          })
+          .finally(() => {
+            this.loading = false;
+          });
       },
-      error: () => this.handleDashboardLoadError(),
+      error: () => {
+        this.handleDashboardLoadError();
+        this.loading = false;
+      },
     });
   }
 
@@ -120,7 +129,6 @@ export class MemoQuizHome implements OnInit {
         cardCount: box.cardCount,
         isToday: box.isToday,
       }));
-    this.loading = false;
   }
 
   private async resolveDashboardPayload(payload: unknown): Promise<TodayDashboardDto | null> {
@@ -145,7 +153,6 @@ export class MemoQuizHome implements OnInit {
 
   private handleDashboardLoadError(): void {
     this.errorMessage = 'Impossible de charger le dashboard du jour.';
-    this.loading = false;
   }
 
   private mapLastSessionSummary(
