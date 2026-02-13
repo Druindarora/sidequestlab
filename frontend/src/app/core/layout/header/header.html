@@ -32,9 +32,11 @@
       Portfolio
     </button>
 
-    <button mat-button class="nav-link" routerLink="/memo-quiz" routerLinkActive="nav-link--active">
-      MémoQuiz
-    </button>
+    @if (authenticated()) {
+      <button mat-button class="nav-link" routerLink="/memo-quiz" routerLinkActive="nav-link--active">
+        MemoQuiz
+      </button>
+    }
   </nav>
 
   <!-- Auth -->
