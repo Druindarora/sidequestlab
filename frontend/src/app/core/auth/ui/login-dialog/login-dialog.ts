@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { take } from 'rxjs/operators';
+import { finalize, take } from 'rxjs/operators';
 import { AuthService } from '../../auth.service';
 
 @Component({
@@ -34,8 +35,14 @@ export class LoginDialog {
     this.dialogRef.close(false);
   }
 
-  submit(): void {
-    if (this.loading || this.form.invalid) {
+  submit(event?: Event): void {
+    event?.preventDefault();
+
+    if (this.loading) {
+      return;
+    }
+
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -44,18 +51,38 @@ export class LoginDialog {
     this.errorMessage = null;
 
     const { email, password } = this.form.getRawValue();
+    this.form.disable({ emitEvent: false });
+
     this.authService
       .login(email, password)
-      .pipe(take(1))
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.loading = false;
+          this.form.enable({ emitEvent: false });
+        }),
+      )
       .subscribe({
         next: () => {
-          this.loading = false;
           this.dialogRef.close(true);
         },
-        error: () => {
-          this.loading = false;
-          this.errorMessage = 'Email ou mot de passe invalide.';
+        error: (error: unknown) => {
+          this.errorMessage = this.resolveErrorMessage(error);
         },
       });
+  }
+
+  private resolveErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        return 'Email ou mot de passe invalide.';
+      }
+
+      if (error.status === 403) {
+        return 'Connexion refusée. Merci de réessayer.';
+      }
+    }
+
+    return 'Impossible de se connecter pour le moment.';
   }
 }
