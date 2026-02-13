@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Se connecter</h2>
 
-<form class="login-dialog__form" [formGroup]="form" (ngSubmit)="submit()">
+<form class="login-dialog__form" [formGroup]="form" (ngSubmit)="submit($event)">
   <div mat-dialog-content>
     <mat-form-field appearance="outline" class="login-dialog__field">
       <mat-label>Email</mat-label>

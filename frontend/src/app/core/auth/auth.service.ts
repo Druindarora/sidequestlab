@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 interface AuthUserDto {
@@ -20,6 +20,7 @@ export class AuthService {
   private readonly authenticatedState = signal(false);
   private readonly userEmailState = signal<string | null>(null);
   private restoreRequest$: Observable<boolean> | null = null;
+  private csrfRequest$: Observable<void> | null = null;
 
   readonly authenticated = this.authenticatedState.asReadonly();
   readonly userEmail = this.userEmailState.asReadonly();
@@ -30,9 +31,10 @@ export class AuthService {
 
   login(email: string, password: string): Observable<AuthUserDto> {
     const payload: LoginPayload = { email, password };
-    return this.http
-      .post<AuthUserDto>(`${environment.apiBaseUrl}/auth/login`, payload)
-      .pipe(tap((user) => this.setAuthenticated(user.email)));
+    return this.ensureCsrf().pipe(
+      switchMap(() => this.http.post<AuthUserDto>(`${environment.apiBaseUrl}/auth/login`, payload)),
+      tap((user) => this.setAuthenticated(user.email)),
+    );
   }
 
   logout(): Observable<void> {
@@ -40,6 +42,7 @@ export class AuthService {
       map(() => void 0),
       catchError(() => of(void 0)),
       tap(() => this.setLoggedOut()),
+      switchMap(() => this.ensureCsrf().pipe(catchError(() => of(void 0)))),
     );
   }
 
@@ -67,6 +70,24 @@ export class AuthService {
     );
 
     return this.restoreRequest$;
+  }
+
+  private ensureCsrf(): Observable<void> {
+    if (this.csrfRequest$) {
+      return this.csrfRequest$;
+    }
+
+    this.csrfRequest$ = this.http
+      .get(`${environment.apiBaseUrl}/auth/csrf`, { responseType: 'text' })
+      .pipe(
+        map(() => void 0),
+        finalize(() => {
+          this.csrfRequest$ = null;
+        }),
+        shareReplay(1),
+      );
+
+    return this.csrfRequest$;
   }
 
   private setAuthenticated(email: string): void {
