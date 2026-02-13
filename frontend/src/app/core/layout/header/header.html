@@ -1,21 +1,8 @@
 <mat-toolbar class="app-header app-header--primary" role="navigation">
-  <!-- Brand -->
-  <!-- <button
-    mat-button
-    class="app-header__brand nav-link"
-    routerLink="/"
-    routerLinkActive="nav-link--active"
-    [routerLinkActiveOptions]="{ exact: true }"
-  >
-    <span>SidequestLab</span>
-  </button>
-
-  <span class="app-header__spacer"></span> -->
-
   <!-- Navigation principale -->
   <nav class="app-header__nav" aria-label="Navigation principale">
     <button
-      mat-button
+      matButton
       class="nav-link"
       routerLink="/"
       routerLinkActive="nav-link--active"
@@ -24,16 +11,21 @@
       Accueil
     </button>
 
-    <button mat-button class="nav-link" routerLink="/profil" routerLinkActive="nav-link--active">
+    <button matButton class="nav-link" routerLink="/profil" routerLinkActive="nav-link--active">
       À propos
     </button>
 
-    <button mat-button class="nav-link" routerLink="/portfolio" routerLinkActive="nav-link--active">
+    <button matButton class="nav-link" routerLink="/portfolio" routerLinkActive="nav-link--active">
       Portfolio
     </button>
 
     @if (authenticated()) {
-      <button mat-button class="nav-link" routerLink="/memo-quiz" routerLinkActive="nav-link--active">
+      <button
+        matButton
+        class="nav-link"
+        routerLink="/memo-quiz"
+        routerLinkActive="nav-link--active"
+      >
         MemoQuiz
       </button>
     }
@@ -42,12 +34,18 @@
   <!-- Auth -->
   <div class="app-header__auth">
     @if (authenticated()) {
-      <button mat-flat-button color="accent" class="app-header__login-btn" type="button" (click)="logout()">
+      <button
+        matButton="outlined"
+        color="accent"
+        class="app-header__login-btn"
+        type="button"
+        (click)="logout()"
+      >
         Déconnexion
       </button>
     } @else {
       <button
-        mat-flat-button
+        matButton="outlined"
         color="accent"
         class="app-header__login-btn"
         type="button"
