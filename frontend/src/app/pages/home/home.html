@@ -1,33 +1,44 @@
 <main class="home">
   <!-- HERO -->
   <section class="home__hero">
-    <h1 class="home__hero-title">William — développeur full-stack Angular / Java orienté front</h1>
+    <h1 class="home__hero-title">
+      William — développeur full-stack Angular / Java, orienté productivité (outils IA) & UX
+    </h1>
 
     <p class="home__hero-subtitle">
       Je conçois des applications web de bout en bout, avec un vrai soin pour l’interface, la
-      lisibilité du code… et le plaisir d’utilisation.
+      lisibilité du code, et une approche <em>AI-assisted</em> : cadrage, specs courtes, prompts
+      ciblés, itérations rapides.
     </p>
 
     <div class="home__hero-actions">
-      <button matButton="elevated" routerLink="/profil">Voir mon profil</button>
-      <button matButton="outlined" routerLink="/portfolio">Voir mes projets</button>
+      <button matButton="elevated" routerLink="/profil">Voir mon profil ... a propos</button>
+      <button matButton="outlined" routerLink="/portfolio">Voir mes projets ... portfolio</button>
     </div>
 
     <p class="home__hero-note">
-      SidequestLab est mon terrain de jeu pour expérimenter, documenter et faire évoluer mes projets
-      perso.
+      SideQuestLab est mon laboratoire public. V1 = une première application (MémoQuiz) + une base
+      solide pour la suite.
     </p>
   </section>
 
-  <!-- QUI JE SUIS + AVATAR -->
+  <!-- MA FAÇON DE TRAVAILLER + AVATAR -->
   <section class="home__about">
     <div class="home__about-text">
-      <h2>Qui je suis</h2>
+      <h2>Ma façon de travailler</h2>
+
       <p>
-        Développeur full-stack <strong>Angular / Java</strong>, avec un fort tropisme pour le front
-        : ergonomie, clarté des interfaces, micro-interactions qui rendent une appli agréable à
-        utiliser.
+        J’aime livrer vite sans sacrifier la qualité. Je pars d’un besoin concret, V1 : une première
+        app (MémoQuiz) et un socle propre pour la suite. J’utilise des
+        <strong>outils IA</strong> comme levier de productivité (analyse, spécifications, génération
+        guidée).
       </p>
+
+      <p>
+        Le cadre reste strict : contrat d’API, conventions, checks automatiques, et une UX simple à
+        prendre en main.
+      </p>
+
       <p class="home__about-link">
         Pour le détail de mon parcours, de mes compétences et de mon expérience :
         <a routerLink="/profil">consulter mon profil complet</a>.
@@ -40,17 +51,36 @@
     </div>
   </section>
 
-  <!-- PROJETS EN BREF -->
+  <!-- SIDEQUESTLAB EN BREF -->
   <section class="home__projects">
-    <h2>Mes projets en bref</h2>
+    <h2>SideQuestLab, en bref</h2>
 
     <div class="home__projects-grid">
-      <!-- Carte MémoQuiz -->
+      <!-- Carte SideQuestLab (mise en avant) -->
       <article class="home__project-card">
-        <h3>MémoQuiz</h3>
+        <h3>SideQuestLab</h3>
         <p>
-          Application web pour mes révisions techniques, basée sur la méthode de Leitner (cartes de
-          questions-réponses) : V1 centrée sur l’essentiel.
+          Mon labo public pour construire et documenter des projets full-stack Angular/Java avec une
+          approche
+          <em>AI-augmented</em>. Aujourd’hui on est au début (V1) — l’objectif est de faire grandir
+          la collection au fil du temps.
+        </p>
+        <ul class="home__bullets">
+          <li>Projets de l’idée au déploiement, avec un parcours utilisateur clair</li>
+          <li>Méthode reproductible : specs → prompts → code → checks</li>
+          <li>Priorité à l’UX et à la maintenabilité</li>
+        </ul>
+        <div class="home__project-actions">
+          <button matButton="outlined">Découvrir le code</button>
+        </div>
+      </article>
+
+      <!-- Carte MémoQuiz (réalité actuelle) -->
+      <article class="home__project-card">
+        <h3>MémoQuiz (V1)</h3>
+        <p>
+          Première application de SideQuestLab : révisions techniques via méthode de Leitner (cartes
+          Q/R), “session du jour”, suivi des réponses et dashboard.
         </p>
         <div class="home__project-actions">
           <a
@@ -59,20 +89,8 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            Voir MémoQuiz sur GitHub
+            voir la page demo de memoquiz...
           </a>
-        </div>
-      </article>
-
-      <!-- Carte SidequestLab -->
-      <article class="home__project-card">
-        <h3>SidequestLab</h3>
-        <p>
-          Ce site est mon laboratoire public : il me permet de tester des idées et de montrer
-          comment j’organise un projet Angular / Java.
-        </p>
-        <div class="home__project-actions">
-          <button matButton="outlined" routerLink="/portfolio">Découvrir le portfolio</button>
         </div>
       </article>
     </div>

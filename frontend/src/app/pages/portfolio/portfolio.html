@@ -3,19 +3,28 @@
   <section class="portfolio__header">
     <h1 class="portfolio__title">Portfolio</h1>
     <p class="portfolio__subtitle">
-      Une sélection de projets perso et de side projects qui illustrent ma façon de
-      travailler&nbsp;: full-stack Angular / Java, logique métier claire, et expérimentation autour
-      de l’IA.
+      Une sélection de projets qui illustrent ma façon de construire : full-stack Angular / Java,
+      logique métier claire, UX soignée, et productivité renforcée par des outils IA (cadrage, specs
+      courtes, génération guidée).
     </p>
 
     <div class="portfolio__header-actions">
       <a
         matButton="outlined"
+        href="https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Voir le repo SideQuestLab
+      </a>
+
+      <a
+        matButton="text"
         href="https://github.com/TON-USER"
         target="_blank"
         rel="noopener noreferrer"
       >
-        Voir mon GitHub
+        Profil GitHub
       </a>
     </div>
   </section>
@@ -25,106 +34,88 @@
     <h2>Projets principaux</h2>
 
     <div class="portfolio__projects-grid">
-      <!-- MémoQuiz -->
+      <!-- SideQuestLab -->
       <article class="portfolio__project-card">
-        <h3>MémoQuiz — application de mémorisation</h3>
+        <h3>SideQuestLab — monorepo &amp; labo public</h3>
         <p class="portfolio__project-tag">Angular · Java / Spring Boot · PostgreSQL</p>
         <p>
-          Application web que j’utilise pour mes propres révisions techniques (concepts, frameworks,
-          bonnes pratiques), basée sur la méthode de Leitner.
+          Le point d’entrée : ce site + mes projets full-stack, avec une structure lisible, une
+          logique métier cadrée, et une démarche “outils IA” côté productivité.
         </p>
         <ul>
-          <li>Cartes question / réponse organisées en “boîtes”.</li>
-          <li>Sessions de révision avec auto-évaluation.</li>
-          <li>Progression des cartes selon la justesse des réponses.</li>
+          <li>Architecture front/back claire (monorepo).</li>
+          <li>API + UI cohérentes, conventions et checks.</li>
+          <li>Base V1 solide pour faire grandir la suite.</li>
         </ul>
-        <p class="portfolio__project-note">
-          Projet phare : architecture complète front / back / DB, logique métier de répétition
-          espacée.
-        </p>
+        <p class="portfolio__project-note">Si tu ne dois cliquer qu’une fois : c’est ici.</p>
         <div class="portfolio__project-actions">
-          <a
-            matButton="outlined"
-            href="https://github.com/TON-USER/TON-REPO-MEMOQUIZ"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Voir le code sur GitHub
-          </a>
-          <span class="portfolio__project-status">Projet en cours d’évolution</span>
-        </div>
-      </article>
-
-      <!-- Vølund -->
-      <article class="portfolio__project-card">
-        <h3>Vølund — “OS personnel” modulaire &amp; IA locale</h3>
-        <p class="portfolio__project-tag">Python · IA open source · Whisper · Automatisation</p>
-        <p>
-          Vølund est une plateforme modulaire personnelle centrée sur la productivité,
-          l’automatisation locale, la mémorisation, la recherche et l’interaction avec l’IA.
-        </p>
-        <p>
-          Vision&nbsp;: un “OS personnel” en Python regroupant plusieurs outils dans une même
-          interface, entièrement local, contrôlé et extensible par modules.
-        </p>
-        <p>Le premier module sur lequel je me concentre actuellement&nbsp;:</p>
-        <ul>
-          <li>Connexion à un serveur d’IA local avec modèles open source.</li>
-          <li>Reconnaissance vocale via Whisper.</li>
-          <li>
-            Automatisation de la création de modules&nbsp;: je décris un besoin, l’IA génère les
-            écrans et les services associés.
-          </li>
-        </ul>
-        <p class="portfolio__project-note">
-          Projet en cours, axe fort sur l’outillage développeur et l’automatisation de tâches.
-        </p>
-        <div class="portfolio__project-actions">
-          <!-- À activer quand le repo sera public -->
-
-          <a
-            matButton="outlined"
-            href="https://github.com/TON-USER/TON-REPO-VOLUND"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Voir le code sur GitHub
-          </a>
-
-          <span class="portfolio__project-status">En cours de développement</span>
-        </div>
-      </article>
-
-      <!-- SidequestLab -->
-      <article class="portfolio__project-card">
-        <h3>SidequestLab — ce site</h3>
-        <p class="portfolio__project-tag">Angular · Java / Spring Boot · PostgreSQL</p>
-        <p>
-          Site vitrine et laboratoire public pour tester des idées, travailler l’UX/UI et montrer
-          comment j’organise un projet full-stack moderne.
-        </p>
-        <ul>
-          <li>Front Angular avec routing, mise en page responsive et composants réutilisables.</li>
-          <li>Back Java / Spring Boot exposé en API (en cours de construction).</li>
-          <li>Mise en avant de MémoQuiz et d’autres side projects.</li>
-        </ul>
-        <p class="portfolio__project-note">
-          Point d’entrée principal pour les recruteurs : code propre, structure lisible, attention
-          portée à la qualité.
-        </p>
-        <div class="portfolio__project-actions">
-          <!-- Quand tu mettras le repo public -->
-
           <a
             matButton="outlined"
             href="https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Voir le code sur GitHub
+            Voir le code (repo)
+          </a>
+          <span class="portfolio__project-status">V1 — en évolution</span>
+        </div>
+      </article>
+
+      <!-- MémoQuiz -->
+      <article class="portfolio__project-card">
+        <h3>MémoQuiz (V1) — répétition espacée / Leitner</h3>
+        <p class="portfolio__project-tag">Angular · Java / Spring Boot · PostgreSQL</p>
+        <p>
+          Première application intégrée à SideQuestLab : un outil de révisions techniques basé sur
+          la méthode de Leitner (cartes Q/R), avec “session du jour”, suivi des réponses et
+          dashboard.
+        </p>
+        <ul>
+          <li>Cartes organisées par boîtes + progression.</li>
+          <li>Sessions de révision avec auto-évaluation.</li>
+          <li>Historique de révision et stats côté dashboard.</li>
+        </ul>
+        <p class="portfolio__project-note">
+          Preuve “produit” : front/back/DB, règles métier, et parcours utilisateur complet.
+        </p>
+        <div class="portfolio__project-actions">
+          <button matButton="outlined" routerLink="/demo-memoquiz">
+            Voir la démo (screenshots)
+          </button>
+
+          <a
+            matButton="text"
+            href="https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Voir le code (dans SideQuestLab)
           </a>
 
-          <span class="portfolio__project-status">Projet en cours d’évolution</span>
+          <span class="portfolio__project-status">V1 — jouable en local</span>
+        </div>
+      </article>
+
+      <!-- Vølund -->
+      <article class="portfolio__project-card">
+        <h3>Vølund — R&amp;D : outillage personnel (desktop) &amp; IA locale</h3>
+        <p class="portfolio__project-tag">Python · Desktop · IA locale · Automatisation</p>
+        <p>
+          Un projet de recherche / exploration : l’idée d’un “OS personnel” modulaire, local et
+          contrôlé, pour regrouper des outils de productivité (recherche, automatisation,
+          interaction IA).
+        </p>
+        <p>
+          Aujourd’hui, je le garde volontairement en R&amp;D : pas de V1 publiée et rien de
+          montrable tel quel — c’est surtout un terrain pour explorer des architectures et des
+          workflows.
+        </p>
+        <p class="portfolio__project-note">
+          Intérêt : curiosité technique (Python/desktop) + réflexion outillage/automatisation.
+        </p>
+        <div class="portfolio__project-actions">
+          <a matButton="text" href="#volund-modules">Voir les modules / idées</a>
+          <span class="portfolio__project-status">R&amp;D — non public</span>
         </div>
       </article>
     </div>
@@ -134,37 +125,40 @@
   <section class="portfolio__section" id="volund-modules">
     <h2>Modules &amp; idées autour de Vølund</h2>
     <p>
-      Vølund est pensé comme une plateforme modulaire. Certains modules sont déjà en conception
-      avancée&nbsp;:
+      Vølund est pensé comme une plateforme modulaire. Quelques pistes (à cadrer en V1/V2 au moment
+      venu) :
     </p>
 
     <ul class="portfolio__ideas-list">
+      <li>
+        <strong>Gestionnaire de base de données musicale</strong> — import/scan de bibliothèque,
+        tags/metadata, recherche, playlists, et base SQL pour organiser artistes/albums/titres.
+      </li>
       <li>
         <strong>Gestionnaire de podcasts (Radio France)</strong> — récupération des flux via API,
         gestion d’abonnements, écoute et suivi des épisodes.
       </li>
       <li>
         <strong>Lecteur / résumeur d’articles avec IA</strong> — lecture d’articles, génération de
-        résumés, avec possibilité de créer des fiches directement réutilisables dans MémoQuiz.
+        résumés, avec possibilité de créer des fiches réutilisables dans MémoQuiz.
       </li>
       <li>
         <strong>Trakia</strong> — suivi des limites de messages et des usages d’API (statistiques,
         coûts estimés, historisation, profilage de tokens).
       </li>
       <li>
-        <strong>Parlia</strong> — évolution de ClipRelay en outil d’assistance au développement,
-        fortement piloté par des prompts, pour réduire au maximum les actions manuelles.
+        <strong>Parlia</strong> — assistance au développement pilotée par prompts, pour réduire au
+        maximum les actions manuelles.
       </li>
       <li>
-        <strong>Projet “secret” de domination du monde</strong> — un projet d’outillage en réflexion
-        pour m’aider à lancer ma propre structure... un jour... si possible... et si j'ai le
-        temps... à découvrir plutôt en entretien 😄
+        <strong>Projet “secret”</strong> — un projet d’outillage en réflexion pour m’aider à lancer
+        ma propre structure… à découvrir plutôt en entretien 😄
       </li>
     </ul>
 
     <p class="portfolio__ideas-note">
-      Tous ces modules restent centrés sur la même idée&nbsp;: des outils locaux, contrôlés, pensés
-      pour un usage quotidien et intégrés à mon “OS personnel”.
+      Fil rouge : des outils locaux, contrôlés, pensés pour un usage quotidien — et une démarche qui
+      reste pragmatique (cadrer une V1 avant d’élargir).
     </p>
   </section>
 </main>

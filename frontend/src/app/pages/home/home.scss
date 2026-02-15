@@ -117,6 +117,18 @@
   margin-top: 0.75rem;
 }
 
+/* NEW: bullets inside the SideQuestLab card */
+
+.home__bullets {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--app-muted);
+}
+
+.home__bullets li {
+  margin: 0.25rem 0;
+}
+
 /* Responsive */
 
 @media (max-width: 768px) {
