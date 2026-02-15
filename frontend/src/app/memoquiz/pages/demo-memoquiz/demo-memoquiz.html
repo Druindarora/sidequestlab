@@ -1,0 +1,105 @@
+<main class="demo-memoquiz">
+  <section class="demo-memoquiz__header">
+    <h1>D&eacute;mo M&eacute;moQuiz</h1>
+    <p>
+      MemoQuiz = app de r&eacute;vision Leitner, module SideQuestLab.
+    </p>
+    <p>Cette page montre une V1 simple avec 4 captures.</p>
+  </section>
+
+  <section class="demo-memoquiz__section">
+    <h2>Ce que vous voyez ici</h2>
+    <ul>
+      <li>Dashboard du jour pour visualiser les cartes &agrave; revoir et la progression.</li>
+      <li>Session de r&eacute;vision avec parcours question/r&eacute;ponse et auto-&eacute;valuation.</li>
+      <li>Gestion des cartes pour cr&eacute;er, modifier et maintenir le contenu.</li>
+      <li>Admin quiz pour piloter le quiz par d&eacute;faut et ses options de base.</li>
+    </ul>
+  </section>
+
+  <section class="demo-memoquiz__gallery" aria-label="Galerie MemoQuiz">
+    @for (screenshot of screenshots; track screenshot.src; let index = $index) {
+      <figure class="demo-memoquiz__thumb">
+        <button
+          type="button"
+          matButton="outlined"
+          class="demo-memoquiz__thumb-button"
+          [disabled]="isUnavailable(index)"
+          [attr.aria-label]="'Ouvrir la capture: ' + screenshot.caption"
+          (click)="openLightbox(index)"
+        >
+          @if (!isUnavailable(index)) {
+            <img
+              [src]="screenshot.src"
+              [alt]="screenshot.caption"
+              loading="lazy"
+              (error)="markUnavailable(index)"
+            />
+          } @else {
+            <span class="demo-memoquiz__missing">Capture indisponible</span>
+          }
+        </button>
+        <figcaption>{{ screenshot.caption }}</figcaption>
+      </figure>
+    }
+  </section>
+
+  <section class="demo-memoquiz__actions">
+    <button matButton="outlined" routerLink="/portfolio">Retour au portfolio</button>
+    <a matButton="text" [href]="codeUrl" target="_blank" rel="noopener noreferrer">
+      Voir le code (SideQuestLab)
+    </a>
+  </section>
+
+  @if (isLightboxOpen && currentScreenshot; as screenshot) {
+    <div
+      class="demo-memoquiz__lightbox"
+      role="dialog"
+      aria-modal="true"
+      tabindex="0"
+      [attr.aria-label]="'Apercu: ' + screenshot.caption"
+      (click)="onOverlayClick($event)"
+      (keydown)="onOverlayKeydown($event)"
+    >
+      <div class="demo-memoquiz__lightbox-inner">
+        <button
+          #closeLightboxButton
+          type="button"
+          matIconButton
+          class="demo-memoquiz__lightbox-close"
+          aria-label="Fermer l'apercu"
+          (click)="closeLightbox()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+
+        <button
+          type="button"
+          matIconButton
+          class="demo-memoquiz__lightbox-nav demo-memoquiz__lightbox-nav--prev"
+          aria-label="Image precedente"
+          (click)="showPrevious()"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="demo-memoquiz__lightbox-media">
+          <img [src]="screenshot.src" [alt]="screenshot.caption" (error)="markUnavailable(lightboxIndex()!)" />
+          <p class="demo-memoquiz__lightbox-caption">
+            {{ screenshot.caption }} <span aria-hidden="true">·</span> {{ currentPositionLabel }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          matIconButton
+          class="demo-memoquiz__lightbox-nav demo-memoquiz__lightbox-nav--next"
+          aria-label="Image suivante"
+          (click)="showNext()"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+</main>
