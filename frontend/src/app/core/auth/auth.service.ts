@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 
 interface AuthUserDto {
   email: string;
+  mustChangePassword: boolean;
 }
 
 interface LoginPayload {
@@ -19,11 +20,16 @@ export class AuthService {
 
   private readonly authenticatedState = signal(false);
   private readonly userEmailState = signal<string | null>(null);
+  private readonly mustChangePasswordState = signal(false);
+  private readonly passwordChangePromptRequestedState = signal(false);
   private restoreRequest$: Observable<boolean> | null = null;
   private csrfRequest$: Observable<void> | null = null;
 
   readonly authenticated = this.authenticatedState.asReadonly();
   readonly userEmail = this.userEmailState.asReadonly();
+  readonly mustChangePassword = this.mustChangePasswordState.asReadonly();
+  readonly passwordChangeRequired = computed(() => this.authenticatedState() && this.mustChangePasswordState());
+  readonly passwordChangePromptRequested = this.passwordChangePromptRequestedState.asReadonly();
 
   isAuthenticated(): boolean {
     return this.authenticatedState();
@@ -32,8 +38,8 @@ export class AuthService {
   login(email: string, password: string): Observable<AuthUserDto> {
     const payload: LoginPayload = { email, password };
     return this.ensureCsrf().pipe(
-      switchMap(() => this.http.post<AuthUserDto>(`${environment.apiBaseUrl}/auth/login`, payload)),
-      tap((user) => this.setAuthenticated(user.email)),
+      switchMap(() => this.http.post(`${environment.apiBaseUrl}/auth/login`, payload)),
+      switchMap(() => this.me()),
     );
   }
 
@@ -49,7 +55,29 @@ export class AuthService {
   me(): Observable<AuthUserDto> {
     return this.http
       .get<AuthUserDto>(`${environment.apiBaseUrl}/auth/me`)
-      .pipe(tap((user) => this.setAuthenticated(user.email)));
+      .pipe(tap((user) => this.setAuthenticated(user)));
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.ensureCsrf().pipe(
+      switchMap(() =>
+        this.http.post(`${environment.apiBaseUrl}/auth/change-password`, {
+          currentPassword,
+          newPassword,
+        }),
+      ),
+      switchMap(() => this.me()),
+      tap(() => this.passwordChangePromptRequestedState.set(false)),
+      map(() => void 0),
+    );
+  }
+
+  requestPasswordChangePrompt(): void {
+    this.passwordChangePromptRequestedState.set(true);
+  }
+
+  clearPasswordChangePrompt(): void {
+    this.passwordChangePromptRequestedState.set(false);
   }
 
   restoreSession(): Observable<boolean> {
@@ -90,13 +118,16 @@ export class AuthService {
     return this.csrfRequest$;
   }
 
-  private setAuthenticated(email: string): void {
+  private setAuthenticated(user: AuthUserDto): void {
     this.authenticatedState.set(true);
-    this.userEmailState.set(email);
+    this.userEmailState.set(user.email);
+    this.mustChangePasswordState.set(user.mustChangePassword);
   }
 
   private setLoggedOut(): void {
     this.authenticatedState.set(false);
     this.userEmailState.set(null);
+    this.mustChangePasswordState.set(false);
+    this.passwordChangePromptRequestedState.set(false);
   }
 }

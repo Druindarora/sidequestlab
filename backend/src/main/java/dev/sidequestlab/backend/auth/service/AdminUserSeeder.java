@@ -47,6 +47,7 @@ public class AdminUserSeeder implements ApplicationRunner {
         UserEntity adminUser = new UserEntity();
         adminUser.setEmail(adminSeedProperties.getEmail().trim().toLowerCase(Locale.ROOT));
         adminUser.setPasswordHash(passwordEncoder.encode(adminSeedProperties.getPassword()));
+        adminUser.setMustChangePassword(true);
         userRepository.save(adminUser);
     }
 }

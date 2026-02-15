@@ -49,6 +49,7 @@ class AdminUserSeederTest {
         assertThat(savedUser.getEmail()).isEqualTo("admin@example.com");
         assertThat(savedUser.getPasswordHash()).isNotEqualTo("my-secret-password");
         assertThat(passwordEncoder.matches("my-secret-password", savedUser.getPasswordHash())).isTrue();
+        assertThat(savedUser.isMustChangePassword()).isTrue();
     }
 
     @Test

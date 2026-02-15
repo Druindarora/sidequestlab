@@ -23,6 +23,9 @@ public class UserEntity {
     @Column(name = "password_hash", length = 100, nullable = false)
     private String passwordHash;
 
+    @Column(name = "must_change_password", nullable = false)
+    private boolean mustChangePassword = true;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -55,6 +58,14 @@ public class UserEntity {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 
     public Instant getCreatedAt() {

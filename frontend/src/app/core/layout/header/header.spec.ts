@@ -10,9 +10,19 @@ import { AuthService } from '../../auth/auth.service';
 
 class AuthServiceStub {
   readonly authenticated = signal(false);
+  readonly passwordChangeRequired = signal(false);
+  readonly passwordChangePromptRequested = signal(false);
 
   setAuthenticated(value: boolean): void {
     this.authenticated.set(value);
+  }
+
+  setPasswordChangeRequired(value: boolean): void {
+    this.passwordChangeRequired.set(value);
+  }
+
+  clearPasswordChangePrompt(): void {
+    this.passwordChangePromptRequested.set(false);
   }
 
   logout() {
@@ -46,6 +56,7 @@ describe('Header', () => {
 
   it('should hide MemoQuiz link when logged out', () => {
     authServiceStub.setAuthenticated(false);
+    authServiceStub.setPasswordChangeRequired(false);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).not.toContain('MemoQuiz');
@@ -53,8 +64,17 @@ describe('Header', () => {
 
   it('should show MemoQuiz link when logged in', () => {
     authServiceStub.setAuthenticated(true);
+    authServiceStub.setPasswordChangeRequired(false);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('MemoQuiz');
+  });
+
+  it('should hide MemoQuiz link when password change is required', () => {
+    authServiceStub.setAuthenticated(true);
+    authServiceStub.setPasswordChangeRequired(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('MemoQuiz');
   });
 });
