@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { Portfolio } from './pages/portfolio/portfolio';
 import { Home } from './pages/home/home';
 import { Profil } from './pages/profil/profil';
-import { DemoMemoquiz } from './memoquiz/pages/demo-memoquiz/demo-memoquiz';
 import { memoQuizAuthGuard } from './core/auth/memo-quiz-auth.guard';
+import { DemoMemoquiz } from './memo-quiz/pages/demo-memoquiz/demo-memoquiz';
 
 // app.routes.ts (ou app-routing.module.ts selon ta version)
 export const routes: Routes = [

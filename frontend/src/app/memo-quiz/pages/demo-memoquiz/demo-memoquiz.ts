@@ -24,19 +24,19 @@ export class DemoMemoquiz {
   readonly codeUrl = SIDEQUESTLAB_REPO_URL;
   readonly screenshots: DemoScreenshot[] = [
     {
-      src: 'assets/memoquiz-demo/memoquiz-dashboard.png',
+      src: 'assets/memoquiz/dashboard.png',
       caption: 'Dashboard du jour',
     },
     {
-      src: 'assets/memoquiz-demo/memoquiz-session.png',
+      src: 'assets/memoquiz/session.png',
       caption: 'Session de revision',
     },
     {
-      src: 'assets/memoquiz-demo/memoquiz-cards.png',
+      src: 'assets/memoquiz/cards.png',
       caption: 'Gestion des cartes',
     },
     {
-      src: 'assets/memoquiz-demo/memoquiz-quiz-admin.png',
+      src: 'assets/memoquiz/quiz.png',
       caption: 'Admin quiz (default)',
     },
   ];
@@ -86,9 +86,8 @@ export class DemoMemoquiz {
       return;
     }
 
-    this.previousFocusedElement = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+    this.previousFocusedElement =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     this.lightboxIndex.set(index);
     setTimeout(() => {
       this.closeLightboxButton?.nativeElement.focus();
