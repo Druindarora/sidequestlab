@@ -17,31 +17,40 @@
     </ul>
   </section>
 
-  <section class="demo-memoquiz__gallery" aria-label="Galerie MemoQuiz">
-    @for (screenshot of screenshots; track screenshot.src; let index = $index) {
-      <figure class="demo-memoquiz__thumb">
-        <button
-          type="button"
-          matButton="outlined"
-          class="demo-memoquiz__thumb-button"
-          [disabled]="isUnavailable(index)"
-          [attr.aria-label]="'Ouvrir la capture: ' + screenshot.caption"
-          (click)="openLightbox(index)"
-        >
-          @if (!isUnavailable(index)) {
-            <img
-              [src]="screenshot.src"
-              [alt]="screenshot.caption"
-              loading="lazy"
-              (error)="markUnavailable(index)"
-            />
-          } @else {
-            <span class="demo-memoquiz__missing">Capture indisponible</span>
-          }
-        </button>
-        <figcaption>{{ screenshot.caption }}</figcaption>
-      </figure>
-    }
+  <section class="demo-memoquiz__gallery-section" aria-label="Galerie MemoQuiz">
+    <p class="demo-memoquiz__gallery-hint">Cliquez sur une capture pour l'agrandir.</p>
+
+    <div class="demo-memoquiz__gallery">
+      @for (screenshot of screenshots; track screenshot.src; let index = $index) {
+        <figure class="demo-memoquiz__thumb">
+          <button
+            type="button"
+            matButton="outlined"
+            class="demo-memoquiz__thumb-button"
+            [disabled]="isUnavailable(index)"
+            [attr.aria-label]="'Ouvrir la capture: ' + screenshot.caption"
+            (click)="openLightbox(index)"
+          >
+            <div class="demo-memoquiz__thumb-media">
+              @if (!isUnavailable(index)) {
+                <img
+                  [src]="screenshot.src"
+                  [alt]="screenshot.caption"
+                  loading="lazy"
+                  (error)="markUnavailable(index)"
+                />
+                <span class="demo-memoquiz__thumb-zoom" aria-hidden="true">
+                  <mat-icon>zoom_in</mat-icon>
+                </span>
+              } @else {
+                <span class="demo-memoquiz__missing">Capture indisponible</span>
+              }
+            </div>
+          </button>
+          <figcaption>{{ screenshot.caption }}</figcaption>
+        </figure>
+      }
+    </div>
   </section>
 
   <section class="demo-memoquiz__actions">

@@ -54,12 +54,19 @@ describe('Header', () => {
     expect(component).toBeTruthy();
   });
 
+  function getNavLabels(): string[] {
+    const navButtons = fixture.nativeElement.querySelectorAll('button.nav-link') as NodeListOf<HTMLButtonElement>;
+    return Array.from(navButtons)
+      .map((el) => el.textContent?.trim() ?? '')
+      .filter((label: string) => label.length > 0);
+  }
+
   it('should hide MemoQuiz link when logged out', () => {
     authServiceStub.setAuthenticated(false);
     authServiceStub.setPasswordChangeRequired(false);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).not.toContain('MemoQuiz');
+    expect(getNavLabels()).not.toContain('MemoQuiz');
   });
 
   it('should show MemoQuiz link when logged in', () => {
@@ -67,7 +74,7 @@ describe('Header', () => {
     authServiceStub.setPasswordChangeRequired(false);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('MemoQuiz');
+    expect(getNavLabels()).toContain('MemoQuiz');
   });
 
   it('should hide MemoQuiz link when password change is required', () => {
@@ -75,6 +82,6 @@ describe('Header', () => {
     authServiceStub.setPasswordChangeRequired(true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).not.toContain('MemoQuiz');
+    expect(getNavLabels()).not.toContain('MemoQuiz');
   });
 });
