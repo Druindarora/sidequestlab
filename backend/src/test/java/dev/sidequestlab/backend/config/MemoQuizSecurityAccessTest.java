@@ -6,11 +6,11 @@ import dev.sidequestlab.backend.auth.persistence.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,10 +36,10 @@ class MemoQuizSecurityAccessTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private AuthenticationManager authenticationManager;
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
 
     @Test
