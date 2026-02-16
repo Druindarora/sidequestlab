@@ -7,7 +7,7 @@ interface DemoScreenshot {
   caption: string;
 }
 
-const SIDEQUESTLAB_REPO_URL = 'https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB';
+const SIDEQUESTLAB_REPO_URL = 'https://github.com/Druindarora/sidequestlab';
 
 @Component({
   selector: 'app-demo-memoquiz',

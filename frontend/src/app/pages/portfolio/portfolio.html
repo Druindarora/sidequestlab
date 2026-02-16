@@ -11,7 +11,7 @@
     <div class="portfolio__header-actions">
       <a
         matButton="outlined"
-        href="https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB"
+        href="https://github.com/Druindarora/sidequestlab"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -20,7 +20,7 @@
 
       <a
         matButton="text"
-        href="https://github.com/TON-USER"
+        href="https://github.com/Druindarora"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -49,14 +49,7 @@
         </ul>
         <p class="portfolio__project-note">Si tu ne dois cliquer qu’une fois : c’est ici.</p>
         <div class="portfolio__project-actions">
-          <a
-            matButton="outlined"
-            href="https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Voir le code (repo)
-          </a>
+          <br />
           <span class="portfolio__project-status">V1 — en évolution</span>
         </div>
       </article>
@@ -83,15 +76,6 @@
             Voir la démo (screenshots)
           </button>
 
-          <a
-            matButton="text"
-            href="https://github.com/TON-USER/TON-REPO-SIDEQUESTLAB"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Voir le code (dans SideQuestLab)
-          </a>
-
           <span class="portfolio__project-status">V1 — jouable en local</span>
         </div>
       </article>
@@ -114,7 +98,10 @@
           Intérêt : curiosité technique (Python/desktop) + réflexion outillage/automatisation.
         </p>
         <div class="portfolio__project-actions">
-          <a matButton="text" href="#volund-modules">Voir les modules / idées</a>
+          <a matButton="text" [routerLink]="[]" fragment="volund-modules">
+            Voir les modules / idées
+          </a>
+
           <span class="portfolio__project-status">R&amp;D — non public</span>
         </div>
       </article>
@@ -123,7 +110,7 @@
 
   <!-- MODULES & IDÉES VØLUND -->
   <section class="portfolio__section" id="volund-modules">
-    <h2>Modules &amp; idées autour de Vølund</h2>
+    <h2>Modules &amp; idées autour de Vølund ou SideQuestLab</h2>
     <p>
       Vølund est pensé comme une plateforme modulaire. Quelques pistes (à cadrer en V1/V2 au moment
       venu) :
