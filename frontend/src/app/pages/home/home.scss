@@ -69,16 +69,14 @@
   justify-content: center;
 }
 
-.home__avatar-placeholder {
+.home__avatar {
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  border: 2px dashed var(--app-border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  color: var(--app-muted);
+  border: 2px solid var(--app-border-color);
+  object-fit: cover; /* remplit le cercle */
+  object-position: center; /* centre le cadrage */
+  display: block;
 }
 
 /* PROJETS */
@@ -138,6 +136,7 @@
   }
 
   .home__about-avatar {
+    display: flex;
     justify-content: flex-start;
   }
 }

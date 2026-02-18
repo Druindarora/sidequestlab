@@ -5,13 +5,11 @@ import { Profil } from './pages/profil/profil';
 import { memoQuizAuthGuard } from './core/auth/memo-quiz-auth.guard';
 import { DemoMemoquiz } from './memo-quiz/pages/demo-memoquiz/demo-memoquiz';
 
-// app.routes.ts (ou app-routing.module.ts selon ta version)
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'profil', component: Profil },
   { path: 'portfolio', component: Portfolio },
   { path: 'demo-memoquiz', component: DemoMemoquiz },
-
   {
     path: 'memo-quiz',
     canMatch: [memoQuizAuthGuard],
