@@ -11,7 +11,7 @@ import { backendAuthInterceptor } from './core/auth/backend-auth.interceptor';
 
 import { routes } from './app.routes';
 
-const backendOrigin = new URL(environment.apiBaseUrl, 'http://localhost').origin;
+const basePath = new URL(environment.apiBaseUrl, 'http://localhost').toString().replace(/\/$/, '');
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,7 +32,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([backendAuthInterceptor]),
     ),
     provideApi({
-      basePath: backendOrigin,
+      basePath,
       withCredentials: true,
     }),
   ],
