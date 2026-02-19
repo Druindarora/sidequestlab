@@ -1,34 +1,88 @@
 # Portfolio + MemoQuiz
 
-- Frontend : Angular + Angular Material
-- Backend : Spring Boot (Java 21) + Spring Data JPA + Spring Security
-- DB : PostgreSQL + Flyway
-- Infra : Docker / docker-compose
+Monorepo for the SideQuestLab portfolio and MemoQuiz app.
 
-## CI & Audits
+## Tech stack
 
-This repository includes GitHub Actions workflows for CI and nightly audits:
+- Frontend: Angular 21 + Angular Material
+- Backend: Spring Boot (Java 21)
+- Database: PostgreSQL + Flyway migrations
+- Local infra: Docker Compose (`docker-compose.dev.yml`)
 
-- `.github/workflows/ci.yml`: runs on `push` and `pull_request`. It builds and tests the `backend/` using the Maven Wrapper and installs/lints/builds the `frontend/` using `npm ci`.
-- `.github/workflows/nightly-audit.yml`: scheduled job that runs `npm audit` for the frontend and generates a Maven dependency tree for the backend; artifacts are uploaded.
-- `.github/dependabot.yml`: Dependabot configured weekly for `frontend` (npm) and `backend` (maven).
+## Repository structure
 
-Local equivalents:
-
-Backend:
-
-```
-chmod +x ./mvnw
-./mvnw -f backend/pom.xml -DskipTests=false test
-./mvnw -f backend/pom.xml -DskipTests package
+```text
+.
+├── frontend/               # Angular app
+├── backend/                # Spring Boot API
+├── docker-compose.dev.yml  # Local Postgres + optional full stack services
+├── .env.example            # Environment variables template
+└── scripts/                # Dev/check helper scripts
 ```
 
-Frontend:
+## Quickstart (local development)
 
+1. Create local environment values:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Start the database:
+
+   ```bash
+   docker compose -f docker-compose.dev.yml up -d
+   ```
+
+3. Start backend:
+
+   ```bash
+   cd backend && ./mvnw spring-boot:run
+   ```
+
+   The backend expects datasource/auth/cors env vars from `.env.example`. If you use `.env.local`, you can run from repo root with `./scripts/run-backend.sh` (it sources `.env.local` automatically).
+
+4. Start frontend:
+
+   ```bash
+   cd frontend && npm ci && npm start
+   ```
+
+- Frontend: `http://localhost:4200`
+- Backend: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger-ui`
+
+## OpenAPI client generation
+
+When backend is running on `http://localhost:8080`:
+
+```bash
+cd frontend && npm run generate:api
 ```
-cd frontend
-npm ci
-npm run lint
-npm run build
-npm test
+
+Do not edit generated files in `frontend/src/app/api/**` by hand.
+
+## CI and audits
+
+- `.github/workflows/ci.yml`: on push and pull request, runs backend test/package and frontend install/lint/build/test.
+- `.github/workflows/nightly-audit.yml`: weekly `npm audit` report + backend Maven dependency tree artifact.
+- `.github/dependabot.yml`: weekly npm (`/frontend`) and Maven (`/backend`) update PRs.
+
+## Local checks
+
+Primary repo gate:
+
+```bash
+./scripts/check.sh
+```
+
+Useful direct commands:
+
+```bash
+cd backend && ./mvnw -B test -Dspring.profiles.active=test
+cd backend && ./mvnw -B -DskipTests package
+cd frontend && npm ci
+cd frontend && npm run lint
+cd frontend && npm run build
+cd frontend && npm test -- --watch=false
 ```
