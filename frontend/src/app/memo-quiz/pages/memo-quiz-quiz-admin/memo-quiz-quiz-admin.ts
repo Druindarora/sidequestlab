@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
@@ -12,6 +12,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { forkJoin } from 'rxjs';
+
+import { CardControllerApi, CardDto, QuizControllerApi, SessionCardDto } from '../../../api';
 
 export type CardStatus = 'inactive' | 'active' | 'archived';
 
@@ -43,34 +47,28 @@ export interface MemoQuiz {
     MatTooltipModule,
     MatPaginatorModule,
     MatSortModule,
+    MatProgressBarModule,
   ],
   templateUrl: './memo-quiz-quiz-admin.html',
   styleUrls: ['./memo-quiz-quiz-admin.scss'],
 })
-export class MemoQuizQuizAdmin implements AfterViewInit {
+export class MemoQuizQuizAdmin implements AfterViewInit, OnInit {
+  private cardApi = inject(CardControllerApi);
+  private quizApi = inject(QuizControllerApi);
+  private cdr = inject(ChangeDetectorRef);
+
   quiz: MemoQuiz = { id: 1, name: 'Tech (V1)' };
 
   // master list
-  cards: MemoCard[] = [
-    { id: 1, question: 'Q1', answer: 'A1', status: 'inactive' },
-    { id: 2, question: 'Q2', answer: 'A2', status: 'active', box: 1 },
-    { id: 3, question: 'Q3', answer: 'A3', status: 'active', box: 2 },
-    { id: 4, question: 'Q4', answer: 'A4', status: 'active', box: 1 },
-    { id: 5, question: 'Q5', answer: 'A5', status: 'inactive' },
-    { id: 6, question: 'Q6', answer: 'A6', status: 'active', box: 3 },
-    { id: 7, question: 'Q7', answer: 'A7', status: 'archived' },
-    { id: 8, question: 'Q8', answer: 'A8', status: 'active', box: 4 },
-    { id: 9, question: 'Q9', answer: 'A9', status: 'active', box: 2 },
-    { id: 10, question: 'Q10', answer: 'A10', status: 'inactive' },
-    { id: 11, question: 'Q11', answer: 'A11', status: 'active', box: 1 },
-    { id: 12, question: 'Q12', answer: 'A12', status: 'active', box: 5 },
-  ];
+  cards: MemoCard[] = [];
 
   dataSource = new MatTableDataSource<MemoCard>(this.cards);
   displayedColumns = ['question', 'answer', 'status', 'box', 'actions'];
 
   filterText = '';
   showOnlyInactive = false;
+  loading = false;
+  errorMessage: string | null = null;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -95,6 +93,10 @@ export class MemoQuizQuizAdmin implements AfterViewInit {
     this.dataSource.data = this.cards;
   }
 
+  ngOnInit(): void {
+    this.reloadQuizAdminData();
+  }
+
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -112,12 +114,101 @@ export class MemoQuizQuizAdmin implements AfterViewInit {
   }
 
   activateCard(card: MemoCard): void {
-    const idx = this.cards.findIndex((c) => c.id === card.id);
-    if (idx !== -1) {
-      this.cards[idx] = { ...this.cards[idx], status: 'active', box: 1 };
-      this.dataSource.data = this.cards;
-      this.applyCompositeFilter();
+    if (card.status !== 'inactive' || this.loading) {
+      return;
     }
+
+    this.loading = true;
+    this.errorMessage = null;
+    this.quizApi.addCardToDefaultQuiz(card.id).subscribe({
+      next: () => this.reloadQuizAdminData(),
+      error: (error) => {
+        console.error('[MemoQuiz] addCardToDefaultQuiz failed', error);
+        this.errorMessage = "Impossible d'activer la carte.";
+        this.loading = false;
+      },
+    });
+  }
+
+  reloadQuizAdminData(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
+    this.errorMessage = null;
+
+    forkJoin({
+      cards: this.cardApi.listCards(undefined, undefined, undefined, 0, 200),
+      members: this.quizApi.listDefaultQuizCards(),
+    }).subscribe({
+      next: (response) => {
+        Promise.all([
+          this.parseListResponse<CardDto>(response.cards, 'listCards'),
+          this.parseListResponse<SessionCardDto>(response.members, 'listDefaultQuizCards'),
+        ])
+          .then(([cardList, sessionCards]) => {
+            if (!cardList || !sessionCards) {
+              this.handleLoadFailure();
+              return;
+            }
+
+            const membership = new Map<number, number>();
+            sessionCards.forEach((sessionCard) => {
+              if (typeof sessionCard.cardId === 'number') {
+                membership.set(sessionCard.cardId, sessionCard.box);
+              }
+            });
+
+            const mapped = cardList
+              .filter(
+                (card: CardDto): card is CardDto & { id: number } =>
+                  typeof card.id === 'number',
+              )
+              .map((card) => {
+                if (card.status === 'ARCHIVED') {
+                  return {
+                    id: card.id,
+                    question: card.front ?? '',
+                    answer: card.back ?? '',
+                    status: 'archived' as const,
+                  };
+                }
+
+                const membershipBox = membership.get(card.id);
+                if (membershipBox !== undefined) {
+                  return {
+                    id: card.id,
+                    question: card.front ?? '',
+                    answer: card.back ?? '',
+                    status: 'active' as const,
+                    box: membershipBox,
+                  };
+                }
+
+                return {
+                  id: card.id,
+                  question: card.front ?? '',
+                  answer: card.back ?? '',
+                  status: 'inactive' as const,
+                };
+              });
+
+            setTimeout(() => {
+              this.cards = mapped;
+              this.dataSource.data = mapped;
+              this.applyCompositeFilter();
+              this.loading = false;
+              this.cdr.detectChanges();
+            });
+          })
+          .catch((error) => {
+            console.error('[MemoQuiz] failed to parse quiz admin payloads', error);
+            this.handleLoadFailure();
+          });
+      },
+      error: (error) => {
+        console.error('[MemoQuiz] reload quiz admin failed', error);
+        this.handleLoadFailure();
+      },
+    });
   }
 
   private applyCompositeFilter(): void {
@@ -137,5 +228,53 @@ export class MemoQuizQuizAdmin implements AfterViewInit {
 
   boxCount(boxNum: number): number {
     return this.cards.filter((c) => c.status === 'active' && c.box === boxNum).length;
+  }
+
+  private handleLoadFailure(): void {
+    this.errorMessage = 'Impossible de charger les cartes.';
+    this.cards = [];
+    this.dataSource.data = [];
+    this.loading = false;
+  }
+
+  private async parseListResponse<T>(payload: unknown, label: string): Promise<T[] | null> {
+    const resolved = await this.resolvePayload(payload, label);
+    if (!resolved) {
+      return null;
+    }
+
+    const list = this.extractList(resolved);
+    if (!list) {
+      console.error(`[MemoQuiz] ${label} unexpected response`, resolved);
+      return null;
+    }
+
+    return list as T[];
+  }
+
+  private async resolvePayload(payload: unknown, label: string): Promise<unknown | null> {
+    if (!(payload instanceof Blob)) {
+      return payload;
+    }
+
+    try {
+      const text = await payload.text();
+      return JSON.parse(text);
+    } catch (error) {
+      console.error(`[MemoQuiz] failed to parse ${label} blob response`, error);
+      return null;
+    }
+  }
+
+  private extractList(payload: unknown): unknown[] | null {
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+
+    if (payload && Array.isArray((payload as { content?: unknown }).content)) {
+      return (payload as { content: unknown[] }).content;
+    }
+
+    return null;
   }
 }

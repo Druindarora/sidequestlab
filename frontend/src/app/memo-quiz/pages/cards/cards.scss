@@ -98,3 +98,23 @@ table {
   font-weight: 600;
   line-height: 1.2;
 }
+
+.mq-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.mq-banner--error {
+  background: #ffebee;
+  color: #b71c1c;
+  border: 1px solid rgba(183, 28, 28, 0.25);
+}
+
+.mq-loading {
+  margin-bottom: 12px;
+}

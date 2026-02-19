@@ -1,4 +1,8 @@
-<!-- footer.html -->
 <footer class="app-footer">
-  <span>© {{ currentYear }} SidequestLab</span>
+  <div class="app-footer__links" aria-label="Contact links">
+    <a matButton="text" [href]="'mailto:' + contactEmail">Email</a>
+    <a matButton="text" [href]="githubUrl" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a matButton="text" [href]="linkedInUrl" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  </div>
+  <span class="app-footer__copyright">© {{ currentYear }} Stéphane - SideQuestLab</span>
 </footer>

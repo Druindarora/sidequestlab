@@ -5,6 +5,7 @@ api.module.ts
 api/api.ts
 api/cardController.service.ts
 api/dashboardController.service.ts
+api/faviconController.service.ts
 api/healthController.service.ts
 api/profileController.service.ts
 api/quizController.service.ts
@@ -15,8 +16,10 @@ git_push.sh
 index.ts
 model/answerRequest.ts
 model/answerResponse.ts
+model/boxesOverviewItem.ts
 model/cardDto.ts
 model/createCardRequest.ts
+model/lastSessionSummary.ts
 model/models.ts
 model/profileDto.ts
 model/quizDto.ts

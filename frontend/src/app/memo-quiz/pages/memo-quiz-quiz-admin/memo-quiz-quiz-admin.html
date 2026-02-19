@@ -25,6 +25,19 @@
         </div>
       </section>
 
+      @if (errorMessage) {
+        <div class="mq-banner mq-banner--error">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      @if (loading) {
+        <div class="mq-loading">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+      }
+
       <!-- Contrôles : filtre + toggle -->
       <section class="mq-controls">
         <mat-form-field appearance="outline" class="mq-filter">
@@ -110,6 +123,7 @@
                     mat-flat-button
                     color="primary"
                     (click)="activateCard(element)"
+                    [disabled]="loading"
                     >
                     Activer
                   </button>

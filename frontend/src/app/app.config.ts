@@ -1,11 +1,39 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection,
+} from '@angular/core';
+import { provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideApi } from './api';
+import { environment } from '../environments/environment';
+import { backendAuthInterceptor } from './core/auth/backend-auth.interceptor';
 
 import { routes } from './app.routes';
+
+const basePath = new URL(environment.apiBaseUrl, 'http://localhost').toString().replace(/\/$/, '');
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
-  ]
+    provideZoneChangeDetection(),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({
+        anchorScrolling: 'enabled',
+        scrollPositionRestoration: 'enabled',
+      }),
+    ),
+    provideHttpClient(
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',
+        headerName: 'X-XSRF-TOKEN',
+      }),
+      withInterceptors([backendAuthInterceptor]),
+    ),
+    provideApi({
+      basePath,
+      withCredentials: true,
+    }),
+  ],
 };

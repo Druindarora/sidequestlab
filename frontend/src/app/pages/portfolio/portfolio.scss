@@ -19,7 +19,7 @@
 
 .portfolio__subtitle {
   font-size: 1rem;
-  color: #555;
+  color: var(--app-muted, #555);
   max-width: 48rem;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .portfolio__project-card {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--app-border-color, #e0e0e0);
   border-radius: 8px;
   padding: 1rem 1.25rem;
 }
@@ -62,7 +62,7 @@
 
 .portfolio__project-tag {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--app-muted, #666);
   margin-bottom: 0.6rem;
 }
 
@@ -77,7 +77,7 @@
 
 .portfolio__project-note {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--app-muted, #555);
 }
 
 .portfolio__project-actions {
@@ -90,7 +90,7 @@
 
 .portfolio__project-status {
   font-size: 0.85rem;
-  color: #777;
+  color: var(--app-muted, #777);
 }
 
 /* MODULES / IDÉES */
@@ -106,7 +106,7 @@
 
 .portfolio__ideas-note {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--app-muted, #555);
 }
 
 /* Responsive */
