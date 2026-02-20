@@ -1,10 +1,12 @@
 package dev.sidequestlab.backend.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.sidequestlab.backend.auth.api.controller.AuthController;
 import dev.sidequestlab.backend.auth.persistence.entity.UserEntity;
 import dev.sidequestlab.backend.auth.persistence.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.Test;
@@ -34,8 +36,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfig.class)
 class MemoQuizSecurityAccessTest {
 
+    private static final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() { };
+
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private AuthenticationManager authenticationManager;
@@ -58,8 +65,7 @@ class MemoQuizSecurityAccessTest {
         AuthSession session = login("admin@example.com", "admin");
 
         mockMvc.perform(get("/api/memoquiz/dashboard/today")
-                .session(session.session())
-                .cookie(session.sessionCookie()))
+                .session(session.session()))
             .andExpect(status().isOk());
     }
 
@@ -72,8 +78,7 @@ class MemoQuizSecurityAccessTest {
         AuthSession session = login("admin@example.com", "admin");
 
         mockMvc.perform(get("/api/memoquiz/dashboard/today")
-                .session(session.session())
-                .cookie(session.sessionCookie()))
+                .session(session.session()))
             .andExpect(status().isForbidden())
             .andExpect(jsonPath("$.error").value("Password change required"));
     }
@@ -93,8 +98,7 @@ class MemoQuizSecurityAccessTest {
         AuthSession session = login("admin@example.com", "admin");
 
         mockMvc.perform(get("/api/auth/me")
-                .session(session.session())
-                .cookie(session.sessionCookie()))
+                .session(session.session()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("admin@example.com"))
             .andExpect(jsonPath("$.mustChangePassword").value(false));
@@ -114,7 +118,6 @@ class MemoQuizSecurityAccessTest {
 
         mockMvc.perform(post("/api/auth/change-password")
                 .session(session.session())
-                .cookie(session.sessionCookie(), session.xsrfCookie())
                 .header("X-XSRF-TOKEN", session.xsrfToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"currentPassword\":\"" + currentPassword + "\",\"newPassword\":\"" + newPassword + "\"}"))
@@ -140,7 +143,6 @@ class MemoQuizSecurityAccessTest {
 
         mockMvc.perform(post("/api/auth/change-password")
                 .session(session.session())
-                .cookie(session.sessionCookie(), session.xsrfCookie())
                 .header("X-XSRF-TOKEN", session.xsrfToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"currentPassword\":\"wrong-password\",\"newPassword\":\"new-password\"}"))
@@ -149,9 +151,10 @@ class MemoQuizSecurityAccessTest {
     }
 
     @Test
-    void csrfBootstrapReturns204() throws Exception {
+    void csrfBootstrapReturns200WithToken() throws Exception {
         mockMvc.perform(get("/api/auth/csrf"))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").isString());
     }
 
     @Test
@@ -166,12 +169,9 @@ class MemoQuizSecurityAccessTest {
     @Test
     void loginWithCsrfReturns200() throws Exception {
         stubSuccessfulAuthentication("admin@example.com");
-        MvcResult csrfResult = mockMvc.perform(get("/api/auth/csrf"))
-            .andExpect(status().isNoContent())
-            .andReturn();
-        Cookie xsrfCookie = requiredCookie(csrfResult, "XSRF-TOKEN");
+        CsrfBootstrap csrf = bootstrapCsrf();
 
-        mockMvc.perform(loginRequest(xsrfCookie, xsrfCookie.getValue()))
+        mockMvc.perform(loginRequest(csrf.session(), csrf.token()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("admin@example.com"));
     }
@@ -182,13 +182,9 @@ class MemoQuizSecurityAccessTest {
     }
 
     private AuthSession login(String email, String password) throws Exception {
-        MvcResult csrfResult = mockMvc.perform(get("/api/auth/csrf"))
-            .andExpect(status().isNoContent())
-            .andReturn();
-        Cookie xsrfCookie = requiredCookie(csrfResult, "XSRF-TOKEN");
-        String xsrfToken = xsrfCookie.getValue();
+        CsrfBootstrap csrf = bootstrapCsrf();
 
-        MvcResult loginResult = mockMvc.perform(loginRequest(xsrfCookie, xsrfToken, email, password))
+        MvcResult loginResult = mockMvc.perform(loginRequest(csrf.session(), csrf.token(), email, password))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value(email))
             .andReturn();
@@ -197,44 +193,45 @@ class MemoQuizSecurityAccessTest {
         assertThat(session)
             .withFailMessage("Expected authenticated session to be created")
             .isNotNull();
-        Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-        sessionCookie.setPath("/");
 
-        Cookie refreshedXsrfCookie = loginResult.getResponse().getCookie("XSRF-TOKEN");
-        if (refreshedXsrfCookie != null) {
-            xsrfCookie = refreshedXsrfCookie;
-            xsrfToken = refreshedXsrfCookie.getValue();
-        }
-
-        return new AuthSession(session, sessionCookie, xsrfCookie, xsrfToken);
+        return new AuthSession(session, csrf.token());
     }
 
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder loginRequest(
-        Cookie xsrfCookie,
+        MockHttpSession session,
         String xsrfToken
     ) {
-        return loginRequest(xsrfCookie, xsrfToken, "admin@example.com", "admin");
+        return loginRequest(session, xsrfToken, "admin@example.com", "admin");
     }
 
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder loginRequest(
-        Cookie xsrfCookie,
+        MockHttpSession session,
         String xsrfToken,
         String email,
         String password
     ) {
         return post("/api/auth/login")
-            .cookie(xsrfCookie)
+            .session(session)
             .header("X-XSRF-TOKEN", xsrfToken)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}");
     }
 
-    private Cookie requiredCookie(MvcResult result, String name) {
-        Cookie cookie = result.getResponse().getCookie(name);
-        assertThat(cookie)
-            .withFailMessage("Expected cookie '%s' in response", name)
+    private CsrfBootstrap bootstrapCsrf() throws Exception {
+        MvcResult csrfResult = mockMvc.perform(get("/api/auth/csrf"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").isString())
+            .andReturn();
+
+        MockHttpSession session = (MockHttpSession) csrfResult.getRequest().getSession(false);
+        assertThat(session)
+            .withFailMessage("Expected CSRF bootstrap to create a session")
             .isNotNull();
-        return cookie;
+
+        Map<String, String> response = objectMapper.readValue(csrfResult.getResponse().getContentAsString(), STRING_MAP);
+        String token = response.get("token");
+        assertThat(token).isNotBlank();
+        return new CsrfBootstrap(session, token);
     }
 
     private UserEntity user(String email, boolean mustChangePassword, String passwordHash) {
@@ -247,9 +244,10 @@ class MemoQuizSecurityAccessTest {
 
     private record AuthSession(
         MockHttpSession session,
-        Cookie sessionCookie,
-        Cookie xsrfCookie,
         String xsrfToken
     ) {
+    }
+
+    private record CsrfBootstrap(MockHttpSession session, String token) {
     }
 }
