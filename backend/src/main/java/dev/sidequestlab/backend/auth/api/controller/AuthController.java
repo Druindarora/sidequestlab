@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,21 +38,25 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final Optional<UserRepository> userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CsrfTokenRepository csrfTokenRepository;
 
     public AuthController(
         AuthenticationManager authenticationManager,
         Optional<UserRepository> userRepository,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        CsrfTokenRepository csrfTokenRepository
     ) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.csrfTokenRepository = csrfTokenRepository;
     }
 
     @GetMapping("/csrf")
-    public ResponseEntity<Void> csrf(CsrfToken csrfToken) {
-        csrfToken.getToken();
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, String>> csrf(HttpServletRequest request, CsrfToken csrfToken) {
+        CsrfToken storedToken = csrfTokenRepository.loadToken(request);
+        String token = storedToken != null ? storedToken.getToken() : csrfToken.getToken();
+        return ResponseEntity.ok(Map.of("token", token));
     }
 
     @PostMapping("/login")

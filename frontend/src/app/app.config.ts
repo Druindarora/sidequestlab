@@ -3,7 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideApi } from './api';
 import { environment } from '../environments/environment';
@@ -25,10 +25,6 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     provideHttpClient(
-      withXsrfConfiguration({
-        cookieName: 'XSRF-TOKEN',
-        headerName: 'X-XSRF-TOKEN',
-      }),
       withInterceptors([backendAuthInterceptor]),
     ),
     provideApi({
