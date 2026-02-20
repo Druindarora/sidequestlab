@@ -48,6 +48,9 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:4200}")
     private String allowedOrigins;
 
+    @Value("${app.cookies.domain:}")
+    private String cookiesDomain;
+
     @Bean
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
@@ -148,6 +151,9 @@ public class SecurityConfig {
         repository.setCookieName("XSRF-TOKEN");
         repository.setHeaderName("X-XSRF-TOKEN");
         repository.setCookiePath("/");
+        if (StringUtils.hasText(cookiesDomain)) {
+            repository.setCookieDomain(cookiesDomain);
+        }
         return repository;
     }
 
