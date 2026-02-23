@@ -33,6 +33,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -69,6 +70,20 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                     .authenticationEntryPoint(this::handleUnauthorized)
                     .accessDeniedHandler(this::handleForbidden)
+                )
+                .headers(headers -> headers
+                    .frameOptions(frame -> frame.deny())
+                    .contentTypeOptions(Customizer.withDefaults())
+                    .httpStrictTransportSecurity(hsts -> hsts
+                        .maxAgeInSeconds(15552000)
+                        .includeSubDomains(false)
+                    )
+                    .referrerPolicy(referrer -> referrer
+                        .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                    )
+                    .permissionsPolicy(permissions -> permissions
+                        .policy("accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()")
+                    )
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(request -> CorsUtils.isPreFlightRequest(request)).permitAll()
