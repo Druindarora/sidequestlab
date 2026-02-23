@@ -11,9 +11,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.List;
@@ -75,6 +78,36 @@ public class GlobalExceptionHandler {
         pd.setProperty("timestamp", Instant.now().toString());
         pd.setProperty("path", request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pd);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ProblemDetail> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        log.info("Resource not found on {} {}", request.getMethod(), request.getRequestURI());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Resource not found");
+        pd.setTitle("Not Found");
+        pd.setProperty("timestamp", Instant.now().toString());
+        pd.setProperty("path", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ProblemDetail> handleNoHandlerFound(NoHandlerFoundException ex, HttpServletRequest request) {
+        log.info("No handler found on {} {}", request.getMethod(), request.getRequestURI());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Resource not found");
+        pd.setTitle("Not Found");
+        pd.setProperty("timestamp", Instant.now().toString());
+        pd.setProperty("path", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ProblemDetail> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        log.info("Method not allowed on {} {}", request.getMethod(), request.getRequestURI());
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed");
+        pd.setTitle("Method Not Allowed");
+        pd.setProperty("timestamp", Instant.now().toString());
+        pd.setProperty("path", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(pd);
     }
 
     @ExceptionHandler(Exception.class)
