@@ -185,3 +185,57 @@ jobs:
             backend-plugins-updates.txt
             backend-properties-updates.txt
             backend-updates-summary.json
+
+  notify-ha:
+    name: Send audit to Home Assistant
+    runs-on: ubuntu-latest
+    needs: [frontend-audit, backend-deps]
+    steps:
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-npm-audit
+          path: artifacts/frontend
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-deps
+          path: artifacts/backend
+
+      - name: Build HA payload
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const frontend = JSON.parse(fs.readFileSync('artifacts/frontend/frontend-audit-summary.json', 'utf8'));
+          const backend = JSON.parse(fs.readFileSync('artifacts/backend/backend-updates-summary.json', 'utf8'));
+
+          const payload = {
+            project: 'SideQuestLab',
+            timestamp: new Date().toISOString(),
+            frontend: {
+              critical: frontend.critical,
+              high: frontend.high,
+              moderate: frontend.moderate,
+              low: frontend.low,
+              total: frontend.total
+            },
+            backend: {
+              dependencies_with_updates: backend.dependencies_with_updates,
+              plugins_with_updates: backend.plugins_with_updates,
+              properties_with_updates: backend.properties_with_updates,
+              total_with_updates: backend.total_with_updates
+            }
+          };
+
+          fs.writeFileSync('ha-payload.json', JSON.stringify(payload));
+          NODE
+
+      - name: POST to Home Assistant webhook
+        env:
+          HA_WEBHOOK_URL: ${{ secrets.HA_WEBHOOK_URL }}
+        run: |
+          curl -sS -X POST "$HA_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            --data-binary @ha-payload.json
