@@ -120,25 +120,35 @@ jobs:
         working-directory: backend
         run: |
           chmod +x ./mvnw
-          ./mvnw -B -DskipTests versions:display-dependency-updates | tee ../backend-updates.txt || true
+          ./mvnw -B -DskipTests -DallowSnapshots=false versions:display-dependency-updates | tee ../backend-updates.txt || true
 
       - name: Generate plugin update report
         working-directory: backend
         run: |
           chmod +x ./mvnw
-          ./mvnw -B -DskipTests versions:display-plugin-updates | tee ../backend-plugins-updates.txt || true
+          ./mvnw -B -DskipTests -DallowSnapshots=false versions:display-plugin-updates | tee ../backend-plugins-updates.txt || true
 
       - name: Generate property update report (optional)
         working-directory: backend
         run: |
           chmod +x ./mvnw
-          ./mvnw -B -DskipTests versions:display-property-updates | tee ../backend-properties-updates.txt || true
+          ./mvnw -B -DskipTests -DallowSnapshots=false versions:display-property-updates | tee ../backend-properties-updates.txt || true
 
       - name: Build backend update summary
         run: |
-          dependency_updates=$(grep -Ec '^\[INFO\].*->.*$' backend-updates.txt || true)
-          plugin_updates=$(grep -Ec '^\[INFO\].*->.*$' backend-plugins-updates.txt || true)
-          property_updates=$(grep -Ec '^\[INFO\].*->.*$' backend-properties-updates.txt || true)
+          # count only stable updates (ignore -M*, -RC*, -SNAPSHOT)
+          count_updates() {
+            local file="$1"
+            # keep only lines with "->" but exclude prerelease targets
+            grep -E '^\[INFO\].*->.*$' "$file" \
+              | grep -Ev '->.*(-M[0-9]+|-RC[0-9]+|-SNAPSHOT)(\s|$)' \
+              | wc -l \
+              | tr -d ' '
+          }
+
+          dependency_updates=$(count_updates backend-updates.txt)
+          plugin_updates=$(count_updates backend-plugins-updates.txt)
+          property_updates=$(count_updates backend-properties-updates.txt)
           total_updates=$((dependency_updates + plugin_updates + property_updates))
 
           cat > backend-updates-summary.json <<EOF
