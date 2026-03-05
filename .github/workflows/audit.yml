@@ -139,11 +139,11 @@ jobs:
           # count only stable updates (ignore -M*, -RC*, -SNAPSHOT)
           count_updates() {
             local file="$1"
-            # keep only lines with "->" but exclude prerelease targets
-            grep -E '^\[INFO\].*->.*$' "$file" \
-              | grep -Ev '->.*(-M[0-9]+|-RC[0-9]+|-SNAPSHOT)(\s|$)' \
-              | wc -l \
-              | tr -d ' '
+            # Count only real dependency lines: "group:artifact .... x -> y"
+            # Exclude pre-releases: -M*, -RC*, -SNAPSHOT, -rc*
+            grep -E -- '^\s*\[INFO\]\s+[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+.*->.*$' "$file" \
+              | grep -Ev -- '->.*(-M[0-9]+|-RC[0-9]+|-SNAPSHOT|-rc[0-9]*)(\s|$)' \
+              | wc -l | tr -d ' '
           }
 
           dependency_updates=$(count_updates backend-updates.txt)
@@ -167,6 +167,13 @@ jobs:
             echo "- Plugins with updates: **${plugin_updates}**"
             echo "- Properties with updates: **${property_updates}**"
             echo "- Total update entries: **${total_updates}**"
+            echo ""
+            echo "Top 10 (stable):"
+            echo '```'
+            grep -E -- '^\s*\[INFO\]\s+[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+.*->.*$' backend-updates.txt \
+              | grep -Ev -- '->.*(-M[0-9]+|-RC[0-9]+|-SNAPSHOT|-rc[0-9]*)(\s|$)' \
+              | head -n 10
+            echo '```'
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload backend dependency reports
