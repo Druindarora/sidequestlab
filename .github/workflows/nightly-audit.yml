@@ -1,4 +1,4 @@
-name: Nightly Audit
+name: Weekly Audit
 
 on:
   schedule:
@@ -28,14 +28,74 @@ jobs:
           cd frontend
           npm audit --json > ../frontend-audit.json || true
 
-      - name: Upload audit report
+      - name: Build frontend audit summaries
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const severities = ['critical', 'high', 'moderate', 'low'];
+          let counts = { critical: 0, high: 0, moderate: 0, low: 0 };
+          let parseError = null;
+
+          try {
+            const raw = fs.readFileSync('frontend-audit.json', 'utf8');
+            const audit = JSON.parse(raw);
+
+            if (audit?.metadata?.vulnerabilities) {
+              for (const sev of severities) {
+                counts[sev] = Number(audit.metadata.vulnerabilities[sev] || 0);
+              }
+            } else if (audit?.advisories) {
+              for (const advisory of Object.values(audit.advisories)) {
+                const sev = advisory?.severity;
+                if (severities.includes(sev)) counts[sev] += 1;
+              }
+            }
+          } catch (error) {
+            parseError = error.message;
+          }
+
+          const total =
+            counts.critical + counts.high + counts.moderate + counts.low;
+          const summary = {
+            critical: counts.critical,
+            high: counts.high,
+            moderate: counts.moderate,
+            low: counts.low,
+            total,
+            parse_error: parseError,
+          };
+
+          fs.writeFileSync(
+            'frontend-audit-summary.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+
+          const lines = [
+            '### Frontend Audit',
+            '',
+            `- Critical: **${counts.critical}**`,
+            `- High: **${counts.high}**`,
+            `- Moderate: **${counts.moderate}**`,
+            `- Low: **${counts.low}**`,
+            `- Total: **${total}**`,
+          ];
+          if (parseError) {
+            lines.push(`- Parse error: \`${parseError}\``);
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+          NODE
+
+      - name: Upload frontend audit reports
         uses: actions/upload-artifact@v4
         with:
           name: frontend-npm-audit
-          path: frontend-audit.json
+          path: |
+            frontend-audit.json
+            frontend-audit-summary.json
 
   backend-deps:
-    name: Backend dependency report
+    name: Backend dependency update report
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -56,14 +116,55 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
-      - name: Generate dependency tree
+      - name: Generate dependency update report
         working-directory: backend
         run: |
           chmod +x ./mvnw
-          ./mvnw -B -DskipTests dependency:tree -DoutputFile=../backend-deps.txt || true
+          ./mvnw -B -DskipTests versions:display-dependency-updates | tee ../backend-updates.txt || true
 
-      - name: Upload backend dependency report
+      - name: Generate plugin update report
+        working-directory: backend
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B -DskipTests versions:display-plugin-updates | tee ../backend-plugins-updates.txt || true
+
+      - name: Generate property update report (optional)
+        working-directory: backend
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B -DskipTests versions:display-property-updates | tee ../backend-properties-updates.txt || true
+
+      - name: Build backend update summary
+        run: |
+          dependency_updates=$(grep -Ec '^\[INFO\].*->.*$' backend-updates.txt || true)
+          plugin_updates=$(grep -Ec '^\[INFO\].*->.*$' backend-plugins-updates.txt || true)
+          property_updates=$(grep -Ec '^\[INFO\].*->.*$' backend-properties-updates.txt || true)
+          total_updates=$((dependency_updates + plugin_updates + property_updates))
+
+          cat > backend-updates-summary.json <<EOF
+          {
+            "dependencies_with_updates": ${dependency_updates},
+            "plugins_with_updates": ${plugin_updates},
+            "properties_with_updates": ${property_updates},
+            "total_with_updates": ${total_updates}
+          }
+          EOF
+
+          {
+            echo "### Backend Dependency Updates"
+            echo ""
+            echo "- Dependencies with updates: **${dependency_updates}**"
+            echo "- Plugins with updates: **${plugin_updates}**"
+            echo "- Properties with updates: **${property_updates}**"
+            echo "- Total update entries: **${total_updates}**"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload backend dependency reports
         uses: actions/upload-artifact@v4
         with:
           name: backend-deps
-          path: backend-deps.txt
+          path: |
+            backend-updates.txt
+            backend-plugins-updates.txt
+            backend-properties-updates.txt
+            backend-updates-summary.json
