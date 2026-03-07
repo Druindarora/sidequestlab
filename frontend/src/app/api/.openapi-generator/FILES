@@ -3,12 +3,14 @@ README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
+api/authController.service.ts
 api/cardController.service.ts
 api/dashboardController.service.ts
 api/faviconController.service.ts
 api/healthController.service.ts
 api/profileController.service.ts
 api/quizController.service.ts
+api/rootController.service.ts
 api/sessionController.service.ts
 configuration.ts
 encoder.ts
@@ -18,8 +20,11 @@ model/answerRequest.ts
 model/answerResponse.ts
 model/boxesOverviewItem.ts
 model/cardDto.ts
+model/changePasswordRequest.ts
 model/createCardRequest.ts
+model/csrfToken.ts
 model/lastSessionSummary.ts
+model/loginRequest.ts
 model/models.ts
 model/profileDto.ts
 model/quizDto.ts
