@@ -1,3 +1,5 @@
+export * from './authController.service';
+import { AuthControllerApi } from './authController.service';
 export * from './cardController.service';
 import { CardControllerApi } from './cardController.service';
 export * from './dashboardController.service';
@@ -10,6 +12,8 @@ export * from './profileController.service';
 import { ProfileControllerApi } from './profileController.service';
 export * from './quizController.service';
 import { QuizControllerApi } from './quizController.service';
+export * from './rootController.service';
+import { RootControllerApi } from './rootController.service';
 export * from './sessionController.service';
 import { SessionControllerApi } from './sessionController.service';
-export const APIS = [CardControllerApi, DashboardControllerApi, FaviconControllerApi, HealthControllerApi, ProfileControllerApi, QuizControllerApi, SessionControllerApi];
+export const APIS = [AuthControllerApi, CardControllerApi, DashboardControllerApi, FaviconControllerApi, HealthControllerApi, ProfileControllerApi, QuizControllerApi, RootControllerApi, SessionControllerApi];
