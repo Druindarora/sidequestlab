@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:coverage": "ng test --watch=false --coverage --coverage-reporters=html --coverage-reporters=lcovonly --coverage-reporters=json-summary",
     "lint:ng": "ng lint",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -38,6 +39,7 @@
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^27.1.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "8.56.1",
     "vitest": "^4.0.18"
