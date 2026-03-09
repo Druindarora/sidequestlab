@@ -159,6 +159,31 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.26.0</version>
+				<configuration>
+					<rulesets>
+						<ruleset>config/pmd/unused-baseline.xml</ruleset>
+					</rulesets>
+					<includeTests>false</includeTests>
+					<linkXRef>false</linkXRef>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.2.0</version>
+				<configuration>
+					<failOnError>false</failOnError>
+					<includeTests>false</includeTests>
+					<xmlOutput>true</xmlOutput>
+					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
+					<spotbugsXmlOutputDirectory>${project.build.directory}</spotbugsXmlOutputDirectory>
+					<spotbugsXmlOutputFilename>spotbugsXml.xml</spotbugsXmlOutputFilename>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
