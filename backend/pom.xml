@@ -115,6 +115,75 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.pitest</groupId>
+				<artifactId>pitest-maven</artifactId>
+				<version>1.22.1</version>
+				<configuration>
+					<targetClasses>
+						<param>dev.sidequestlab.backend.memoquiz.service.*Service</param>
+					</targetClasses>
+					<targetTests>
+						<param>dev.sidequestlab.backend.memoquiz.service.*Test</param>
+					</targetTests>
+					<outputFormats>
+						<param>HTML</param>
+					</outputFormats>
+					<timestampedReports>false</timestampedReports>
+					<failWhenNoMutations>false</failWhenNoMutations>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.pitest</groupId>
+						<artifactId>pitest-junit5-plugin</artifactId>
+						<version>1.2.3</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.26.0</version>
+				<configuration>
+					<rulesets>
+						<ruleset>config/pmd/unused-baseline.xml</ruleset>
+					</rulesets>
+					<includeTests>false</includeTests>
+					<linkXRef>false</linkXRef>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.2.0</version>
+				<configuration>
+					<failOnError>false</failOnError>
+					<includeTests>false</includeTests>
+					<xmlOutput>true</xmlOutput>
+					<xmlOutputDirectory>${project.build.directory}</xmlOutputDirectory>
+					<spotbugsXmlOutputDirectory>${project.build.directory}</spotbugsXmlOutputDirectory>
+					<spotbugsXmlOutputFilename>spotbugsXml.xml</spotbugsXmlOutputFilename>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
