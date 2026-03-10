@@ -214,6 +214,10 @@ run_spotbugs() {
   local spotbugs_err="$REPORT_DIR/backend-spotbugs.stderr.log"
   local spotbugs_xml_src="$BACKEND_DIR/target/spotbugsXml.xml"
   local spotbugs_xml_dst="$REPORT_DIR/backend-spotbugs.xml"
+  local spotbugs_summary_script="$ROOT_DIR/scripts/spotbugs-summary.py"
+  local spotbugs_summary_txt="$REPORT_DIR/backend-spotbugs-summary.txt"
+  local spotbugs_summary_json="$REPORT_DIR/backend-spotbugs-summary.json"
+  local spotbugs_summary_err="$REPORT_DIR/backend-spotbugs-summary.stderr.log"
 
   if [[ ! -x "$BACKEND_DIR/mvnw" ]]; then
     STATUS_SPOTBUGS="failed"
@@ -240,6 +244,7 @@ run_spotbugs() {
   fi
 
   cp "$spotbugs_xml_src" "$spotbugs_xml_dst"
+  rm -f "$spotbugs_summary_txt" "$spotbugs_summary_json" "$spotbugs_summary_err"
 
   local total category_summary
   total="$(count_with_grep "<BugInstance " "$spotbugs_xml_dst")"
@@ -253,6 +258,18 @@ run_spotbugs() {
       | head -5 || true
   )"
 
+  if command -v python3 >/dev/null 2>&1 && [[ -f "$spotbugs_summary_script" ]]; then
+    if ! python3 "$spotbugs_summary_script" \
+      --input "$spotbugs_xml_dst" \
+      --text-output "$spotbugs_summary_txt" \
+      --json-output "$spotbugs_summary_json" \
+      2>"$spotbugs_summary_err"; then
+      print_note "SpotBugs summary generation failed. See $spotbugs_summary_err"
+    fi
+  else
+    print_note "python3 is unavailable. SpotBugs readable summary skipped."
+  fi
+
   STATUS_SPOTBUGS="ok"
   print_note "SpotBugs command: ./mvnw -B -DskipTests compile spotbugs:spotbugs"
   print_note "SpotBugs findings: $total"
@@ -261,6 +278,12 @@ run_spotbugs() {
     while IFS= read -r line; do
       [[ -n "$line" ]] && echo "    $line"
     done <<<"$category_summary"
+  fi
+  if [[ -s "$spotbugs_summary_txt" ]]; then
+    print_note "SpotBugs readable summary (start here): $spotbugs_summary_txt"
+  fi
+  if [[ -s "$spotbugs_summary_json" ]]; then
+    print_note "SpotBugs summary JSON: $spotbugs_summary_json"
   fi
   print_note "SpotBugs raw output: $spotbugs_xml_dst"
 }

@@ -23,9 +23,11 @@ Reports are written under `reports/static-analysis/`:
 - `frontend-knip.json`
 - `backend-pmd.xml`
 - `backend-spotbugs.xml`
+- `backend-spotbugs-summary.txt` (primary human-readable SpotBugs entry point)
+- `backend-spotbugs-summary.json` (deterministic machine-readable aggregate)
 - command stderr/stdout logs for each tool
 
-The script prints a concise terminal summary and keeps raw files for manual review.
+The script prints a concise terminal summary, points to the readable SpotBugs summary, and keeps raw files for manual review.
 
 ## Notes
 
