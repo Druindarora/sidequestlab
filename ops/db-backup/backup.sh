@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 PREFIX="postgres/"
 KEEP_COUNT=5
@@ -22,6 +22,7 @@ done
 export AWS_ACCESS_KEY_ID="$ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="$SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+export AWS_PAGER=""
 
 db_name="${DATABASE_URL##*/}"
 db_name="${db_name%%\?*}"
@@ -41,6 +42,13 @@ cleanup() {
 }
 trap cleanup EXIT
 
+on_error() {
+  local exit_code=$?
+  echo "Backup failed (exit ${exit_code})" >&2
+  exit "$exit_code"
+}
+trap on_error ERR
+
 echo "Starting PostgreSQL backup for database: ${db_name}"
 pg_dump -Fc --no-owner --no-privileges "$DATABASE_URL" -f "$dump_path"
 
@@ -48,16 +56,20 @@ echo "Uploading backup to s3://${BUCKET}/${object_key}"
 aws s3 cp "$dump_path" "s3://${BUCKET}/${object_key}" --endpoint-url "$ENDPOINT"
 
 echo "Applying retention policy: keeping ${KEEP_COUNT} most recent backups in ${PREFIX}"
-mapfile -t keys < <(
+keys_raw="$(
   aws s3api list-objects-v2 \
     --bucket "$BUCKET" \
     --prefix "$PREFIX" \
     --endpoint-url "$ENDPOINT" \
     --query 'sort_by(Contents,&LastModified)[].Key' \
-    --output text \
-  | tr '\t' '\n' \
-  | sed '/^$/d;/^None$/d'
-)
+    --output text
+)"
+
+filtered_keys="$(printf '%s\n' "$keys_raw" | tr '\t' '\n' | sed '/^$/d;/^None$/d')"
+keys=()
+if [[ -n "$filtered_keys" ]]; then
+  mapfile -t keys <<<"$filtered_keys"
+fi
 
 if (( ${#keys[@]} > KEEP_COUNT )); then
   delete_count=$(( ${#keys[@]} - KEEP_COUNT ))
@@ -69,3 +81,4 @@ if (( ${#keys[@]} > KEEP_COUNT )); then
 fi
 
 echo "Backup completed successfully: ${object_key}"
+exit 0
