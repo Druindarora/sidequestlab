@@ -1,24 +1,41 @@
 <main class="demo-memoquiz">
   <section class="demo-memoquiz__header">
-    <h1>D&eacute;mo M&eacute;moQuiz</h1>
-    <p>
-      MemoQuiz = app de r&eacute;vision Leitner, module SideQuestLab.
-    </p>
-    <p>Cette page montre une V1 simple avec 4 captures.</p>
+    <div class="demo-memoquiz__title-row">
+      <h1>D&eacute;mo M&eacute;moQuiz</h1>
+      <span class="demo-memoquiz__status">Aper&ccedil;u</span>
+    </div>
+
+    <p>MemoQuiz = app de r&eacute;vision Leitner, module SideQuestLab.</p>
+
+    <div class="demo-memoquiz__info-banner" role="note" aria-label="Statut de la demo">
+      <mat-icon aria-hidden="true">slideshow</mat-icon>
+      <div class="demo-memoquiz__info-content">
+        <strong>Pr&eacute;visualisation non jouable</strong>
+        <p>
+          Cette page pr&eacute;sente des captures d&rsquo;&eacute;cran de l&rsquo;interface, en
+          attendant une d&eacute;mo interactive.
+        </p>
+      </div>
+    </div>
   </section>
 
   <section class="demo-memoquiz__section">
     <h2>Ce que vous voyez ici</h2>
     <ul>
       <li>Dashboard du jour pour visualiser les cartes &agrave; revoir et la progression.</li>
-      <li>Session de r&eacute;vision avec parcours question/r&eacute;ponse et auto-&eacute;valuation.</li>
+      <li>
+        Session de r&eacute;vision avec parcours question/r&eacute;ponse et auto-&eacute;valuation.
+      </li>
       <li>Gestion des cartes pour cr&eacute;er, modifier et maintenir le contenu.</li>
       <li>Admin quiz pour piloter le quiz par d&eacute;faut et ses options de base.</li>
     </ul>
   </section>
 
   <section class="demo-memoquiz__gallery-section" aria-label="Galerie MemoQuiz">
-    <p class="demo-memoquiz__gallery-hint">Cliquez sur une capture pour l'agrandir.</p>
+    <p class="demo-memoquiz__gallery-hint">
+      Cliquez sur une capture pour l&rsquo;agrandir et parcourir l&rsquo;aper&ccedil;u de
+      l&rsquo;interface.
+    </p>
 
     <div class="demo-memoquiz__gallery">
       @for (screenshot of screenshots; track screenshot.src; let index = $index) {
@@ -93,7 +110,11 @@
         </button>
 
         <div class="demo-memoquiz__lightbox-media">
-          <img [src]="screenshot.src" [alt]="screenshot.caption" (error)="markUnavailable(lightboxIndex()!)" />
+          <img
+            [src]="screenshot.src"
+            [alt]="screenshot.caption"
+            (error)="markUnavailable(lightboxIndex()!)"
+          />
           <p class="demo-memoquiz__lightbox-caption">
             {{ screenshot.caption }} <span aria-hidden="true">·</span> {{ currentPositionLabel }}
           </p>
