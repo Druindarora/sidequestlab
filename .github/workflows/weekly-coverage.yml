@@ -45,17 +45,11 @@ jobs:
 
       - name: Publish coverage summary
         run: |
-          {
-            echo "### Coverage Summary"
-            echo ""
-            echo '```text'
-            awk '
-              /^== Coverage Summary ==$/ { in_summary=1; next }
-              /^Frontend HTML report:/ { in_summary=0 }
-              in_summary { print }
-            ' coverage-summary.txt | sed '/^$/d'
-            echo '```'
-          } >> "${GITHUB_STEP_SUMMARY}"
+          if [[ -f coverage-summary.md ]]; then
+            cat coverage-summary.md >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "Coverage summary markdown missing." >> "${GITHUB_STEP_SUMMARY}"
+          fi
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
@@ -64,5 +58,7 @@ jobs:
           if-no-files-found: error
           path: |
             coverage-summary.txt
+            coverage-summary.md
+            coverage-summary.json
             frontend/coverage
             backend/target/site/jacoco
