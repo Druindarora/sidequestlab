@@ -9,6 +9,8 @@ frontend_lcov=""
 frontend_html_report=""
 backend_jacoco_xml="$BACKEND_DIR/target/site/jacoco/jacoco.xml"
 backend_html_report="$BACKEND_DIR/target/site/jacoco/index.html"
+coverage_summary_json="$ROOT_DIR/coverage-summary.json"
+coverage_summary_markdown="$ROOT_DIR/coverage-summary.md"
 
 fail() {
   echo "ERROR: $1" >&2
@@ -112,6 +114,18 @@ echo "Backend (JaCoCo)"
 echo "  - Lines: ${backend_line_percent}% (${backend_line_covered}/${backend_line_total})"
 echo "  - Branches: ${backend_branch_percent}% (${backend_branch_covered}/${backend_branch_total})"
 echo "  - Instructions: ${backend_instruction_percent}% (${backend_instruction_covered}/${backend_instruction_total})"
+echo ""
+
+python3 "$ROOT_DIR/scripts/coverage-summary.py" \
+  --frontend-lcov "$frontend_lcov" \
+  --backend-jacoco "$backend_jacoco_xml" \
+  --root-dir "$ROOT_DIR" \
+  --json-output "$coverage_summary_json" \
+  --markdown-output "$coverage_summary_markdown" \
+  --top-limit 5
+
+echo "Generated compact markdown summary: $coverage_summary_markdown"
+echo "Generated machine summary JSON:   $coverage_summary_json"
 echo ""
 echo "Frontend HTML report: $frontend_html_report"
 echo "Backend HTML report:  $backend_html_report"
