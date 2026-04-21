@@ -64,6 +64,17 @@ class ScheduleProviderTest {
     }
 
     @Test
+    void boxesForDayWhenLoadedScheduleIsEmptyThrows() throws IOException {
+        when(objectMapper.readValue(any(InputStream.class), anyScheduleTypeReference())).thenReturn(null);
+
+        scheduleProvider.loadSchedule();
+
+        assertThatThrownBy(() -> scheduleProvider.boxesForDay(1))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Memoquiz schedule not loaded");
+    }
+
+    @Test
     void boxesForDayWithInvalidIndexThrows() throws IOException {
         Map<Integer, List<Integer>> loaded = Map.of(
             1, List.of(1, 2),
