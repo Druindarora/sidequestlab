@@ -1,13 +1,16 @@
-name: Weekly Audit
+name: Weekly Dependency Report
 
 on:
   schedule:
     - cron: "0 2 * * 1"
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
-  frontend-audit:
-    name: Frontend npm audit
+  frontend-deps:
+    name: Frontend dependency report
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,71 +31,118 @@ jobs:
           cd frontend
           npm audit --json > ../frontend-audit.json || true
 
-      - name: Build frontend audit summaries
+      - name: Run npm outdated (non-failing)
+        run: |
+          cd frontend
+          npm outdated --json > ../frontend-outdated.json || true
+
+      - name: Build frontend dependency summaries
         run: |
           node <<'NODE'
           const fs = require('fs');
 
+          const now = new Date().toISOString();
           const severities = ['critical', 'high', 'moderate', 'low'];
-          let counts = { critical: 0, high: 0, moderate: 0, low: 0 };
-          let parseError = null;
 
-          try {
-            const raw = fs.readFileSync('frontend-audit.json', 'utf8');
-            const audit = JSON.parse(raw);
+          function readJsonObject(path, allowEmpty = false) {
+            try {
+              const raw = fs.readFileSync(path, 'utf8');
+              if (allowEmpty && raw.trim() === '') {
+                return { value: {}, parseError: null };
+              }
+              return { value: JSON.parse(raw), parseError: null };
+            } catch (error) {
+              return { value: {}, parseError: error.message };
+            }
+          }
 
+          const auditSource = 'frontend-audit.json';
+          const auditRead = readJsonObject(auditSource);
+          const vulnerabilityCounts = { critical: 0, high: 0, moderate: 0, low: 0 };
+
+          if (!auditRead.parseError) {
+            const audit = auditRead.value;
             if (audit?.metadata?.vulnerabilities) {
-              for (const sev of severities) {
-                counts[sev] = Number(audit.metadata.vulnerabilities[sev] || 0);
+              for (const severity of severities) {
+                vulnerabilityCounts[severity] = Number(audit.metadata.vulnerabilities[severity] || 0);
               }
             } else if (audit?.advisories) {
               for (const advisory of Object.values(audit.advisories)) {
-                const sev = advisory?.severity;
-                if (severities.includes(sev)) counts[sev] += 1;
+                const severity = advisory?.severity;
+                if (severities.includes(severity)) vulnerabilityCounts[severity] += 1;
               }
             }
-          } catch (error) {
-            parseError = error.message;
           }
 
-          const total =
-            counts.critical + counts.high + counts.moderate + counts.low;
-          const summary = {
-            critical: counts.critical,
-            high: counts.high,
-            moderate: counts.moderate,
-            low: counts.low,
-            total,
-            parse_error: parseError,
+          const auditSummary = {
+            critical: vulnerabilityCounts.critical,
+            high: vulnerabilityCounts.high,
+            moderate: vulnerabilityCounts.moderate,
+            low: vulnerabilityCounts.low,
+            total: severities.reduce((sum, severity) => sum + vulnerabilityCounts[severity], 0),
+            parse_error: auditRead.parseError,
+            generated_at: now,
+            source_file: auditSource,
           };
 
-          fs.writeFileSync(
-            'frontend-audit-summary.json',
-            `${JSON.stringify(summary, null, 2)}\n`
-          );
+          fs.writeFileSync('frontend-audit-summary.json', `${JSON.stringify(auditSummary, null, 2)}\n`);
 
-          const lines = [
-            '### Frontend Audit',
-            '',
-            `- Critical: **${counts.critical}**`,
-            `- High: **${counts.high}**`,
-            `- Moderate: **${counts.moderate}**`,
-            `- Low: **${counts.low}**`,
-            `- Total: **${total}**`,
+          const outdatedSource = 'frontend-outdated.json';
+          const outdatedRead = readJsonObject(outdatedSource, true);
+          const packageJsonRead = readJsonObject('frontend/package.json');
+          const packageJson = packageJsonRead.value || {};
+          const dependencyTypes = [
+            ['dependencies', 'dependencies'],
+            ['devDependencies', 'devDependencies'],
+            ['optionalDependencies', 'optionalDependencies'],
           ];
-          if (parseError) {
-            lines.push(`- Parse error: \`${parseError}\``);
-          }
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+
+          const outdatedEntries = Object.entries(outdatedRead.value || {}).map(([name, entry]) => {
+            let type = entry?.type || null;
+            if (!type) {
+              for (const [packageField, inferredType] of dependencyTypes) {
+                if (packageJson?.[packageField]?.[name]) {
+                  type = inferredType;
+                  break;
+                }
+              }
+            }
+
+            return {
+              name,
+              current: entry?.current || null,
+              wanted: entry?.wanted || null,
+              latest: entry?.latest || null,
+              type,
+              location: entry?.location || null,
+            };
+          });
+
+          const countByType = (types) => outdatedEntries.filter((entry) => types.includes(entry.type)).length;
+          const outdatedSummary = {
+            total_outdated: outdatedEntries.length,
+            direct_dependencies_outdated: countByType(['dependencies', 'direct']),
+            dev_dependencies_outdated: countByType(['devDependencies', 'dev']),
+            optional_dependencies_outdated: countByType(['optionalDependencies', 'optional']),
+            dependency_names: outdatedEntries.map((entry) => entry.name).sort(),
+            entries: outdatedEntries.sort((a, b) => a.name.localeCompare(b.name)),
+            parse_error: outdatedRead.parseError,
+            generated_at: now,
+            source_file: outdatedSource,
+          };
+
+          fs.writeFileSync('frontend-outdated-summary.json', `${JSON.stringify(outdatedSummary, null, 2)}\n`);
           NODE
 
-      - name: Upload frontend audit reports
+      - name: Upload frontend dependency reports
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-npm-audit
+          name: frontend-dependency-reports
           path: |
             frontend-audit.json
+            frontend-outdated.json
             frontend-audit-summary.json
+            frontend-outdated-summary.json
 
   backend-deps:
     name: Backend dependency update report
@@ -136,50 +186,62 @@ jobs:
 
       - name: Build backend update summary
         run: |
-          # count only stable updates (ignore -M*, -RC*, -SNAPSHOT)
-          count_updates() {
-            local file="$1"
-            # Count only real dependency lines: "group:artifact .... x -> y"
-            # Exclude pre-releases: -M*, -RC*, -SNAPSHOT, -rc*
-            grep -E -- '^\s*\[INFO\]\s+[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+.*->.*$' "$file" \
-              | grep -Ev -- '->.*(-M[0-9]+|-RC[0-9]+|-SNAPSHOT|-rc[0-9]*)(\s|$)' \
-              | wc -l | tr -d ' '
+          node <<'NODE'
+          const fs = require('fs');
+
+          const now = new Date().toISOString();
+          const sources = {
+            dependency: 'backend-updates.txt',
+            plugin: 'backend-plugins-updates.txt',
+            property: 'backend-properties-updates.txt',
+          };
+          const unstableVersion = /(?:^|[-.])(M|RC|rc)\d*|SNAPSHOT|alpha|beta/i;
+          const updateLine = /^\s*\[INFO\]\s+(.+?)\s+\.{2,}\s+(.+?)\s+->\s+(.+?)\s*$/;
+
+          function stable(version) {
+            return !unstableVersion.test(version);
           }
 
-          dependency_updates=$(count_updates backend-updates.txt)
-          plugin_updates=$(count_updates backend-plugins-updates.txt)
-          property_updates=$(count_updates backend-properties-updates.txt)
-          total_updates=$((dependency_updates + plugin_updates + property_updates))
+          function parseEntries(category, sourceFile) {
+            const lines = fs.readFileSync(sourceFile, 'utf8').split(/\r?\n/);
+            return lines.flatMap((line) => {
+              const match = line.match(updateLine);
+              if (!match) return [];
+              const newerVersion = match[3].trim();
+              if (!stable(newerVersion)) return [];
 
-          cat > backend-updates-summary.json <<EOF
-          {
-            "dependencies_with_updates": ${dependency_updates},
-            "plugins_with_updates": ${plugin_updates},
-            "properties_with_updates": ${property_updates},
-            "total_with_updates": ${total_updates}
+              return [{
+                category,
+                raw_line: line.trim(),
+                current_version: match[2].trim() || null,
+                newer_version: newerVersion || null,
+              }];
+            });
           }
-          EOF
 
-          {
-            echo "### Backend Dependency Updates"
-            echo ""
-            echo "- Dependencies with updates: **${dependency_updates}**"
-            echo "- Plugins with updates: **${plugin_updates}**"
-            echo "- Properties with updates: **${property_updates}**"
-            echo "- Total update entries: **${total_updates}**"
-            echo ""
-            echo "Top 10 (stable):"
-            echo '```'
-            grep -E -- '^\s*\[INFO\]\s+[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+.*->.*$' backend-updates.txt \
-              | grep -Ev -- '->.*(-M[0-9]+|-RC[0-9]+|-SNAPSHOT|-rc[0-9]*)(\s|$)' \
-              | head -n 10
-            echo '```'
-          } >> "${GITHUB_STEP_SUMMARY}"
+          const entries = Object.entries(sources).flatMap(([category, sourceFile]) =>
+            parseEntries(category, sourceFile)
+          );
+          const count = (category) => entries.filter((entry) => entry.category === category).length;
+
+          const summary = {
+            dependencies_with_updates: count('dependency'),
+            plugins_with_updates: count('plugin'),
+            properties_with_updates: count('property'),
+            total_with_updates: entries.length,
+            generated_at: now,
+            source_files: Object.values(sources),
+            stable_updates_only: true,
+            entries,
+          };
+
+          fs.writeFileSync('backend-updates-summary.json', `${JSON.stringify(summary, null, 2)}\n`);
+          NODE
 
       - name: Upload backend dependency reports
         uses: actions/upload-artifact@v4
         with:
-          name: backend-deps
+          name: backend-dependency-reports
           path: |
             backend-updates.txt
             backend-plugins-updates.txt
@@ -223,18 +285,118 @@ jobs:
           chmod +x ./scripts/quality-report.sh
           ./scripts/quality-report.sh | tee quality-report.txt
 
-      - name: Append quality report summary
+      - name: Build quality report summary
         run: |
-          {
-            echo "### Quality Report"
-            echo ""
-            echo '```text'
-            cat quality-report.txt
-            echo '```'
-          } >> "${GITHUB_STEP_SUMMARY}"
+          node <<'NODE'
+          const fs = require('fs');
+          const sourceFile = 'quality-report.txt';
+          const report = fs.readFileSync(sourceFile, 'utf8');
+          const summary = {
+            generated_at: new Date().toISOString(),
+            source_file: sourceFile,
+            report_available: true,
+            line_count: report.trim() === '' ? 0 : report.split(/\r?\n/).length,
+          };
+          fs.writeFileSync('quality-report-summary.json', `${JSON.stringify(summary, null, 2)}\n`);
+          NODE
 
       - name: Upload quality report artifact
         uses: actions/upload-artifact@v4
         with:
           name: quality-report
-          path: quality-report.txt
+          path: |
+            quality-report.txt
+            quality-report-summary.json
+
+  dependency-report:
+    name: Dependency report summary
+    runs-on: ubuntu-latest
+    needs:
+      - frontend-deps
+      - backend-deps
+      - quality-report
+    steps:
+      - name: Download frontend reports
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dependency-reports
+          path: reports/frontend
+
+      - name: Download backend reports
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-dependency-reports
+          path: reports/backend
+
+      - name: Download quality report
+        uses: actions/download-artifact@v4
+        with:
+          name: quality-report
+          path: reports/quality
+
+      - name: Build dependency report
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          function readJson(path) {
+            return JSON.parse(fs.readFileSync(path, 'utf8'));
+          }
+
+          const artifactNames = [
+            'frontend-dependency-reports',
+            'backend-dependency-reports',
+            'quality-report',
+            'dependency-report',
+          ];
+          const frontendAudit = readJson('reports/frontend/frontend-audit-summary.json');
+          const frontendOutdated = readJson('reports/frontend/frontend-outdated-summary.json');
+          const backend = readJson('reports/backend/backend-updates-summary.json');
+          const quality = readJson('reports/quality/quality-report-summary.json');
+
+          const report = {
+            repository: process.env.GITHUB_REPOSITORY,
+            workflow_name: process.env.GITHUB_WORKFLOW,
+            run_id: process.env.GITHUB_RUN_ID,
+            run_number: Number(process.env.GITHUB_RUN_NUMBER),
+            commit_sha: process.env.GITHUB_SHA,
+            branch_ref: process.env.GITHUB_REF,
+            generated_at: new Date().toISOString(),
+            artifact_names: artifactNames,
+            frontend_audit_summary: frontendAudit,
+            frontend_outdated_summary: frontendOutdated,
+            backend_summary: backend,
+            quality_summary: quality,
+          };
+
+          fs.writeFileSync('dependency-report.json', `${JSON.stringify(report, null, 2)}\n`);
+
+          const lines = [
+            '# Weekly Dependency Report',
+            '',
+            '## Frontend',
+            `- Vulnerabilities: critical ${frontendAudit.critical}, high ${frontendAudit.high}, moderate ${frontendAudit.moderate}, low ${frontendAudit.low}, total ${frontendAudit.total}`,
+            `- Outdated dependencies: ${frontendOutdated.total_outdated}`,
+            '',
+            '## Backend',
+            `- Dependency updates: ${backend.dependencies_with_updates}`,
+            `- Plugin updates: ${backend.plugins_with_updates}`,
+            `- Property updates: ${backend.properties_with_updates}`,
+            `- Total updates: ${backend.total_with_updates}`,
+            '',
+            '## Quality',
+            `- Report available: ${quality.report_available ? 'yes' : 'no'}`,
+            `- Lines: ${quality.line_count}`,
+            '',
+            '## Artifacts',
+            ...artifactNames.map((name) => `- ${name}`),
+          ];
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+          NODE
+
+      - name: Upload dependency report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report
+          path: dependency-report.json
