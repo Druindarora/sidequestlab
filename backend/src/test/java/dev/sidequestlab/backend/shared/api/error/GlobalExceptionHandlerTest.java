@@ -3,6 +3,8 @@ package dev.sidequestlab.backend.shared.api.error;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -87,7 +90,8 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void handleHttpMessageNotReadableReturns400() {
-        HttpMessageNotReadableException exception = new HttpMessageNotReadableException("malformed");
+        HttpMessageNotReadableException exception =
+            new HttpMessageNotReadableException("malformed", emptyInputMessage());
 
         ResponseEntity<ProblemDetail> response =
             handler.handleHttpMessageNotReadable(exception, request("POST", "/api/payload"));
@@ -98,6 +102,20 @@ class GlobalExceptionHandlerTest {
         assertThat(body.getTitle()).isEqualTo("Malformed JSON");
         assertThat(body.getDetail()).isEqualTo("Malformed JSON");
         assertCommonProperties(body, "/api/payload");
+    }
+
+    private HttpInputMessage emptyInputMessage() {
+        return new HttpInputMessage() {
+            @Override
+            public InputStream getBody() {
+                return new ByteArrayInputStream(new byte[0]);
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                return HttpHeaders.EMPTY;
+            }
+        };
     }
 
     @Test
