@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>Import JSON</h2>
+
+<mat-dialog-content class="json-import-dialog">
+  <mat-form-field appearance="outline">
+    <mat-label>JSON</mat-label>
+    <textarea
+      matInput
+      rows="12"
+      [formControl]="jsonControl"
+      (input)="onJsonChanged()"
+      placeholder='[{"question":"Question text","answer":"Answer text"}]'
+    ></textarea>
+  </mat-form-field>
+
+  @if (validation.detectedCount > 0) {
+    <p class="json-import-dialog__count">{{ validation.detectedCount }} cartes détectées</p>
+  }
+
+  @if (validation.errors.length > 0) {
+    <div class="json-import-dialog__feedback json-import-dialog__feedback--error">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <ul>
+        @for (error of validation.errors; track error) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (apiErrorMessage) {
+    <div class="json-import-dialog__feedback json-import-dialog__feedback--error">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <span>{{ apiErrorMessage }}</span>
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="json-import-dialog__feedback json-import-dialog__feedback--success">
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  @if (importInProgress) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()" [disabled]="importInProgress">Annuler</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="importCards()"
+    [disabled]="importInProgress || validation.errors.length > 0 || validation.cards.length === 0"
+  >
+    Importer
+  </button>
+</mat-dialog-actions>
