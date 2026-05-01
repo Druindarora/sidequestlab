@@ -90,7 +90,8 @@
         <div class="home__project-actions">
           <button
             matButton="outlined"
-            routerLink="/demo-memoquiz"
+            [routerLink]="memoQuizCtaLink()"
+            (click)="handleMemoQuizCtaClick()"
             target="_blank"
             rel="noopener noreferrer"
           >
