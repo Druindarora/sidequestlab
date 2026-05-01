@@ -1,5 +1,8 @@
 package dev.sidequestlab.backend.memoquiz.service;
 
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardItem;
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsResponse;
 import dev.sidequestlab.backend.memoquiz.api.dto.CardDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.CreateCardRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.UpdateCardRequest;
@@ -17,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -55,24 +59,27 @@ public class CardService {
         return cardRepository.findAll(spec, pageable).map(this::toDto).toList();
     }
 
+    @Transactional
     public CardDto createCard(CreateCardRequest req) {
         Instant now = Instant.now();
         int box = req.box() == null ? 1 : req.box();
 
-        CardEntity entity = new CardEntity();
-        entity.setFront(req.front());
-        entity.setBack(req.back());
-        entity.setStatus(CardStatus.INACTIVE);
-        entity.setCreatedAt(now);
-        entity.setUpdatedAt(now);
-
-        CardProgressEntity progress = new CardProgressEntity();
-        progress.setBox(box);
-        progress.setUpdatedAt(now);
-        entity.setProgress(progress);
-
+        CardEntity entity = newCardEntity(req.front(), req.back(), box, now);
         CardEntity saved = cardRepository.save(entity);
         return toDto(saved);
+    }
+
+    @Transactional
+    public BulkCreateCardsResponse bulkCreateCards(BulkCreateCardsRequest req) {
+        validateBulkCreateRequest(req);
+
+        Instant now = Instant.now();
+        List<CardEntity> entities = req.cards().stream()
+            .map(item -> newCardEntity(item.front(), item.back(), 1, now))
+            .toList();
+
+        List<CardEntity> saved = cardRepository.saveAll(entities);
+        return new BulkCreateCardsResponse(req.cards().size(), saved.size());
     }
 
     public CardDto updateCard(Long id, UpdateCardRequest req) {
@@ -114,6 +121,40 @@ public class CardService {
     private CardEntity getCardOrThrow(Long id) {
         return cardRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
+    }
+
+    private CardEntity newCardEntity(String front, String back, int box, Instant now) {
+        CardEntity entity = new CardEntity();
+        entity.setFront(front);
+        entity.setBack(back);
+        entity.setStatus(CardStatus.INACTIVE);
+        entity.setCreatedAt(now);
+        entity.setUpdatedAt(now);
+
+        CardProgressEntity progress = new CardProgressEntity();
+        progress.setBox(box);
+        progress.setUpdatedAt(now);
+        entity.setProgress(progress);
+
+        return entity;
+    }
+
+    private void validateBulkCreateRequest(BulkCreateCardsRequest req) {
+        if (req == null || req.cards() == null || req.cards().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one card is required");
+        }
+        if (req.cards().size() > 100) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At most 100 cards can be imported");
+        }
+
+        for (BulkCreateCardItem item : req.cards()) {
+            if (item == null || item.front() == null || item.front().isBlank() || item.front().length() > 2000) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid card front");
+            }
+            if (item.back() == null || item.back().isBlank() || item.back().length() > 10000) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid card back");
+            }
+        }
     }
 
     private Sort parseSort(String sort) {

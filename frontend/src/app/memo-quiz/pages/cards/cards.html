@@ -6,6 +6,10 @@
           <mat-card-title class="mq-page-title">Gestion des cartes</mat-card-title>
         </div>
         <div class="mq-cards-header-right">
+          <button mat-stroked-button (click)="openJsonImportDialog()" [disabled]="loading">
+            <mat-icon>upload_file</mat-icon>
+            Import JSON
+          </button>
           <button
             mat-flat-button
             color="primary"

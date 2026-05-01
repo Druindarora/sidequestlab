@@ -1,5 +1,7 @@
 package dev.sidequestlab.backend.memoquiz.api.controller;
 
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsResponse;
 import dev.sidequestlab.backend.memoquiz.api.dto.CardDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.CreateCardRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.UpdateCardRequest;
@@ -42,6 +44,11 @@ public class CardController {
     @PostMapping("/cards")
     public ResponseEntity<CardDto> createCard(@Valid @RequestBody CreateCardRequest req) {
         return ResponseEntity.ok(cardService.createCard(req));
+    }
+
+    @PostMapping("/cards/bulk")
+    public ResponseEntity<BulkCreateCardsResponse> bulkCreateCards(@Valid @RequestBody BulkCreateCardsRequest req) {
+        return ResponseEntity.ok(cardService.bulkCreateCards(req));
     }
 
     @PutMapping("/cards/{id}")
