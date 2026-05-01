@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,6 +20,7 @@ export class LoginDialog {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly dialogRef = inject(MatDialogRef<LoginDialog>);
+  private readonly router = inject(Router);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -64,6 +66,7 @@ export class LoginDialog {
       )
       .subscribe({
         next: () => {
+          this.handlePostLoginNavigation();
           this.dialogRef.close(true);
         },
         error: (error: unknown) => {
@@ -84,5 +87,23 @@ export class LoginDialog {
     }
 
     return 'Impossible de se connecter pour le moment.';
+  }
+
+  private handlePostLoginNavigation(): void {
+    if (this.currentRoutePath() !== '/demo-memoquiz') {
+      return;
+    }
+
+    if (this.authService.passwordChangeRequired()) {
+      this.authService.requestPasswordChangePrompt();
+      void this.router.navigate(['/']);
+      return;
+    }
+
+    void this.router.navigate(['/memo-quiz']);
+  }
+
+  private currentRoutePath(): string {
+    return this.router.url.split(/[?#]/)[0];
   }
 }

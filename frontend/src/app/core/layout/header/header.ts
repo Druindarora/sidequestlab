@@ -60,6 +60,10 @@ export class Header {
     });
   }
 
+  requestPasswordChange(): void {
+    this.authService.requestPasswordChangePrompt();
+  }
+
   logout(): void {
     this.authService
       .logout()
