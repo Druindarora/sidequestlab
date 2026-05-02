@@ -1,6 +1,7 @@
 package dev.sidequestlab.backend.memoquiz.service;
 
 import dev.sidequestlab.backend.memoquiz.api.dto.AnswerRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.CompleteSessionRequest;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.CardEntity;
 import dev.sidequestlab.backend.memoquiz.persistence.entity.MemoQuizQuizCardEntity;
@@ -13,6 +14,7 @@ import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizQuizCard
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizReviewLogRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionItemRepository;
 import dev.sidequestlab.backend.memoquiz.persistence.repository.MemoQuizSessionRepository;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -93,7 +95,7 @@ class SessionServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.empty());
         when(scheduleProvider.scheduleLength()).thenReturn(8);
         when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(4));
-        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE)))
             .thenReturn(List.of(projection));
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> {
             MemoQuizSessionEntity saved = invocation.getArgument(0);
@@ -139,7 +141,7 @@ class SessionServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.empty());
         when(scheduleProvider.scheduleLength()).thenReturn(64);
         when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(1, 2));
-        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE)))
             .thenReturn(List.of(first, second, third));
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> {
             MemoQuizSessionEntity saved = invocation.getArgument(0);
@@ -195,7 +197,7 @@ class SessionServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
         when(scheduleProvider.scheduleLength()).thenReturn(64);
         when(scheduleProvider.boxesForDay(13)).thenReturn(List.of(1));
-        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE)))
             .thenReturn(List.of());
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -216,7 +218,7 @@ class SessionServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
         when(scheduleProvider.scheduleLength()).thenReturn(3);
         when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(1));
-        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE)))
             .thenReturn(List.of());
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -237,7 +239,7 @@ class SessionServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
         when(scheduleProvider.scheduleLength()).thenReturn(2);
         when(scheduleProvider.boxesForDay(2)).thenReturn(List.of(1));
-        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE), any(Pageable.class)))
+        when(quizCardRepository.findEnabledForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE)))
             .thenReturn(List.of());
         when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -495,5 +497,58 @@ class SessionServiceTest {
 
         assertThat(resp.correct()).isFalse();
         assertThat(resp.nextReview()).isNotNull();
+    }
+
+    @Test
+    void completeSessionCompletesUnfinishedSessionAndSavesDurationSeconds() {
+        SessionService spySessionService = spy(sessionService);
+        Instant startedAt = Instant.parse("2026-04-21T09:00:00Z");
+        Instant endedAt = Instant.parse("2026-04-21T09:10:05Z");
+        MemoQuizSessionEntity session = new MemoQuizSessionEntity();
+        session.setId(55L);
+        session.setStartedAt(startedAt);
+
+        when(sessionRepository.findById(55L)).thenReturn(Optional.of(session));
+        when(sessionRepository.save(any(MemoQuizSessionEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doReturn(endedAt).when(spySessionService).now();
+
+        var response = spySessionService.completeSession(new CompleteSessionRequest(55L));
+
+        assertThat(response.sessionId()).isEqualTo(55L);
+        assertThat(response.endedAt()).isEqualTo(endedAt);
+        assertThat(response.durationSeconds()).isEqualTo(605);
+
+        ArgumentCaptor<MemoQuizSessionEntity> sessionCaptor = ArgumentCaptor.forClass(MemoQuizSessionEntity.class);
+        verify(sessionRepository).save(sessionCaptor.capture());
+        assertThat(sessionCaptor.getValue().getEndedAt()).isEqualTo(endedAt);
+        assertThat(sessionCaptor.getValue().getDurationSeconds()).isEqualTo(605);
+    }
+
+    @Test
+    void completeSessionTwiceReturnsExistingCompletionWithoutRecalculating() {
+        MemoQuizSessionEntity session = new MemoQuizSessionEntity();
+        session.setId(56L);
+        session.setStartedAt(Instant.parse("2026-04-21T09:00:00Z"));
+        session.setEndedAt(Instant.parse("2026-04-21T09:02:00Z"));
+        session.setDurationSeconds(120);
+
+        when(sessionRepository.findById(56L)).thenReturn(Optional.of(session));
+
+        var response = sessionService.completeSession(new CompleteSessionRequest(56L));
+
+        assertThat(response.sessionId()).isEqualTo(56L);
+        assertThat(response.endedAt()).isEqualTo(Instant.parse("2026-04-21T09:02:00Z"));
+        assertThat(response.durationSeconds()).isEqualTo(120);
+        verify(sessionRepository, never()).save(any(MemoQuizSessionEntity.class));
+    }
+
+    @Test
+    void completeSessionReturnsNotFoundWhenSessionIsMissing() {
+        when(sessionRepository.findById(57L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> sessionService.completeSession(new CompleteSessionRequest(57L)))
+            .isInstanceOf(ResponseStatusException.class)
+            .extracting("statusCode")
+            .isEqualTo(HttpStatus.NOT_FOUND);
     }
 }

@@ -6,6 +6,8 @@ export * from './bulkCreateCardsRequest';
 export * from './bulkCreateCardsResponse';
 export * from './cardDto';
 export * from './changePasswordRequest';
+export * from './completeSessionRequest';
+export * from './completeSessionResponse';
 export * from './createCardRequest';
 export * from './csrfToken';
 export * from './lastSessionSummary';
