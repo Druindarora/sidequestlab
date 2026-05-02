@@ -4,6 +4,7 @@
       <div class="mq-cards-header">
         <div>
           <mat-card-title class="mq-page-title">Gestion des cartes</mat-card-title>
+          <p class="mq-cards-count">{{ loadedCardsCountLabel }}</p>
         </div>
         <div class="mq-cards-header-right">
           <button mat-stroked-button (click)="openJsonImportDialog()" [disabled]="loading">
