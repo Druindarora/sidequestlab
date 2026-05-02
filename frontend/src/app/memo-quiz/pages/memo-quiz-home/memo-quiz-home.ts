@@ -27,6 +27,7 @@ interface LeitnerBoxSummary {
   label: string;
   cardCount: number;
   isToday: boolean;
+  isTomorrow: boolean;
 }
 
 @Component({
@@ -56,10 +57,11 @@ export class MemoQuizHome implements OnInit {
   dayIndex = 1;
   canStartSession = false;
   boxesToday: number[] = [];
+  boxesTomorrow: number[] = [];
   dueToday = 0;
   totalCards = 0;
   lastSessionSummary: MemoQuizLastSessionSummary | null = null;
-  boxesOverviewAll: LeitnerBoxSummary[] = this.buildBoxesOverviewAll([], []);
+  boxesOverviewAll: LeitnerBoxSummary[] = this.buildBoxesOverviewAll([], [], []);
 
   loading = false;
   errorMessage: string | null = null;
@@ -120,10 +122,15 @@ export class MemoQuizHome implements OnInit {
     this.dayIndex = dashboard.dayIndex ?? 1;
     this.canStartSession = dashboard.canStartSession ?? false;
     this.boxesToday = dashboard.boxesToday ?? [];
+    this.boxesTomorrow = dashboard.boxesTomorrow ?? [];
     this.dueToday = dashboard.dueToday ?? 0;
     this.totalCards = dashboard.totalCards ?? 0;
     this.lastSessionSummary = this.mapLastSessionSummary(dashboard.lastSessionSummary);
-    this.boxesOverviewAll = this.buildBoxesOverviewAll(dashboard.boxesOverview ?? [], this.boxesToday);
+    this.boxesOverviewAll = this.buildBoxesOverviewAll(
+      dashboard.boxesOverview ?? [],
+      this.boxesToday,
+      this.boxesTomorrow,
+    );
   }
 
   private async resolveDashboardPayload(payload: unknown): Promise<TodayDashboardDto | null> {
@@ -153,6 +160,7 @@ export class MemoQuizHome implements OnInit {
   private buildBoxesOverviewAll(
     boxesOverview: BoxesOverviewItem[],
     boxesToday: number[],
+    boxesTomorrow: number[],
   ): LeitnerBoxSummary[] {
     const countsByBox = new Map<number, number>();
     for (const box of boxesOverview) {
@@ -162,11 +170,13 @@ export class MemoQuizHome implements OnInit {
     }
 
     const todayBoxes = new Set(boxesToday);
+    const tomorrowBoxes = new Set(boxesTomorrow);
     return Array.from({ length: 7 }, (_, index) => index + 1).map((boxNumber) => ({
       boxNumber,
       label: this.boxLabels[boxNumber] ?? `Boîte ${boxNumber}`,
       cardCount: countsByBox.get(boxNumber) ?? 0,
       isToday: todayBoxes.has(boxNumber),
+      isTomorrow: tomorrowBoxes.has(boxNumber),
     }));
   }
 
