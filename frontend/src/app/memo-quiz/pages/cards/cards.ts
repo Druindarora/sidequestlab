@@ -70,6 +70,11 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  get loadedCardsCountLabel(): string {
+    const count = this.dataSource.data.length;
+    return `${count} ${count > 1 ? 'cartes' : 'carte'}`;
+  }
+
   ngOnInit(): void {
     this.reloadTimerId = setTimeout(() => {
       if (this.destroyed) {

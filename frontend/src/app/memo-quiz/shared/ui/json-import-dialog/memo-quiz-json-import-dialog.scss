@@ -10,6 +10,26 @@ mat-form-field {
   width: 100%;
 }
 
+.json-import-dialog__format {
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.json-import-dialog__format p {
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+
+.json-import-dialog__format pre {
+  margin: 0;
+  overflow: auto;
+  user-select: text;
+  white-space: pre;
+  font: 13px/1.45 monospace;
+}
+
 .json-import-dialog__count {
   margin: 0;
   font-weight: 500;

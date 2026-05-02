@@ -1,6 +1,16 @@
 <h2 mat-dialog-title>Import JSON</h2>
 
 <mat-dialog-content class="json-import-dialog">
+  <div class="json-import-dialog__format" aria-label="Format JSON attendu">
+    <p>Format attendu :</p>
+    <pre>[
+  &#123;
+    "question": "Texte de la question",
+    "answer": "Texte de la réponse"
+  &#125;
+]</pre>
+  </div>
+
   <mat-form-field appearance="outline">
     <mat-label>JSON</mat-label>
     <textarea
