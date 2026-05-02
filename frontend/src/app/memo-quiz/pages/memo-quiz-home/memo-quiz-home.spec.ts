@@ -21,6 +21,7 @@ describe('MemoQuizHome', () => {
           dayIndex: 10,
           canStartSession: true,
           boxesToday: [1, 3],
+          boxesTomorrow: [2, 3],
           dueToday: 6,
           totalCards: 25,
           lastSessionSummary: null,

@@ -53,19 +53,24 @@ public class DashboardService {
             .findTopByStartedAtGreaterThanEqualAndStartedAtLessThanOrderByStartedAtDescIdDesc(startOfDay, startOfNextDay);
 
         int dayIndex;
+        int scheduleLength;
         boolean canStartSession;
         if (todaySession.isPresent()) {
             dayIndex = todaySession.get().getDayIndex();
+            scheduleLength = scheduleProvider.scheduleLength();
             canStartSession = false;
         } else {
             Integer lastDayIndex = sessionRepository.findTopByOrderByStartedAtDescIdDesc()
                 .map(MemoQuizSessionEntity::getDayIndex)
                 .orElse(null);
-            dayIndex = SessionService.nextDayIndex(lastDayIndex, scheduleProvider.scheduleLength());
+            scheduleLength = scheduleProvider.scheduleLength();
+            dayIndex = SessionService.nextDayIndex(lastDayIndex, scheduleLength);
             canStartSession = true;
         }
 
         List<Integer> boxesToday = scheduleProvider.boxesForDay(dayIndex);
+        int tomorrowDayIndex = SessionService.nextDayIndex(dayIndex, scheduleLength);
+        List<Integer> boxesTomorrow = scheduleProvider.boxesForDay(tomorrowDayIndex);
         Set<Integer> boxesTodaySet = Set.copyOf(boxesToday);
 
         Long quizId = quizService.getDefaultQuizId();
@@ -88,6 +93,7 @@ public class DashboardService {
             dayIndex,
             canStartSession,
             boxesToday,
+            boxesTomorrow,
             dueToday,
             totalCards,
             lastSessionSummary,

@@ -24,6 +24,7 @@ class DashboardControllerTest {
             3,
             true,
             List.of(1, 3),
+            List.of(2, 4),
             12,
             48,
             new TodayDashboardDto.LastSessionSummary(

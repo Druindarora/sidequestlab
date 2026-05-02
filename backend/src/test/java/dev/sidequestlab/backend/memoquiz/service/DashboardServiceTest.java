@@ -58,7 +58,9 @@ class DashboardServiceTest {
         when(sessionRepository.findTopByStartedAtGreaterThanEqualAndStartedAtLessThanOrderByStartedAtDescIdDesc(any(), any()))
             .thenReturn(Optional.of(todaySession));
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(todaySession));
+        when(scheduleProvider.scheduleLength()).thenReturn(64);
         when(scheduleProvider.boxesForDay(7)).thenReturn(List.of(1, 4));
+        when(scheduleProvider.boxesForDay(8)).thenReturn(List.of(2));
         when(quizService.getDefaultQuizId()).thenReturn(1L);
         when(quizCardRepository.countEligibleForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE))).thenReturn(5L);
         when(quizCardRepository.countEnabledByQuizIdAndCardStatus(1L, CardStatus.ACTIVE)).thenReturn(17L);
@@ -76,6 +78,7 @@ class DashboardServiceTest {
         assertThat(dashboard.dayIndex()).isEqualTo(7);
         assertThat(dashboard.canStartSession()).isFalse();
         assertThat(dashboard.boxesToday()).containsExactly(1, 4);
+        assertThat(dashboard.boxesTomorrow()).containsExactly(2);
         assertThat(dashboard.dueToday()).isEqualTo(5);
         assertThat(dashboard.totalCards()).isEqualTo(17);
         assertThat(dashboard.lastSessionSummary()).isNotNull();
@@ -89,8 +92,7 @@ class DashboardServiceTest {
                 org.assertj.core.groups.Tuple.tuple(2, false),
                 org.assertj.core.groups.Tuple.tuple(4, true)
             );
-
-        verify(scheduleProvider, never()).scheduleLength();
+        verify(scheduleProvider).scheduleLength();
     }
 
     @Test
@@ -105,6 +107,7 @@ class DashboardServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
         when(scheduleProvider.scheduleLength()).thenReturn(64);
         when(scheduleProvider.boxesForDay(13)).thenReturn(List.of(2, 1));
+        when(scheduleProvider.boxesForDay(14)).thenReturn(List.of(3));
         when(quizService.getDefaultQuizId()).thenReturn(1L);
         when(quizCardRepository.countEligibleForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE))).thenReturn(9L);
         when(quizCardRepository.countEnabledByQuizIdAndCardStatus(1L, CardStatus.ACTIVE)).thenReturn(31L);
@@ -118,6 +121,7 @@ class DashboardServiceTest {
         assertThat(dashboard.dayIndex()).isEqualTo(13);
         assertThat(dashboard.canStartSession()).isTrue();
         assertThat(dashboard.boxesToday()).containsExactly(2, 1);
+        assertThat(dashboard.boxesTomorrow()).containsExactly(3);
         assertThat(dashboard.dueToday()).isEqualTo(9);
         verify(scheduleProvider).scheduleLength();
     }
@@ -134,6 +138,7 @@ class DashboardServiceTest {
         when(sessionRepository.findTopByOrderByStartedAtDescIdDesc()).thenReturn(Optional.of(lastSession));
         when(scheduleProvider.scheduleLength()).thenReturn(3);
         when(scheduleProvider.boxesForDay(1)).thenReturn(List.of(1));
+        when(scheduleProvider.boxesForDay(2)).thenReturn(List.of(2));
         when(quizService.getDefaultQuizId()).thenReturn(1L);
         when(quizCardRepository.countEligibleForSession(eq(1L), anyCollection(), eq(CardStatus.ACTIVE))).thenReturn(25L);
         when(quizCardRepository.countEnabledByQuizIdAndCardStatus(1L, CardStatus.ACTIVE)).thenReturn(40L);
@@ -147,6 +152,7 @@ class DashboardServiceTest {
 
         assertThat(dashboard.dayIndex()).isEqualTo(1);
         assertThat(dashboard.canStartSession()).isTrue();
+        assertThat(dashboard.boxesTomorrow()).containsExactly(2);
         assertThat(dashboard.dueToday()).isEqualTo(25);
         assertThat(dashboard.lastSessionSummary()).isNotNull();
         assertThat(dashboard.lastSessionSummary().reviewedCards()).isEqualTo(7);
