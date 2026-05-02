@@ -11,6 +11,7 @@ describe('MemoQuizSession', () => {
   let sessionApiMock: {
     todaySession: ReturnType<typeof vi.fn>;
     answer: ReturnType<typeof vi.fn>;
+    completeSession: ReturnType<typeof vi.fn>;
   };
 
   const todaySessionMock: SessionDto = {
@@ -23,6 +24,7 @@ describe('MemoQuizSession', () => {
     sessionApiMock = {
       todaySession: vi.fn(() => of(todaySessionMock)),
       answer: vi.fn(() => of({ correct: true })),
+      completeSession: vi.fn(() => of({ sessionId: 42, endedAt: new Date().toISOString(), durationSeconds: 60 })),
     };
 
     await TestBed.configureTestingModule({
@@ -49,6 +51,7 @@ describe('MemoQuizSession', () => {
     expect(payload.sessionId).toBe(42);
     expect(payload.cardId).toBe(7);
     expect(payload.answer).toBe('Bonne reponse');
+    expect(sessionApiMock.completeSession).toHaveBeenCalledWith({ sessionId: 42 });
   });
 
   it('sends an intentionally incorrect answer text when marking a response as incorrect', () => {

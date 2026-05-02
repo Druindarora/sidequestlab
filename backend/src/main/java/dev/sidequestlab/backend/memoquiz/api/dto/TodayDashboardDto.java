@@ -20,6 +20,7 @@ public record TodayDashboardDto(
         int goodAnswers,
         double successRate,
         Instant startedAt,
+        Integer durationSeconds,
         int dayIndex
     ) {}
 

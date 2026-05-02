@@ -18,6 +18,7 @@ interface MemoQuizLastSessionSummary {
   successRate: number;
   startedAt: string;
   startedAtLabel: string;
+  durationSeconds: number | null;
   dayIndex: number;
 }
 
@@ -38,6 +39,7 @@ interface LeitnerBoxSummary {
 export class MemoQuizHome implements OnInit {
   private readonly router = inject(Router);
   private readonly dashboardApi = inject(DashboardControllerApi);
+  readonly targetDurationSeconds = 600;
 
   private readonly boxLabels: Record<number, string> = {
     1: 'Quotidien',
@@ -191,6 +193,7 @@ export class MemoQuizHome implements OnInit {
       successRate: summary.successRate,
       startedAt: summary.startedAt,
       startedAtLabel: this.formatFrenchDateTime(summary.startedAt),
+      durationSeconds: typeof summary.durationSeconds === 'number' ? summary.durationSeconds : null,
       dayIndex: summary.dayIndex,
     };
   }

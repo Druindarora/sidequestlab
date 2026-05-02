@@ -70,8 +70,7 @@ public class DashboardService {
 
         Long quizId = quizService.getDefaultQuizId();
         long dueCount = quizCardRepository.countEligibleForSession(quizId, boxesToday, CardStatus.ACTIVE);
-        // Dashboard due count mirrors session creation by applying the same per-session card cap.
-        int dueToday = Math.toIntExact(Math.min(dueCount, SessionService.SESSION_CARD_LIMIT));
+        int dueToday = Math.toIntExact(dueCount);
         int totalCards = Math.toIntExact(quizCardRepository.countEnabledByQuizIdAndCardStatus(quizId, CardStatus.ACTIVE));
 
         TodayDashboardDto.LastSessionSummary lastSessionSummary = sessionRepository.findTopByOrderByStartedAtDescIdDesc()
@@ -113,6 +112,7 @@ public class DashboardService {
             goodAnswers,
             successRate,
             session.getStartedAt(),
+            session.getDurationSeconds(),
             session.getDayIndex()
         );
     }

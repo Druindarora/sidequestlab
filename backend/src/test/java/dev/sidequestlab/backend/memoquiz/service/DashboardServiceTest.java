@@ -147,7 +147,7 @@ class DashboardServiceTest {
 
         assertThat(dashboard.dayIndex()).isEqualTo(1);
         assertThat(dashboard.canStartSession()).isTrue();
-        assertThat(dashboard.dueToday()).isEqualTo(20);
+        assertThat(dashboard.dueToday()).isEqualTo(25);
         assertThat(dashboard.lastSessionSummary()).isNotNull();
         assertThat(dashboard.lastSessionSummary().reviewedCards()).isEqualTo(7);
         assertThat(dashboard.lastSessionSummary().goodAnswers()).isEqualTo(0);
