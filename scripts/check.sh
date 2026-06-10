@@ -163,5 +163,18 @@ fi
 
 popd >/dev/null
 
+# ---------- Public site (Astro) ----------
+echo ""
+echo "== Public site :: npm ci =="
+pushd "$ROOT_DIR/apps/public-site" >/dev/null
+
+npm ci
+
+echo ""
+echo "== Public site :: build =="
+ASTRO_TELEMETRY_DISABLED=1 npm run build
+
+popd >/dev/null
+
 echo ""
 echo "✅ check OK"
