@@ -10,7 +10,6 @@ import dev.sidequestlab.backend.memoquiz.persistence.projection.SessionCardProje
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -53,8 +52,7 @@ public interface MemoQuizQuizCardRepository extends JpaRepository<MemoQuizQuizCa
     List<SessionCardProjection> findEnabledForSession(
         @Param("quizId") Long quizId,
         @Param("boxes") Collection<Integer> boxes,
-        @Param("status") CardStatus status,
-        Pageable pageable
+        @Param("status") CardStatus status
     );
 
     @Query("""

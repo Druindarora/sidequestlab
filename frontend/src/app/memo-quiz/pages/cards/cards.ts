@@ -24,6 +24,10 @@ import {
   CardDialogResult,
   MemoQuizCardDialog,
 } from '../../shared/ui/card-dialog/memo-quiz-card-dialog';
+import {
+  MemoQuizJsonImportDialog,
+  MemoQuizJsonImportDialogResult,
+} from '../../shared/ui/json-import-dialog/memo-quiz-json-import-dialog';
 import { CardControllerApi, CardDto, CreateCardRequest, UpdateCardRequest } from '../../../api';
 
 interface ViewCard {
@@ -65,6 +69,11 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  get loadedCardsCountLabel(): string {
+    const count = this.dataSource.data.length;
+    return `${count} ${count > 1 ? 'cartes' : 'carte'}`;
+  }
 
   ngOnInit(): void {
     this.reloadTimerId = setTimeout(() => {
@@ -127,6 +136,18 @@ export class Cards implements AfterViewInit, OnDestroy, OnInit {
             this.errorMessage = 'Impossible de créer la carte.';
           },
         });
+      }
+    });
+  }
+
+  openJsonImportDialog(): void {
+    const ref = this.dialog.open(MemoQuizJsonImportDialog, {
+      width: '680px',
+    });
+
+    ref.afterClosed().subscribe((result: MemoQuizJsonImportDialogResult | undefined) => {
+      if (result?.imported) {
+        this.reloadCards();
       }
     });
   }

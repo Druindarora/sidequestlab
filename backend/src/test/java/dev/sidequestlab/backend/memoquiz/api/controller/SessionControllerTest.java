@@ -2,6 +2,8 @@ package dev.sidequestlab.backend.memoquiz.api.controller;
 
 import dev.sidequestlab.backend.memoquiz.api.dto.AnswerRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.AnswerResponse;
+import dev.sidequestlab.backend.memoquiz.api.dto.CompleteSessionRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.CompleteSessionResponse;
 import dev.sidequestlab.backend.memoquiz.api.dto.SessionCardDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.SessionDto;
 import dev.sidequestlab.backend.memoquiz.service.SessionService;
@@ -52,6 +54,23 @@ class SessionControllerTest {
     }
 
     @Test
+    void completeSessionReturnsOkAndDelegatesToService() {
+        CompleteSessionRequest req = new CompleteSessionRequest(7L);
+        CompleteSessionResponse expected = new CompleteSessionResponse(
+            7L,
+            Instant.parse("2026-04-21T10:05:00Z"),
+            300
+        );
+        sessionService.completeResult = expected;
+
+        ResponseEntity<CompleteSessionResponse> response = controller.completeSession(req);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(expected);
+        assertThat(sessionService.completeRequestArg).isEqualTo(req);
+    }
+
+    @Test
     void todaySessionPropagatesServiceExceptionBecauseControllerDoesNotHandleIt() {
         RuntimeException failure = new RuntimeException("service failure");
         sessionService.todayException = failure;
@@ -70,6 +89,16 @@ class SessionControllerTest {
         assertThat(sessionService.answerRequestArg).isEqualTo(req);
     }
 
+    @Test
+    void completeSessionPropagatesServiceExceptionBecauseControllerDoesNotHandleIt() {
+        CompleteSessionRequest req = new CompleteSessionRequest(9L);
+        RuntimeException failure = new RuntimeException("service failure");
+        sessionService.completeException = failure;
+
+        assertThatThrownBy(() -> controller.completeSession(req)).isSameAs(failure);
+        assertThat(sessionService.completeRequestArg).isEqualTo(req);
+    }
+
     private static final class StubSessionService extends SessionService {
         private int todayCallCount;
         private SessionDto todayResult;
@@ -78,6 +107,10 @@ class SessionControllerTest {
         private AnswerRequest answerRequestArg;
         private AnswerResponse answerResult;
         private RuntimeException answerException;
+
+        private CompleteSessionRequest completeRequestArg;
+        private CompleteSessionResponse completeResult;
+        private RuntimeException completeException;
 
         private StubSessionService() {
             super(null, null, null, null, null, null, null);
@@ -99,6 +132,15 @@ class SessionControllerTest {
                 throw answerException;
             }
             return answerResult;
+        }
+
+        @Override
+        public CompleteSessionResponse completeSession(CompleteSessionRequest req) {
+            completeRequestArg = req;
+            if (completeException != null) {
+                throw completeException;
+            }
+            return completeResult;
         }
     }
 }

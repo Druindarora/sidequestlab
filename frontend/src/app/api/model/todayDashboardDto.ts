@@ -16,6 +16,7 @@ export interface TodayDashboardDto {
     dayIndex?: number;
     canStartSession?: boolean;
     boxesToday?: Array<number>;
+    boxesTomorrow?: Array<number>;
     dueToday?: number;
     totalCards?: number;
     lastSessionSummary?: LastSessionSummary;

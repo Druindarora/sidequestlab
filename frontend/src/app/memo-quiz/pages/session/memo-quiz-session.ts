@@ -43,6 +43,7 @@ export class MemoQuizSession implements OnInit {
   sessionId: number | null = null;
   loading = false;
   loadingAnswer = false;
+  completionFailed = false;
   errorMessage: string | null = null;
 
   phase: SessionPhase = 'QUESTION';
@@ -75,7 +76,7 @@ export class MemoQuizSession implements OnInit {
   }
 
   get canAnswer(): boolean {
-    return this.phase === 'ANSWER' && !!this.currentCard;
+    return this.phase === 'ANSWER' && !!this.currentCard && !this.completionFailed;
   }
 
   ngOnInit(): void {
@@ -112,6 +113,11 @@ export class MemoQuizSession implements OnInit {
           if (isCorrect) this.goodCount += 1;
           else this.badCount += 1;
 
+          if (this.isLastCard()) {
+            this.completeCurrentSession();
+            return;
+          }
+
           this.goNext();
           this.loadingAnswer = false;
         },
@@ -120,6 +126,11 @@ export class MemoQuizSession implements OnInit {
           this.loadingAnswer = false;
         },
       });
+  }
+
+  retryCompleteSession(): void {
+    if (!this.completionFailed || this.loadingAnswer) return;
+    this.completeCurrentSession();
   }
 
   private goNext(): void {
@@ -148,6 +159,7 @@ export class MemoQuizSession implements OnInit {
     this.phase = 'QUESTION';
     this.goodCount = 0;
     this.badCount = 0;
+    this.completionFailed = false;
 
     this.sessionApi.todaySession().subscribe({
       next: (session: SessionDto) => {
@@ -157,6 +169,7 @@ export class MemoQuizSession implements OnInit {
         this.phase = 'QUESTION';
         this.goodCount = 0;
         this.badCount = 0;
+        this.completionFailed = false;
         this.loading = false;
       },
       error: () => {
@@ -180,5 +193,33 @@ export class MemoQuizSession implements OnInit {
       return cardAnswer;
     }
     return `${cardAnswer} __mq_incorrect__`;
+  }
+
+  private completeCurrentSession(): void {
+    if (this.sessionId === null) {
+      this.errorMessage = 'La session n’est pas chargée.';
+      this.loadingAnswer = false;
+      return;
+    }
+
+    this.loadingAnswer = true;
+    this.completionFailed = false;
+    this.errorMessage = null;
+
+    this.sessionApi.completeSession({ sessionId: this.sessionId }).subscribe({
+      next: () => {
+        this.phase = 'DONE';
+        this.loadingAnswer = false;
+      },
+      error: () => {
+        this.errorMessage = 'Impossible de terminer la session.';
+        this.completionFailed = true;
+        this.loadingAnswer = false;
+      },
+    });
+  }
+
+  private isLastCard(): boolean {
+    return this.index + 1 >= this.total;
   }
 }

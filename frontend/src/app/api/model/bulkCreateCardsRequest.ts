@@ -7,14 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BulkCreateCardItem } from './bulkCreateCardItem';
 
 
-export interface LastSessionSummary { 
-    reviewedCards?: number;
-    goodAnswers?: number;
-    successRate?: number;
-    startedAt?: string;
-    durationSeconds?: number;
-    dayIndex?: number;
+export interface BulkCreateCardsRequest { 
+    cards: Array<BulkCreateCardItem>;
 }
 

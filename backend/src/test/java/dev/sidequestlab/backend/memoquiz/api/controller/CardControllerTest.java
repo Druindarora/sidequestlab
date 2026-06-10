@@ -1,5 +1,8 @@
 package dev.sidequestlab.backend.memoquiz.api.controller;
 
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardItem;
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsResponse;
 import dev.sidequestlab.backend.memoquiz.api.dto.CardDto;
 import dev.sidequestlab.backend.memoquiz.api.dto.CreateCardRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.UpdateCardRequest;
@@ -54,6 +57,22 @@ class CardControllerTest {
     }
 
     @Test
+    void bulkCreateCardsReturnsOkAndDelegatesToService() {
+        BulkCreateCardsRequest req = new BulkCreateCardsRequest(List.of(
+            new BulkCreateCardItem("Question 1", "Answer 1"),
+            new BulkCreateCardItem("Question 2", "Answer 2")
+        ));
+        BulkCreateCardsResponse expected = new BulkCreateCardsResponse(2, 2);
+        cardService.bulkCreateCardsResult = expected;
+
+        ResponseEntity<BulkCreateCardsResponse> response = controller.bulkCreateCards(req);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(expected);
+        assertThat(cardService.bulkCreateCardsRequestArg).isEqualTo(req);
+    }
+
+    @Test
     void updateCardReturnsOkAndDelegatesToService() {
         long id = 8L;
         UpdateCardRequest req = new UpdateCardRequest("Updated front", "Updated back", CardStatus.ARCHIVED, 4);
@@ -100,6 +119,9 @@ class CardControllerTest {
         private CreateCardRequest createCardRequestArg;
         private CardDto createCardResult;
 
+        private BulkCreateCardsRequest bulkCreateCardsRequestArg;
+        private BulkCreateCardsResponse bulkCreateCardsResult;
+
         private Long updateCardIdArg;
         private UpdateCardRequest updateCardRequestArg;
         private CardDto updateCardResult;
@@ -122,6 +144,12 @@ class CardControllerTest {
         public CardDto createCard(CreateCardRequest req) {
             this.createCardRequestArg = req;
             return createCardResult;
+        }
+
+        @Override
+        public BulkCreateCardsResponse bulkCreateCards(BulkCreateCardsRequest req) {
+            this.bulkCreateCardsRequestArg = req;
+            return bulkCreateCardsResult;
         }
 
         @Override

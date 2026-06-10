@@ -14,6 +14,12 @@ public class MemoQuizSessionEntity {
     @Column(name = "started_at", nullable = false)
     private Instant startedAt;
 
+    @Column(name = "ended_at")
+    private Instant endedAt;
+
+    @Column(name = "duration_seconds")
+    private Integer durationSeconds;
+
     @Column(name = "day_index", nullable = false)
     private int dayIndex;
 
@@ -38,6 +44,22 @@ public class MemoQuizSessionEntity {
 
     public void setStartedAt(Instant startedAt) {
         this.startedAt = startedAt;
+    }
+
+    public Instant getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(Instant endedAt) {
+        this.endedAt = endedAt;
+    }
+
+    public Integer getDurationSeconds() {
+        return durationSeconds;
+    }
+
+    public void setDurationSeconds(Integer durationSeconds) {
+        this.durationSeconds = durationSeconds;
     }
 
     public int getDayIndex() {

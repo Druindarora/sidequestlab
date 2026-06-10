@@ -19,8 +19,13 @@ index.ts
 model/answerRequest.ts
 model/answerResponse.ts
 model/boxesOverviewItem.ts
+model/bulkCreateCardItem.ts
+model/bulkCreateCardsRequest.ts
+model/bulkCreateCardsResponse.ts
 model/cardDto.ts
 model/changePasswordRequest.ts
+model/completeSessionRequest.ts
+model/completeSessionResponse.ts
 model/createCardRequest.ts
 model/csrfToken.ts
 model/lastSessionSummary.ts

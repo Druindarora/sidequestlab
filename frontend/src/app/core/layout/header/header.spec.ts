@@ -12,6 +12,7 @@ class AuthServiceStub {
   readonly authenticated = signal(false);
   readonly passwordChangeRequired = signal(false);
   readonly passwordChangePromptRequested = signal(false);
+  passwordChangePromptRequests = 0;
 
   setAuthenticated(value: boolean): void {
     this.authenticated.set(value);
@@ -23,6 +24,10 @@ class AuthServiceStub {
 
   clearPasswordChangePrompt(): void {
     this.passwordChangePromptRequested.set(false);
+  }
+
+  requestPasswordChangePrompt(): void {
+    this.passwordChangePromptRequests += 1;
   }
 
   logout() {
@@ -77,11 +82,25 @@ describe('Header', () => {
     expect(getNavLabels()).toContain('MemoQuiz');
   });
 
-  it('should hide MemoQuiz link when password change is required', () => {
+  it('should show MemoQuiz link when password change is required', () => {
     authServiceStub.setAuthenticated(true);
     authServiceStub.setPasswordChangeRequired(true);
     fixture.detectChanges();
 
-    expect(getNavLabels()).not.toContain('MemoQuiz');
+    expect(getNavLabels()).toContain('MemoQuiz');
+    expect(getNavLabels()).not.toContain('Démo MémoQuiz');
+  });
+
+  it('should request password change from the MemoQuiz nav link when password change is required', () => {
+    authServiceStub.setAuthenticated(true);
+    authServiceStub.setPasswordChangeRequired(true);
+    fixture.detectChanges();
+
+    const memoQuizLink = Array.from(
+      fixture.nativeElement.querySelectorAll('button.nav-link') as NodeListOf<HTMLButtonElement>,
+    ).find((el) => el.textContent?.trim() === 'MemoQuiz');
+    memoQuizLink?.click();
+
+    expect(authServiceStub.passwordChangePromptRequests).toBe(1);
   });
 });

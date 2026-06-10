@@ -2,6 +2,8 @@ package dev.sidequestlab.backend.memoquiz.api.controller;
 
 import dev.sidequestlab.backend.memoquiz.api.dto.AnswerRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.AnswerResponse;
+import dev.sidequestlab.backend.memoquiz.api.dto.CompleteSessionRequest;
+import dev.sidequestlab.backend.memoquiz.api.dto.CompleteSessionResponse;
 import dev.sidequestlab.backend.memoquiz.api.dto.SessionDto;
 import dev.sidequestlab.backend.memoquiz.service.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,5 +49,10 @@ public class SessionController {
     @PostMapping("/session/answer")
     public ResponseEntity<AnswerResponse> answer(@Valid @RequestBody AnswerRequest req) {
         return ResponseEntity.ok(sessionService.answer(req));
+    }
+
+    @PostMapping("/session/complete")
+    public ResponseEntity<CompleteSessionResponse> completeSession(@Valid @RequestBody CompleteSessionRequest req) {
+        return ResponseEntity.ok(sessionService.completeSession(req));
     }
 }

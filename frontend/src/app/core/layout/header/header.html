@@ -24,16 +24,7 @@
       Portfolio
     </button>
 
-    @if (authenticated() && !passwordChangeRequired()) {
-      <button
-        matButton
-        class="nav-link"
-        routerLink="/memo-quiz"
-        routerLinkActive="nav-link--active"
-      >
-        MemoQuiz
-      </button>
-    } @else {
+    @if (!authenticated()) {
       <button
         matButton
         class="nav-link"
@@ -41,6 +32,26 @@
         routerLinkActive="nav-link--active"
       >
         Démo MémoQuiz
+      </button>
+    } @else if (passwordChangeRequired()) {
+      <button
+        matButton
+        class="nav-link"
+        routerLink="/"
+        routerLinkActive="nav-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="requestPasswordChange()"
+      >
+        MemoQuiz
+      </button>
+    } @else {
+      <button
+        matButton
+        class="nav-link"
+        routerLink="/memo-quiz"
+        routerLinkActive="nav-link--active"
+      >
+        MemoQuiz
       </button>
     }
   </nav>

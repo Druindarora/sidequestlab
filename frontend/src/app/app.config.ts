@@ -11,7 +11,11 @@ import { backendAuthInterceptor } from './core/auth/backend-auth.interceptor';
 
 import { routes } from './app.routes';
 
-const basePath = new URL(environment.apiBaseUrl, 'http://localhost').toString().replace(/\/$/, '');
+const apiBaseUrl = new URL(environment.apiBaseUrl, 'http://localhost');
+if (apiBaseUrl.pathname === '/api') {
+  apiBaseUrl.pathname = '';
+}
+const basePath = apiBaseUrl.toString().replace(/\/$/, '');
 
 export const appConfig: ApplicationConfig = {
   providers: [

@@ -53,25 +53,29 @@ public class DashboardService {
             .findTopByStartedAtGreaterThanEqualAndStartedAtLessThanOrderByStartedAtDescIdDesc(startOfDay, startOfNextDay);
 
         int dayIndex;
+        int scheduleLength;
         boolean canStartSession;
         if (todaySession.isPresent()) {
             dayIndex = todaySession.get().getDayIndex();
+            scheduleLength = scheduleProvider.scheduleLength();
             canStartSession = false;
         } else {
             Integer lastDayIndex = sessionRepository.findTopByOrderByStartedAtDescIdDesc()
                 .map(MemoQuizSessionEntity::getDayIndex)
                 .orElse(null);
-            dayIndex = SessionService.nextDayIndex(lastDayIndex, scheduleProvider.scheduleLength());
+            scheduleLength = scheduleProvider.scheduleLength();
+            dayIndex = SessionService.nextDayIndex(lastDayIndex, scheduleLength);
             canStartSession = true;
         }
 
         List<Integer> boxesToday = scheduleProvider.boxesForDay(dayIndex);
+        int tomorrowDayIndex = SessionService.nextDayIndex(dayIndex, scheduleLength);
+        List<Integer> boxesTomorrow = scheduleProvider.boxesForDay(tomorrowDayIndex);
         Set<Integer> boxesTodaySet = Set.copyOf(boxesToday);
 
         Long quizId = quizService.getDefaultQuizId();
         long dueCount = quizCardRepository.countEligibleForSession(quizId, boxesToday, CardStatus.ACTIVE);
-        // Dashboard due count mirrors session creation by applying the same per-session card cap.
-        int dueToday = Math.toIntExact(Math.min(dueCount, SessionService.SESSION_CARD_LIMIT));
+        int dueToday = Math.toIntExact(dueCount);
         int totalCards = Math.toIntExact(quizCardRepository.countEnabledByQuizIdAndCardStatus(quizId, CardStatus.ACTIVE));
 
         TodayDashboardDto.LastSessionSummary lastSessionSummary = sessionRepository.findTopByOrderByStartedAtDescIdDesc()
@@ -89,6 +93,7 @@ public class DashboardService {
             dayIndex,
             canStartSession,
             boxesToday,
+            boxesTomorrow,
             dueToday,
             totalCards,
             lastSessionSummary,
@@ -113,6 +118,7 @@ public class DashboardService {
             goodAnswers,
             successRate,
             session.getStartedAt(),
+            session.getDurationSeconds(),
             session.getDayIndex()
         );
     }

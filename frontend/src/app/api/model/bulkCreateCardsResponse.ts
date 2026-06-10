@@ -9,12 +9,8 @@
  */
 
 
-export interface LastSessionSummary { 
-    reviewedCards?: number;
-    goodAnswers?: number;
-    successRate?: number;
-    startedAt?: string;
-    durationSeconds?: number;
-    dayIndex?: number;
+export interface BulkCreateCardsResponse { 
+    detectedCount?: number;
+    savedCount?: number;
 }
 

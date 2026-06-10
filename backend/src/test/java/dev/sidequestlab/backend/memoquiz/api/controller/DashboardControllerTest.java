@@ -24,6 +24,7 @@ class DashboardControllerTest {
             3,
             true,
             List.of(1, 3),
+            List.of(2, 4),
             12,
             48,
             new TodayDashboardDto.LastSessionSummary(
@@ -31,6 +32,7 @@ class DashboardControllerTest {
                 16,
                 80.0,
                 Instant.parse("2026-04-20T08:30:00Z"),
+                480,
                 2
             ),
             List.of(

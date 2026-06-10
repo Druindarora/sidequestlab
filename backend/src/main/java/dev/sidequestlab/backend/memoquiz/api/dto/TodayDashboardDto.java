@@ -9,6 +9,7 @@ public record TodayDashboardDto(
     int dayIndex,
     boolean canStartSession,
     List<Integer> boxesToday,
+    List<Integer> boxesTomorrow,
     int dueToday,
     int totalCards,
     LastSessionSummary lastSessionSummary,
@@ -20,6 +21,7 @@ public record TodayDashboardDto(
         int goodAnswers,
         double successRate,
         Instant startedAt,
+        Integer durationSeconds,
         int dayIndex
     ) {}
 

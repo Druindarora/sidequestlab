@@ -72,7 +72,7 @@
           Preuve “produit” : front/back/DB, règles métier, et parcours utilisateur complet.
         </p>
         <div class="portfolio__project-actions">
-          <button matButton="outlined" routerLink="/demo-memoquiz">
+          <button matButton="outlined" [routerLink]="memoQuizCtaLink()" (click)="handleMemoQuizCtaClick()">
             Voir la démo (screenshots)
           </button>
 

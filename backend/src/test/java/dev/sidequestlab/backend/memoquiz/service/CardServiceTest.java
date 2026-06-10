@@ -1,5 +1,7 @@
 package dev.sidequestlab.backend.memoquiz.service;
 
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardItem;
+import dev.sidequestlab.backend.memoquiz.api.dto.BulkCreateCardsRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.CreateCardRequest;
 import dev.sidequestlab.backend.memoquiz.api.dto.UpdateCardRequest;
 import dev.sidequestlab.backend.memoquiz.api.enums.CardStatus;
@@ -67,6 +69,99 @@ class CardServiceTest {
         assertThat(entity.getProgress()).isNotNull();
         assertThat(entity.getProgress().getBox()).isEqualTo(4);
         assertThat(dto.box()).isEqualTo(4);
+    }
+
+    @Test
+    void bulkCreateCardsCreatesInactiveCardsWithDefaultBox() {
+        RepositoryStub repository = new RepositoryStub();
+        CardService cardService = new CardService(repository.repository());
+        BulkCreateCardsRequest req = new BulkCreateCardsRequest(List.of(
+            new BulkCreateCardItem("Front 1", "Back 1"),
+            new BulkCreateCardItem("Front 2", "Back 2")
+        ));
+
+        repository.onSaveAll(entities -> {
+            long id = 100L;
+            for (CardEntity entity : entities) {
+                entity.setId(id++);
+            }
+            return entities;
+        });
+
+        var response = cardService.bulkCreateCards(req);
+
+        assertThat(response.detectedCount()).isEqualTo(2);
+        assertThat(response.savedCount()).isEqualTo(2);
+        assertThat(repository.saveAllCalls).isEqualTo(1);
+        assertThat(repository.lastSavedEntities).hasSize(2);
+        assertThat(repository.lastSavedEntities)
+            .allSatisfy(entity -> {
+                assertThat(entity.getStatus()).isEqualTo(CardStatus.INACTIVE);
+                assertThat(entity.getProgress()).isNotNull();
+                assertThat(entity.getProgress().getBox()).isEqualTo(1);
+                assertThat(entity.getCreatedAt()).isNotNull();
+            });
+    }
+
+    @Test
+    void bulkCreateCardsRejectsEmptyList() {
+        RepositoryStub repository = new RepositoryStub();
+        CardService cardService = new CardService(repository.repository());
+
+        assertThatThrownBy(() -> cardService.bulkCreateCards(new BulkCreateCardsRequest(List.of())))
+            .isInstanceOf(ResponseStatusException.class)
+            .extracting("statusCode")
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(repository.saveAllCalls).isZero();
+    }
+
+    @Test
+    void bulkCreateCardsRejectsMoreThanOneHundredCards() {
+        RepositoryStub repository = new RepositoryStub();
+        CardService cardService = new CardService(repository.repository());
+        List<BulkCreateCardItem> cards = Stream.generate(() -> new BulkCreateCardItem("Front", "Back"))
+            .limit(101)
+            .toList();
+
+        assertThatThrownBy(() -> cardService.bulkCreateCards(new BulkCreateCardsRequest(cards)))
+            .isInstanceOf(ResponseStatusException.class)
+            .extracting("statusCode")
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(repository.saveAllCalls).isZero();
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidBulkCardCases")
+    void bulkCreateCardsRejectsBlankFrontOrBack(BulkCreateCardItem invalidCard) {
+        RepositoryStub repository = new RepositoryStub();
+        CardService cardService = new CardService(repository.repository());
+
+        assertThatThrownBy(() -> cardService.bulkCreateCards(new BulkCreateCardsRequest(List.of(invalidCard))))
+            .isInstanceOf(ResponseStatusException.class)
+            .extracting("statusCode")
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(repository.saveAllCalls).isZero();
+    }
+
+    @Test
+    void bulkCreateCardsCreatesNothingWhenAnyItemIsInvalid() {
+        RepositoryStub repository = new RepositoryStub();
+        CardService cardService = new CardService(repository.repository());
+        BulkCreateCardsRequest req = new BulkCreateCardsRequest(List.of(
+            new BulkCreateCardItem("Front", "Back"),
+            new BulkCreateCardItem(" ", "Back 2")
+        ));
+
+        assertThatThrownBy(() -> cardService.bulkCreateCards(req))
+            .isInstanceOf(ResponseStatusException.class)
+            .extracting("statusCode")
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(repository.saveAllCalls).isZero();
+        assertThat(repository.saveCalls).isZero();
     }
 
     @Test
@@ -280,14 +375,26 @@ class CardServiceTest {
         );
     }
 
+    private static Stream<Arguments> invalidBulkCardCases() {
+        return Stream.of(
+            Arguments.of(new BulkCreateCardItem("", "Back")),
+            Arguments.of(new BulkCreateCardItem("   ", "Back")),
+            Arguments.of(new BulkCreateCardItem("Front", "")),
+            Arguments.of(new BulkCreateCardItem("Front", "   "))
+        );
+    }
+
     private static final class RepositoryStub implements InvocationHandler {
         private java.util.function.Function<CardEntity, CardEntity> saveBehavior = entity -> entity;
+        private java.util.function.Function<List<CardEntity>, List<CardEntity>> saveAllBehavior = entities -> entities;
         private java.util.function.Function<Long, Optional<CardEntity>> findByIdBehavior = id -> Optional.empty();
         private java.util.function.BiFunction<Specification<CardEntity>, Pageable, Page<CardEntity>> findAllBehavior =
             (spec, pageable) -> Page.empty(pageable);
 
         private int saveCalls;
         private CardEntity lastSavedEntity;
+        private int saveAllCalls;
+        private List<CardEntity> lastSavedEntities = List.of();
         private int findAllCalls;
         private Specification<CardEntity> lastSpecification;
         private Pageable lastPageable;
@@ -302,6 +409,10 @@ class CardServiceTest {
 
         private void onSave(java.util.function.Function<CardEntity, CardEntity> behavior) {
             this.saveBehavior = behavior;
+        }
+
+        private void onSaveAll(java.util.function.Function<List<CardEntity>, List<CardEntity>> behavior) {
+            this.saveAllBehavior = behavior;
         }
 
         private void onFindById(java.util.function.Function<Long, Optional<CardEntity>> behavior) {
@@ -320,6 +431,18 @@ class CardServiceTest {
                 saveCalls++;
                 lastSavedEntity = entity;
                 return saveBehavior.apply(entity);
+            }
+
+            if ("saveAll".equals(name) && args != null && args.length == 1 && args[0] instanceof Iterable<?> entities) {
+                saveAllCalls++;
+                lastSavedEntities = new java.util.ArrayList<>();
+                for (Object entity : entities) {
+                    if (!(entity instanceof CardEntity cardEntity)) {
+                        throw new UnsupportedOperationException("Unsupported saveAll entity: " + entity);
+                    }
+                    lastSavedEntities.add(cardEntity);
+                }
+                return saveAllBehavior.apply(lastSavedEntities);
             }
 
             if ("findById".equals(name) && args != null && args.length == 1 && args[0] instanceof Long id) {
