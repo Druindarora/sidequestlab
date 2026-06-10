@@ -1,0 +1,31 @@
+---
+import { PRIVATE_APP_URL } from '../config/urls';
+
+const pathname = Astro.url.pathname;
+
+const navItems = [
+  { href: '/', label: 'Accueil' },
+  { href: '/profil', label: 'À propos' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/demo-memoquiz', label: 'Démo MémoQuiz' },
+];
+---
+
+<header class="site-header">
+  <a class="site-brand" href="/" aria-label="Aller à l'accueil">
+    <span class="site-brand__main">imagine, code &amp; build</span>
+    <span class="site-brand__sub">.dev</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Navigation principale">
+    {
+      navItems.map(({ href, label }) => (
+        <a class:list={['nav-link', { 'nav-link--active': pathname === href }]} href={href}>
+          {label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <a class="button button--outline site-login" href={PRIVATE_APP_URL}>Se connecter</a>
+</header>

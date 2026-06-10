@@ -1,8 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { take } from 'rxjs/operators';
-import { Header } from './core/layout/header/header';
-import { Footer } from './core/layout/footer/footer';
 import { AuthService } from './core/auth/auth.service';
 
 export interface Profile {
@@ -14,7 +12,7 @@ export interface Profile {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Header, Footer],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrls: ['./app.scss'],
 })
