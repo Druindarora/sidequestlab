@@ -13,9 +13,9 @@ Target production domain mapping:
 - Attach each custom domain to the matching Railway service.
 - Build the Astro public site with `PUBLIC_APP_URL=https://app.imaginecodebuild.dev` or rely on its matching source default.
 - Confirm the Angular production build uses `https://api.imaginecodebuild.dev/api`.
-- Set the API service `CORS_ALLOWED_ORIGINS` to
+- Set the API service `APP_CORS_ALLOWED_ORIGINS` to
   `https://app.imaginecodebuild.dev,http://localhost:4200`.
-- Confirm the API service uses `SESSION_COOKIE_SECURE=true` in production.
+- Confirm the API service uses `SERVER_SERVLET_SESSION_COOKIE_SECURE=true` in production.
 - Verify DNS/TLS, then smoke-test the Astro public routes (`/`, `/profil`, `/portfolio`,
   `/demo-memoquiz`), the public-site login link, Angular login/session restore, and an authenticated API request.
 
