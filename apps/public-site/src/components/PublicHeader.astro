@@ -1,4 +1,6 @@
 ---
+import { PRIVATE_APP_URL } from '../config/urls';
+
 const pathname = Astro.url.pathname;
 
 const navItems = [
@@ -25,6 +27,5 @@ const navItems = [
     }
   </nav>
 
-  <!-- TODO: point this entry to the private Angular app domain/path when it is available. -->
-  <a class="button button--outline site-login" href="/">Se connecter</a>
+  <a class="button button--outline site-login" href={PRIVATE_APP_URL}>Se connecter</a>
 </header>
