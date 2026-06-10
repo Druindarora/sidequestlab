@@ -3,8 +3,8 @@ import { provideLocationMocks } from '@angular/common/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 
-import { Portfolio } from './portfolio';
-import { AuthService } from '../../core/auth/auth.service';
+import { Home } from './home';
+import { AuthService } from '../../../core/auth/auth.service';
 
 class AuthServiceStub {
   readonly authenticated = signal(false);
@@ -16,22 +16,22 @@ class AuthServiceStub {
   }
 }
 
-describe('Portfolio', () => {
-  let component: Portfolio;
-  let fixture: ComponentFixture<Portfolio>;
+describe('Home', () => {
+  let component: Home;
+  let fixture: ComponentFixture<Home>;
   let authServiceStub: AuthServiceStub;
 
   beforeEach(async () => {
     authServiceStub = new AuthServiceStub();
 
     await TestBed.configureTestingModule({
-      imports: [Portfolio],
+      imports: [Home],
       providers: [provideRouter([]), provideLocationMocks()],
     })
       .overrideProvider(AuthService, { useValue: authServiceStub })
       .compileComponents();
 
-    fixture = TestBed.createComponent(Portfolio);
+    fixture = TestBed.createComponent(Home);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

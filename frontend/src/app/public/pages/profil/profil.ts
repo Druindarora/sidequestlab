@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MATERIAL_IMPORTS } from '../../shared/material-imports';
+import { MATERIAL_IMPORTS } from '../../../shared/material-imports';
 
 @Component({
   selector: 'app-profil',
