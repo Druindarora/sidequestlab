@@ -17,7 +17,8 @@ describe('PublicLayout', () => {
   });
 
   it('should render the public shell', () => {
-    expect(fixture.nativeElement.querySelector('app-header')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-public-header')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-private-header')).toBeFalsy();
     expect(fixture.nativeElement.querySelector('router-outlet')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('app-footer')).toBeTruthy();
   });
