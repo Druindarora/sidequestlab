@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Profil & CV | SideQuestLab" description="Profil et compétences de Stéphane.">
+  <main class="page">
+    <section class="page-header section">
+      <h1>Profil &amp; CV</h1>
+      <p class="page-header__subtitle">
+        Développeur full-stack <strong>Angular / Java</strong>, orienté UX et productivité (outils
+        IA).
+      </p>
+      <div class="actions">
+        <a
+          class="button button--outline"
+          href="/CV_stephane_boivin.pdf"
+          target="_blank"
+          rel="noopener noreferrer">Télécharger mon CV (PDF)</a
+        >
+      </div>
+    </section>
+
+    <section class="section profile-summary" id="resume">
+      <h2>Résumé de profil</h2>
+      <p>
+        Je suis développeur full-stack <strong>Angular / Java</strong>, avec une vraie préférence
+        pour le front et l’expérience utilisateur.
+      </p>
+      <p>
+        J’ai principalement travaillé sur des applications métier en <strong>contexte interne</strong>
+        (clients finaux, grands comptes) : des outils utilisés au quotidien par les équipes.
+      </p>
+      <p>
+        Aujourd’hui, je construis aussi mes propres projets pour continuer à progresser et montrer
+        ma façon de travailler — notamment <strong>MémoQuiz</strong>, une application de révision
+        basée sur la méthode de Leitner.
+      </p>
+      <p>
+        J’utilise des <strong>outils IA</strong> comme levier de productivité (cadrage,
+        spécifications courtes, génération guidée), tout en gardant un cadre strict : lisibilité,
+        cohérence front/back, et checks automatisés.
+      </p>
+      <p>
+        Ce que je recherche aujourd’hui : un rôle full-stack avec une dimension de coordination
+        technique (référent / premier lead), où je peux contribuer à l’architecture, soigner
+        l’interface, et aider l’équipe à livrer proprement — en gardant ce qui m’anime : le plaisir
+        de créer des outils utiles.
+      </p>
+    </section>
+
+    <section class="section" id="skills">
+      <h2>Compétences techniques</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Front-end</h3>
+          <ul>
+            <li>Angular</li>
+            <li>TypeScript, JavaScript</li>
+            <li>HTML5, CSS3 / SCSS</li>
+            <li>RxJS</li>
+            <li>Conception de composants réutilisables</li>
+            <li>Intégration responsive</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Back-end</h3>
+          <ul>
+            <li>Java (dont Java 21 sur les projets récents)</li>
+            <li>Spring Boot (API REST, Spring Data, sécurité)</li>
+            <li>Conception et consommation d’API REST</li>
+            <li>Bases de données relationnelles (PostgreSQL, SQL)</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Outils &amp; pratiques</h3>
+          <ul>
+            <li>Git, GitHub / GitLab</li>
+            <li>Docker (environnements de dev / containers)</li>
+            <li>Tests (JUnit, tests front de base, approche pragmatique)</li>
+            <li>CI et checks automatisés (niveau projet)</li>
+            <li>Documentation et structuration de projet</li>
+            <li>Outils IA (assistance à l’analyse, rédaction, génération guidée)</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="experience">
+      <h2>Expériences</h2>
+      <article class="experience">
+        <h3>Développement d’applications métier en contexte interne</h3>
+        <p>
+          J’ai travaillé principalement sur des applications web internes pour des équipes
+          opérationnelles (gestion, suivi d’activités, pilotage).
+        </p>
+        <ul>
+          <li>Analyse du besoin avec les interlocuteurs métier.</li>
+          <li>Conception et évolution des interfaces en Angular.</li>
+          <li>Implémentation ou évolution des API côté Java / Spring Boot.</li>
+          <li>Connexion aux bases de données et gestion des données métier.</li>
+          <li>Correction de bugs et évolutions régulières des écrans.</li>
+        </ul>
+        <p>
+          MémoQuiz reprend la même approche : un besoin concret, une stack moderne, un soin
+          particulier pour la cohérence front/back — avec une méthode de travail documentée.
+        </p>
+      </article>
+    </section>
+  </main>
+</BaseLayout>
