@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { Portfolio } from './pages/portfolio/portfolio';
-import { Home } from './pages/home/home';
-import { Profil } from './pages/profil/profil';
+import { Portfolio } from './public/pages/portfolio/portfolio';
+import { Home } from './public/pages/home/home';
+import { Profil } from './public/pages/profil/profil';
 import { memoQuizDemoGuard } from './core/auth/memo-quiz-demo.guard';
 import { memoQuizAuthGuard } from './core/auth/memo-quiz-auth.guard';
 import { DemoMemoquiz } from './memo-quiz/pages/demo-memoquiz/demo-memoquiz';

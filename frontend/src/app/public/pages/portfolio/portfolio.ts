@@ -1,15 +1,15 @@
 import { Component, computed, inject } from '@angular/core';
-import { MATERIAL_IMPORTS } from '../../shared/material-imports';
+import { MATERIAL_IMPORTS } from '../../../shared/material-imports';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-portfolio',
   imports: [MATERIAL_IMPORTS, RouterLink],
-  templateUrl: './home.html',
-  styleUrls: ['./home.scss'],
+  templateUrl: './portfolio.html',
+  styleUrls: ['./portfolio.scss'],
 })
-export class Home {
+export class Portfolio {
   private readonly authService = inject(AuthService);
 
   readonly memoQuizCtaLink = computed(() =>
