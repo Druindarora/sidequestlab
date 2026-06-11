@@ -2,7 +2,6 @@ import { memoQuizAuthGuard } from './core/auth/memo-quiz-auth.guard';
 import { privateAppEntryGuard } from './private/guards/private-app-entry.guard';
 import { PrivateLayout } from './private/layout/private-layout/private-layout';
 import { LoginPage } from './private/pages/login/login-page';
-import { PublicLayout } from './public/layout/public-layout/public-layout';
 import { routes } from './app.routes';
 
 describe('app routes', () => {
@@ -15,10 +14,12 @@ describe('app routes', () => {
     expect(loginRoute?.canActivate).toContain(privateAppEntryGuard);
   });
 
-  it('should keep public routes under the public layout', () => {
-    const publicRoute = routes.find((route) => route.component === PublicLayout);
+  it('should not configure legacy public routes', () => {
+    const configuredPaths = routes.flatMap((route) => [route.path, ...(route.children?.map((child) => child.path) ?? [])]);
 
-    expect(publicRoute?.children?.map((route) => route.path)).toEqual(['profil', 'portfolio', 'demo-memoquiz']);
+    expect(configuredPaths).not.toContain('profil');
+    expect(configuredPaths).not.toContain('portfolio');
+    expect(configuredPaths).not.toContain('demo-memoquiz');
   });
 
   it('should keep MemoQuiz guarded and lazy-loaded under the private layout', () => {
@@ -27,5 +28,11 @@ describe('app routes', () => {
     expect(memoQuizRoute?.component).toBe(PrivateLayout);
     expect(memoQuizRoute?.canMatch).toContain(memoQuizAuthGuard);
     expect(memoQuizRoute?.loadChildren).toBeTypeOf('function');
+  });
+
+  it('should redirect unknown routes to the private root entry', () => {
+    const fallbackRoute = routes.find((route) => route.path === '**');
+
+    expect(fallbackRoute?.redirectTo).toBe('');
   });
 });
