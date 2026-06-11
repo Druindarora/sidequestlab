@@ -1,22 +1,29 @@
-# Public Domain Switch
+# Deployment and Domain Mapping
 
-Target production domain mapping:
+Current production domain mapping:
 
 | Domain | Service |
 | --- | --- |
-| `https://imaginecodebuild.dev` | Astro public site (`apps/public-site`) |
-| `https://app.imaginecodebuild.dev` | Angular private/app frontend (`frontend`) |
+| `https://www.imaginecodebuild.dev` | Astro public site (`apps/public-site`) |
+| `https://app.imaginecodebuild.dev` | Angular private app (`frontend`) |
 | `https://api.imaginecodebuild.dev` | Spring Boot API (`backend`) |
 
-## Railway checks after merge
+Astro owns the public routes `/`, `/profil`, `/portfolio`, and `/demo-memoquiz`. Angular owns the private login entry at `/` and the guarded `/memo-quiz/**` routes.
 
-- Attach each custom domain to the matching Railway service.
-- Build the Astro public site with `PUBLIC_APP_URL=https://app.imaginecodebuild.dev` or rely on its matching source default.
-- Confirm the Angular production build uses `https://api.imaginecodebuild.dev/api`.
-- Set the API service `APP_CORS_ALLOWED_ORIGINS` to
-  `https://app.imaginecodebuild.dev,http://localhost:4200`.
-- Confirm the API service uses `SERVER_SERVLET_SESSION_COOKIE_SECURE=true` in production.
-- Verify DNS/TLS, then smoke-test the Astro public routes (`/`, `/profil`, `/portfolio`,
-  `/demo-memoquiz`), the public-site login link, Angular login/session restore, and an authenticated API request.
+## Railway variables
 
-The existing Angular public routes remain available during the transition. No deployment or route removal is part of this source-preparation change.
+```text
+PUBLIC_APP_URL=https://app.imaginecodebuild.dev
+APP_CORS_ALLOWED_ORIGINS=https://app.imaginecodebuild.dev,http://localhost:4200
+SERVER_SERVLET_SESSION_COOKIE_SECURE=true
+```
+
+The Angular production build must use `https://api.imaginecodebuild.dev/api`.
+
+## Production smoke test
+
+- Open all public Astro pages: `/`, `/profil`, `/portfolio`, `/demo-memoquiz`.
+- Confirm the public-site login link opens `https://app.imaginecodebuild.dev`.
+- Log in and log out through the Angular private app.
+- Log in, open a MemoQuiz route, refresh the browser, and confirm the session and route restore correctly.
+- Confirm an authenticated API call succeeds against `https://api.imaginecodebuild.dev`.

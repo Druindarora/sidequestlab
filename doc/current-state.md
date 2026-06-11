@@ -1,10 +1,11 @@
 # Current State (Implemented)
 
-Snapshot date: 2026-03-06.
+Snapshot date: 2026-06-11.
 
 ## Implemented features
 
-- Public frontend pages: home, profile (static content), portfolio, MemoQuiz screenshot demo.
+- Astro public site: home, profile (static content), portfolio, and MemoQuiz screenshot demo.
+- Angular private app: login entry and guarded, lazy-loaded MemoQuiz routes.
 - Session auth with backend cookies + CSRF:
   - login/logout/session restore
   - `mustChangePassword` enforcement before MemoQuiz access
@@ -25,8 +26,8 @@ Snapshot date: 2026-03-06.
 
 ## Main user flows available
 
-1. User opens site and can browse public content or MemoQuiz demo screenshots.
-2. User logs in (CSRF bootstrap + credentials) and session is restored on app load.
+1. User browses public content or MemoQuiz demo screenshots on the Astro site.
+2. User follows the login link to the private Angular app and logs in (CSRF bootstrap + credentials); the session is restored on app load.
 3. If password change is required, MemoQuiz routes are blocked until password is changed.
 4. Authenticated user opens MemoQuiz dashboard, navigates to cards/quiz/session pages.
 5. User creates or updates cards, activates cards in default quiz, then runs the daily session.
@@ -69,5 +70,5 @@ Related implemented API (used by frontend, but currently outside generated OpenA
 - No hard-delete card endpoint; UI “delete” archives cards.
 - Frontend card/quiz admin screens fetch up to 200 items and paginate client-side.
 - Several frontend components include Blob-response parsing fallbacks around generated client calls.
-- Profile page UI is static and does not consume `/api/profile/me`.
+- The public profile page is static and does not consume `/api/profile/me`.
 - Backend password policy is stricter in UI (min length 8) than in backend DTO validation.

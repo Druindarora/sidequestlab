@@ -1,6 +1,24 @@
 # Next Slices (Immediate)
 
-## 1) Frontend dependency alignment and refresh
+The public/private frontend split and deployment migration are complete:
+
+- `www.imaginecodebuild.dev` serves the Astro public site.
+- `app.imaginecodebuild.dev` serves the Angular private app.
+- `api.imaginecodebuild.dev` serves the Spring Boot API.
+
+## 1) Investigate auth/session refresh behavior, if still reproducible
+
+Priority: High
+
+- Reproduce and diagnose any remaining login/session restore or MemoQuiz refresh issue across the deployed app and API domains.
+- Confirm cookie, CSRF, CORS, and Angular route restoration behavior before changing implementation.
+
+Acceptance criteria:
+
+- The issue is either reproduced with a documented cause or confirmed resolved.
+- Login, logout, authenticated API calls, and MemoQuiz browser refresh work across production domains.
+
+## 2) Frontend dependency and OpenAPI alignment
 
 Priority: High
 
@@ -14,7 +32,7 @@ Acceptance criteria:
 - Generated client compiles without manual edits under `frontend/src/app/api/**`.
 - No unexpected UI/API regressions on MemoQuiz main flows.
 
-## 2) API client normalization in frontend
+## 3) API client normalization in frontend
 
 Priority: High
 
@@ -27,20 +45,6 @@ Acceptance criteria:
 - No Blob parsing code remains in page components.
 - Cards, quiz admin, dashboard, and session pages still load successfully.
 - Existing specs pass and at least one spec covers adapter behavior.
-
-## 3) Dev quality gate tightening
-
-Priority: Medium
-
-- Add explicit format check to regular local/CI flow (Prettier check step).
-- Ensure frontend lint/build/test commands are deterministic and non-interactive in CI/local.
-- Document the exact gate commands in one short canonical section.
-
-Acceptance criteria:
-
-- Formatting violations fail fast in checks.
-- `./scripts/check.sh` remains the single reliable project gate.
-- No new flaky behavior in CI execution.
 
 ## 4) Frontend auth/session test coverage boost
 
@@ -56,5 +60,6 @@ Acceptance criteria:
 
 ## Not now
 
+- Repository housekeeping: rename `frontend` to `apps/private-app` and `backend` to `services/api`. This is a future focused migration, not immediate work.
 - New product modules beyond MemoQuiz V1.
 - Infra/workflow redesign outside direct quality or dependency improvements.
