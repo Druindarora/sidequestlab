@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.sidequestlab.backend.auth.api.controller.AuthController;
 import dev.sidequestlab.backend.auth.persistence.entity.UserEntity;
 import dev.sidequestlab.backend.auth.persistence.repository.UserRepository;
+import dev.sidequestlab.backend.health.HealthController;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(controllers = {TestMemoQuizController.class, AuthController.class})
+@WebMvcTest(controllers = {TestMemoQuizController.class, AuthController.class, HealthController.class})
 @Import(SecurityConfig.class)
 class MemoQuizSecurityAccessTest {
 
@@ -54,6 +55,13 @@ class MemoQuizSecurityAccessTest {
     void unauthenticatedRequestToMemoQuizDashboardTodayReturns401() throws Exception {
         mockMvc.perform(get("/api/memoquiz/dashboard/today"))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unauthenticatedRequestToHealthReturns200AndStatusOkPayload() throws Exception {
+        mockMvc.perform(get("/api/health"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("OK"));
     }
 
     @Test
