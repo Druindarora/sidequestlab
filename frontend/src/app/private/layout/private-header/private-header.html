@@ -1,53 +1,55 @@
 <mat-toolbar class="app-header app-header--primary" role="navigation">
-  <a class="app-header__brand" routerLink="/" aria-label="Go to home">
+  <a class="app-header__brand" href="https://www.imaginecodebuild.dev" aria-label="Accéder au site public">
     <span class="app-header__brand-main">imagine, code &amp; build</span>
     <span class="app-header__brand-sub">.dev</span>
   </a>
 
-  <nav class="app-header__nav" aria-label="Navigation principale">
-    @if (passwordChangeRequired()) {
-      <button
-        matButton
-        class="nav-link"
-        routerLink="/"
-        routerLinkActive="nav-link--active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        (click)="requestPasswordChange()"
-      >
-        MemoQuiz
-      </button>
-    } @else {
-      <button
-        matButton
-        class="nav-link"
-        routerLink="/memo-quiz"
-        routerLinkActive="nav-link--active"
-      >
-        MemoQuiz
-      </button>
-    }
-  </nav>
+  @if (authenticated()) {
+    <nav class="app-header__nav" aria-label="Navigation principale">
+      @if (passwordChangeRequired()) {
+        <button
+          matButton
+          class="nav-link"
+          routerLink="/"
+          routerLinkActive="nav-link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="requestPasswordChange()"
+        >
+          MemoQuiz
+        </button>
+      } @else {
+        <button
+          matButton
+          class="nav-link"
+          routerLink="/memo-quiz"
+          routerLinkActive="nav-link--active"
+        >
+          MemoQuiz
+        </button>
+      }
+    </nav>
 
-  <div class="app-header__auth">
-    @if (passwordChangeRequired()) {
+    <div class="app-header__auth">
+      @if (passwordChangeRequired()) {
+        <button
+          mat-flat-button
+          color="primary"
+          class="app-header__login-btn"
+          type="button"
+          (click)="openChangePasswordDialog()"
+        >
+          Changer le mot de passe
+        </button>
+      }
       <button
-        mat-flat-button
-        color="primary"
+        matButton="outlined"
+        color="accent"
         class="app-header__login-btn"
         type="button"
-        (click)="openChangePasswordDialog()"
+        (click)="logout()"
       >
-        Changer le mot de passe
+        Déconnexion
       </button>
-    }
-    <button
-      matButton="outlined"
-      color="accent"
-      class="app-header__login-btn"
-      type="button"
-      (click)="logout()"
-    >
-      Déconnexion
-    </button>
-  </div>
+    </div>
+  }
 </mat-toolbar>
