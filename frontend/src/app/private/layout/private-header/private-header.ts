@@ -22,6 +22,7 @@ export class PrivateHeader {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
+  readonly authenticated = this.authService.authenticated;
   readonly passwordChangeRequired = this.authService.passwordChangeRequired;
   readonly passwordChangePromptRequested = this.authService.passwordChangePromptRequested;
 
