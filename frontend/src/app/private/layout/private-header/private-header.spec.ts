@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { PrivateHeader } from './private-header';
 
 class AuthServiceStub {
+  readonly authenticated = signal(false);
   readonly passwordChangeRequired = signal(false);
   readonly passwordChangePromptRequested = signal(false);
   passwordChangePromptRequests = 0;
@@ -47,13 +48,25 @@ describe('PrivateHeader', () => {
     fixture.detectChanges();
   });
 
-  it('should render MemoQuiz navigation and logout', () => {
+  it('should link the brand to the public site and hide private actions when logged out', () => {
+    const brand = fixture.nativeElement.querySelector('.app-header__brand') as HTMLAnchorElement;
+
+    expect(brand.href).toBe('https://www.imaginecodebuild.dev/');
+    expect(fixture.nativeElement.textContent).not.toContain('MemoQuiz');
+    expect(fixture.nativeElement.textContent).not.toContain('Déconnexion');
+  });
+
+  it('should render MemoQuiz navigation and logout when authenticated', () => {
+    authServiceStub.authenticated.set(true);
+    fixture.detectChanges();
+
     expect(fixture.nativeElement.textContent).toContain('MemoQuiz');
     expect(fixture.nativeElement.textContent).toContain('Déconnexion');
     expect(fixture.nativeElement.textContent).not.toContain('Démo MémoQuiz');
   });
 
   it('should request password change from MemoQuiz navigation when required', () => {
+    authServiceStub.authenticated.set(true);
     authServiceStub.passwordChangeRequired.set(true);
     fixture.detectChanges();
 
