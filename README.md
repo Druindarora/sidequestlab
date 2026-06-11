@@ -1,11 +1,12 @@
-# Portfolio + MemoQuiz
+# SideQuestLab
 
-Monorepo for the SideQuestLab portfolio and MemoQuiz app.
+Monorepo for the Astro public website, Angular private MemoQuiz app, and Spring Boot API.
 
 ## Tech stack
 
-- Frontend: Angular 21 + Angular Material
-- Backend: Spring Boot (Java 21)
+- Public website: Astro (`apps/public-site`)
+- Private app: Angular 21 + Angular Material (`frontend`)
+- API: Spring Boot (Java 21) (`backend`)
 - Database: PostgreSQL + Flyway migrations
 - Local infra: Docker Compose (`docker-compose.dev.yml`)
 
@@ -13,7 +14,9 @@ Monorepo for the SideQuestLab portfolio and MemoQuiz app.
 
 ```text
 .
-├── frontend/               # Angular app
+├── apps/
+│   └── public-site/        # Astro public website
+├── frontend/               # Angular private app
 ├── backend/                # Spring Boot API
 ├── docker-compose.dev.yml  # Local Postgres + optional full stack services
 ├── .env.example            # Environment variables template
@@ -34,7 +37,7 @@ Monorepo for the SideQuestLab portfolio and MemoQuiz app.
    docker compose -f docker-compose.dev.yml up -d
    ```
 
-3. Start backend:
+3. Start the API:
 
    ```bash
    cd backend && ./mvnw spring-boot:run
@@ -42,14 +45,21 @@ Monorepo for the SideQuestLab portfolio and MemoQuiz app.
 
    The backend expects datasource/auth/cors env vars from `.env.example`. If you use `.env.local`, you can run from repo root with `./scripts/run-backend.sh` (it sources `.env.local` automatically).
 
-4. Start frontend:
+4. Start the private Angular app:
 
    ```bash
    cd frontend && npm ci && npm start
    ```
 
-- Frontend: `http://localhost:4200`
-- Backend: `http://localhost:8080`
+5. Start the public Astro site:
+
+   ```bash
+   cd apps/public-site && npm ci && npm run dev
+   ```
+
+- Public site: `http://localhost:4321`
+- Private app: `http://localhost:4200`
+- API: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui`
 
 ## OpenAPI client generation
@@ -76,6 +86,8 @@ Primary repo gate:
 ./scripts/check.sh
 ```
 
+This validates the Spring Boot API, Angular private app, and Astro public site.
+
 Useful direct commands:
 
 ```bash
@@ -85,4 +97,6 @@ cd frontend && npm ci
 cd frontend && npm run lint
 cd frontend && npm run build
 cd frontend && npm test -- --watch=false
+cd apps/public-site && npm ci
+cd apps/public-site && npm run build
 ```

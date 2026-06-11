@@ -1,4 +1,6 @@
-# AGENTS — Frontend (Angular)
+# AGENTS — Private App (Angular)
+
+`frontend/` is the private Angular app, including the login entry and guarded MemoQuiz routes. Public website pages belong in `apps/public-site/`.
 
 ## Generated OpenAPI client (critical)
 

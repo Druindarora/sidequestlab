@@ -6,9 +6,10 @@ Deliver small, reviewable changes with CI green. Prefer minimal diffs, no refact
 
 ## Repo layout
 
-- Frontend rules: `frontend/AGENTS.md`
+- Public Astro site: `apps/public-site/` (follow its local README/AGENTS when present)
+- Private Angular app rules: `frontend/AGENTS.md`
 - Backend rules: `backend/AGENTS.md`
-  If you modify files under `frontend/`, you must follow frontend rules. Same for `backend/`.
+  If you modify files under `apps/public-site/`, `frontend/`, or `backend/`, you must follow the applicable local guidance.
 
 ## Branching & PR (mandatory)
 
