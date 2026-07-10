@@ -8,7 +8,7 @@ Monorepo for the Astro public website, Angular private MemoQuiz app, and Spring 
 - Private app: Angular 21 + Angular Material (`frontend`)
 - API: Spring Boot (Java 21) (`backend`)
 - Database: PostgreSQL + Flyway migrations
-- Local infra: Docker Compose (`docker-compose.dev.yml`)
+- Local infrastructure: Docker Compose (`docker-compose.dev.yml`)
 
 ## Repository structure
 
