@@ -54,7 +54,7 @@
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-default leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 hover:border-gray-600 cursor-pointer;
+  @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-default leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 hover:bg-gray-100 hover:border-gray-600 cursor-pointer;
 }
 
 @utility btn-primary {
@@ -125,6 +125,44 @@ body {
   a:hover {
     color: var(--accent-strong);
   }
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #4f46e5;
+  outline-offset: 3px;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus:not(:focus-visible) {
+  outline: none;
+}
+
+.btn:focus-visible,
+.button:focus-visible {
+  outline: 3px solid #4f46e5;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.7rem 1rem;
+  border: 2px solid #4f46e5;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--accent-strong);
+  font-weight: 750;
+  text-decoration: none;
+  transform: translateY(-150%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+#main-content {
+  scroll-margin-top: 5.5rem;
 }
 
 h1,
@@ -689,5 +727,24 @@ h3 {
 
   .avatar {
     margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-aw-toggle-menu] span {
+    transform: none !important;
   }
 }

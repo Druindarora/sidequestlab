@@ -41,7 +41,7 @@ const { links = [], footNote = '' } = Astro.props;
               href={href}
               {...(target ? { target, rel: 'noopener noreferrer' } : {})}
             >
-              {icon && <Icon name={icon} class="w-4 h-4" />}
+              {icon && <Icon name={icon} class="w-4 h-4" aria-hidden="true" />}
               <Fragment set:html={text} />
             </a>
           </li>

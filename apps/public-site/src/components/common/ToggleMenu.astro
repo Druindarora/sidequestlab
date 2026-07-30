@@ -11,13 +11,20 @@ export interface Props {
 }
 
 const {
-  label = 'Toggle Menu',
+  label = 'Ouvrir le menu',
   class: className = 'flex flex-col h-12 w-12 rounded justify-center items-center cursor-pointer group',
 } = Astro.props;
 ---
 
-<button type="button" class={className} aria-label={label} data-aw-toggle-menu>
-  <span class="sr-only">{label}</span>
+<button
+  type="button"
+  class={className}
+  aria-label={label}
+  aria-expanded="false"
+  aria-controls="mobile-navigation"
+  data-aw-toggle-menu
+>
+  <span class="sr-only" data-aw-toggle-menu-label>{label}</span>
   <slot>
     <span
       aria-hidden="true"
