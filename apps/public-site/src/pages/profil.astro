@@ -1,51 +1,114 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+
+const experiences = [
+  {
+    company: 'Partecis (via Timtek)',
+    dates: 'Mai 2023 — Avril 2025',
+    description:
+      'Application de gestion des terminaux de paiement (TPE) pour BPCE et BNP Paribas. Recruté pour la compétence front Angular manquante. Migrations Angular/Spring Boot, réécriture du front, référent technique.',
+    stack: 'Java, Spring Boot, Angular, Oracle SQL, Hibernate',
+  },
+  {
+    company: 'BPCE (via Timtek)',
+    dates: 'Novembre 2020 — Avril 2023',
+    description:
+      "Application de signature électronique pour prêts PME (~10 000 à 15 000 demandes/mois). Deux migrations majeures Angular, reprise d'une librairie interne critique, formation de plusieurs équipes.",
+    stack: 'Java, Spring Boot, Angular, MySQL',
+  },
+  {
+    company: 'Sodifrance',
+    dates: '2018 — 2020',
+    description:
+      'Plateforme B2B pour installateurs de cuisines professionnelles. Première spécialisation Angular (migration v5 → v8), stabilisation par débogage approfondi.',
+    stack: 'Java, Angular, JPA, SQL',
+  },
+  {
+    company: 'SBT',
+    dates: '2014 — 2017',
+    description:
+      'Plateforme web de gestion pour un réseau de boutiques (Cartier), 4 applications livrées.',
+    stack: 'PHP, JavaScript, MySQL',
+  },
+];
 ---
 
-<BaseLayout title="Profil & CV | SideQuestLab" description="Profil et compétences de Stéphane.">
+<BaseLayout
+  title="Profil & CV — Imagine Code & Build"
+  description="CV de Stéphane, développeur full-stack Java / Angular senior (11 ans) — BPCE, Partecis, Sodifrance. Disponible pour une mission longue, Imagine Code & Build."
+>
   <main class="page">
-    <section class="page-header section">
+    <section class="page-header profile-header section">
+      <p class="hero__kicker">Imagine Code &amp; Build</p>
       <h1>Profil &amp; CV</h1>
       <p class="page-header__subtitle">
-        Développeur full-stack <strong>Angular / Java</strong>, orienté UX et productivité (outils
-        IA).
+        Développeur full-stack Angular / Java, orienté UX et productivité (outils IA)
       </p>
       <div class="actions">
-        <a
-          class="button button--outline"
+        <Button
+          variant="secondary"
           href="/CV_stephane_boivin.pdf"
-          target="_blank"
-          rel="noopener noreferrer">Télécharger mon CV (PDF)</a
-        >
+          download
+          text="Télécharger mon CV (PDF)"
+        />
+        <Button
+          variant="primary"
+          href="mailto:contact@imaginecodebuild.dev"
+          text="Me contacter pour une mission"
+          class="profile-header__primary"
+        />
       </div>
     </section>
 
     <section class="section profile-summary" id="resume">
       <h2>Résumé de profil</h2>
       <p>
-        Je suis développeur full-stack <strong>Angular / Java</strong>, avec une vraie préférence
-        pour le front et l’expérience utilisateur.
+        Développeur full-stack senior (11 ans d'expérience), spécialisé Java / Spring Boot et
+        Angular, avec une dominante front Angular affirmée sur mes dernières missions : migrations
+        de versions, refonte de code existant, rôle de référent technique.
       </p>
       <p>
-        J’ai principalement travaillé sur des applications métier en <strong>contexte interne</strong>
-        (clients finaux, grands comptes) : des outils utilisés au quotidien par les équipes.
+        J'interviens sur des environnements existants (bancaire, industriel) pour reprendre,
+        moderniser et fiabiliser des applications métier, avec une approche pragmatique : cadrage
+        clair, code propre, tests, montées de version maîtrisées.
       </p>
       <p>
-        Aujourd’hui, je construis aussi mes propres projets pour continuer à progresser et montrer
-        ma façon de travailler — notamment <strong>MémoQuiz</strong>, une application de révision
-        basée sur la méthode de Leitner.
+        Depuis 2025, j'intègre l'IA comme un véritable levier d'industrialisation dans mes pratiques
+        de développement : cadrage de specs courtes, génération guidée, automatisation de workflows
+        (Claude Code, Codex, n8n, GitHub Actions) — en complément de mon expertise Java/Angular, pas
+        en remplacement.
       </p>
+    </section>
+
+    <section class="section profile-experiences" id="experience">
+      <h2>Expériences</h2>
+      <div class="experience-list">
+        {
+          experiences.map((experience) => (
+            <article class="experience">
+              <div class="experience__header">
+                <h3>{experience.company}</h3>
+                <p class="experience__dates">{experience.dates}</p>
+              </div>
+              <p>{experience.description}</p>
+              <p class="experience__stack">{experience.stack}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section profile-project" id="projet-personnel">
+      <h2>Projet personnel</h2>
       <p>
-        J’utilise des <strong>outils IA</strong> comme levier de productivité (cadrage,
-        spécifications courtes, génération guidée), tout en gardant un cadre strict : lisibilité,
-        cohérence front/back, et checks automatisés.
+        En parallèle, je développe MémoQuiz au sein de SideQuestLab, mon labo public — une
+        application de révision basée sur la méthode de Leitner, terrain d'application de mes
+        workflows de développement outillés par l'IA.
       </p>
-      <p>
-        Ce que je recherche aujourd’hui : un rôle full-stack avec une dimension de coordination
-        technique (référent / premier lead), où je peux contribuer à l’architecture, soigner
-        l’interface, et aider l’équipe à livrer proprement — en gardant ce qui m’anime : le plaisir
-        de créer des outils utiles.
-      </p>
+      <div class="actions">
+        <Button variant="secondary" href="/portfolio" text="Voir le projet" />
+      </div>
     </section>
 
     <section class="section" id="skills">
@@ -85,26 +148,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section class="section" id="experience">
-      <h2>Expériences</h2>
-      <article class="experience">
-        <h3>Développement d’applications métier en contexte interne</h3>
-        <p>
-          J’ai travaillé principalement sur des applications web internes pour des équipes
-          opérationnelles (gestion, suivi d’activités, pilotage).
-        </p>
-        <ul>
-          <li>Analyse du besoin avec les interlocuteurs métier.</li>
-          <li>Conception et évolution des interfaces en Angular.</li>
-          <li>Implémentation ou évolution des API côté Java / Spring Boot.</li>
-          <li>Connexion aux bases de données et gestion des données métier.</li>
-          <li>Correction de bugs et évolutions régulières des écrans.</li>
-        </ul>
-        <p>
-          MémoQuiz reprend la même approche : un besoin concret, une stack moderne, un soin
-          particulier pour la cohérence front/back — avec une méthode de travail documentée.
-        </p>
-      </article>
+    <section class="home-contact" aria-label="Contact">
+      <p>Ce profil correspond à votre besoin ? Discutons de votre mission.</p>
+      <Button variant="primary" href="mailto:contact@imaginecodebuild.dev" text="Me contacter" />
     </section>
   </main>
 </BaseLayout>

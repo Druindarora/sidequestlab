@@ -317,6 +317,112 @@ h3 {
   line-height: 1.35;
 }
 
+.profile-header {
+  max-width: 48rem;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.profile-header .actions {
+  justify-content: center;
+}
+
+.profile-header__primary {
+  min-width: 13rem;
+}
+
+.profile-summary {
+  max-width: 48rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.profile-summary p {
+  margin-bottom: 0.9rem;
+}
+
+.profile-summary p:last-child {
+  margin-bottom: 0;
+}
+
+.profile-experiences,
+.profile-project {
+  max-width: 52rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.experience-list {
+  border-left: 2px solid var(--border);
+}
+
+.experience {
+  padding: 0 0 1.5rem 1.25rem;
+  border-left: 0;
+}
+
+.experience + .experience {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.experience:last-child {
+  padding-bottom: 0;
+}
+
+.experience__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.experience h3 {
+  margin-bottom: 0;
+  font-size: 1.1rem;
+}
+
+.experience p {
+  margin-bottom: 0.65rem;
+}
+
+.experience p:last-child {
+  margin-bottom: 0;
+}
+
+.experience__dates,
+.experience__stack {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.experience__dates {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.experience__stack {
+  font-weight: 600;
+}
+
+.profile-project {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.profile-project p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.profile-project .actions {
+  margin-top: 1.25rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -338,15 +444,6 @@ h3 {
 .card ul,
 .ideas-list {
   padding-left: 1.2rem;
-}
-
-.profile-summary p {
-  margin-bottom: 0.75rem;
-}
-
-.experience {
-  padding-left: 1rem;
-  border-left: 3px solid var(--accent);
 }
 
 .home-about {
@@ -445,13 +542,17 @@ h3 {
   }
 
   .home-hero .actions,
-  .home-proof .actions {
+  .home-proof .actions,
+  .profile-header .actions,
+  .profile-project .actions {
     align-items: stretch;
     flex-direction: column;
   }
 
   .home-hero .actions > a,
   .home-proof .actions > a,
+  .profile-header .actions > a,
+  .profile-project .actions > a,
   .home-contact > a {
     width: 100%;
   }
@@ -459,6 +560,15 @@ h3 {
   .home-contact {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .experience__header {
+    display: block;
+  }
+
+  .experience__dates {
+    margin-top: 0.2rem;
+    white-space: normal;
   }
 
   .avatar {
