@@ -1,86 +1,55 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
 ---
 
 <BaseLayout
-  title="Accueil | SideQuestLab"
-  description="SideQuestLab, laboratoire public de Stéphane, développeur full-stack Angular / Java."
+  title="Imagine Code & Build — Développeur Full-Stack Senior Java / Angular"
+  description="Stéphane, développeur full-stack Java / Angular (11 ans), disponible pour une mission longue. Imagine Code & Build : automatisation & IA appliquées au développement."
 >
   <main class="page">
-    <section class="hero">
-      <h1>Stéphane — développeur full-stack Angular / Java, orienté productivité (outils IA) &amp; UX</h1>
+    <section class="hero home-hero">
+      <p class="hero__kicker">Imagine Code &amp; Build</p>
+      <h1>Développeur Full-Stack Senior Java / Angular</h1>
       <p class="hero__subtitle">
-        Je conçois des applications web de bout en bout, avec un vrai soin pour l’interface, la
-        lisibilité du code, et une approche <em>AI-assisted</em> : cadrage, specs courtes, prompts
-        ciblés, itérations rapides.
+        11 ans d'expérience terrain (bancaire, industriel) — automatisation &amp; IA comme levier de productivité. Disponible pour une mission longue.
       </p>
       <div class="actions">
-        <a class="button" href="/profil">Voir mon profil</a>
-        <a class="button button--outline" href="/portfolio">Voir mes projets</a>
+        <Button variant="primary" href="mailto:contact@imaginecodebuild.dev" text="Me contacter" class="home-hero__primary" />
+        <Button variant="secondary" href="/profil" text="Voir mon profil &amp; CV" class="home-hero__secondary" />
+        <Button variant="secondary" href="/portfolio" text="Voir mes projets" class="home-hero__secondary" />
       </div>
-      <p class="hero__note">
-        SideQuestLab est mon laboratoire public. V1 = une première application (MémoQuiz) + une base
-        solide pour la suite.
+    </section>
+
+    <section class="section home-section">
+      <h2>Ma façon de travailler</h2>
+      <p>
+        Je conçois des applications web de bout en bout, avec un vrai soin pour l'interface, la lisibilité du code, et une approche assistée par IA : cadrage, specs courtes, prompts ciblés, itérations rapides.
+      </p>
+      <p>
+        Cette approche s'appuie sur 11 ans d'expérience en Java/Spring Boot et Angular, sur des applications métier à forte volumétrie (banque, paiement).
       </p>
     </section>
 
-    <section class="home-about">
-      <div>
-        <h2>Ma façon de travailler</h2>
-        <p>
-          J’aime livrer vite sans sacrifier la qualité. Je pars d’un besoin concret, V1 : une
-          première app (MémoQuiz) et un socle propre pour la suite. J’utilise des
-          <strong>outils IA</strong> comme levier de productivité (analyse, spécifications,
-          génération guidée).
-        </p>
-        <p>
-          Le cadre reste strict : contrat d’API, conventions, checks automatiques, et une UX simple
-          à prendre en main.
-        </p>
-        <p>
-          Pour le détail de mon parcours, de mes compétences et de mon expérience :
-          <a href="/profil">consulter mon profil complet</a>.
-        </p>
+    <section class="section home-section home-proof">
+      <h2>SideQuestLab, en bref</h2>
+      <p>
+        SideQuestLab est mon labo public : j'y applique la même rigueur qu'en mission (conventions, checks automatisés, workflows de développement outillés par l'IA) sur un projet personnel, pour démontrer concrètement ma façon de travailler. Première application : MémoQuiz.
+      </p>
+      <div class="actions">
+        <Button
+          variant="secondary"
+          href="https://github.com/Druindarora/sidequestlab"
+          target="_blank"
+          text="Découvrir le code"
+        />
+        <Button variant="secondary" href="/demo-memoquiz" text="Essayer MémoQuiz" />
       </div>
-      <img class="avatar" src="/avatar.png" alt="Photo de Stéphane" width="160" height="160" />
     </section>
 
-    <section class="section">
-      <h2>SideQuestLab, en bref</h2>
-      <div class="grid">
-        <article class="card">
-          <h3>SideQuestLab</h3>
-          <p>
-            Mon labo public pour construire et documenter des projets full-stack Angular/Java avec
-            une approche <em>AI-augmented</em>. Aujourd’hui on est au début (V1) — l’objectif est de
-            faire grandir la collection au fil du temps.
-          </p>
-          <ul>
-            <li>Projets de l’idée au déploiement, avec un parcours utilisateur clair</li>
-            <li>Méthode reproductible : specs → prompts → code → checks</li>
-            <li>Priorité à l’UX et à la maintenabilité</li>
-          </ul>
-          <div class="actions">
-            <a
-              class="button button--outline"
-              href="https://github.com/Druindarora/sidequestlab"
-              target="_blank"
-              rel="noopener noreferrer">Découvrir le code</a
-            >
-          </div>
-        </article>
-
-        <article class="card">
-          <h3>MémoQuiz (V1)</h3>
-          <p>
-            Première application de SideQuestLab : révisions techniques via méthode de Leitner
-            (cartes Q/R), “session du jour”, suivi des réponses et dashboard.
-          </p>
-          <div class="actions">
-            <a class="button button--outline" href="/demo-memoquiz">Démo MémoQuiz</a>
-          </div>
-        </article>
-      </div>
+    <section class="home-contact" aria-label="Contact">
+      <p>Une mission Java/Angular à me confier ? Discutons-en.</p>
+      <Button variant="primary" href="mailto:contact@imaginecodebuild.dev" text="Me contacter" />
     </section>
   </main>
 </BaseLayout>

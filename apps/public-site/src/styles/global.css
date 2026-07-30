@@ -166,6 +166,23 @@ h3 {
   text-align: center;
 }
 
+.home-hero {
+  max-width: 52rem;
+  margin-right: auto;
+  margin-bottom: 3.5rem;
+  margin-left: auto;
+  padding-top: 1rem;
+}
+
+.hero__kicker {
+  margin-bottom: 0.75rem;
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 .hero h1,
 .page-header h1 {
   font-size: clamp(1.8rem, 3vw, 2.4rem);
@@ -199,6 +216,19 @@ h3 {
 
 .hero .actions {
   justify-content: center;
+}
+
+.home-hero .actions {
+  align-items: stretch;
+  margin-top: 1.5rem;
+}
+
+.home-hero__primary {
+  min-width: 10rem;
+}
+
+.home-hero__secondary {
+  box-shadow: none;
 }
 
 .button {
@@ -239,6 +269,52 @@ h3 {
 .section h2 {
   font-size: 1.4rem;
   margin-bottom: 0.75rem;
+}
+
+.home-section {
+  max-width: 45rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.home-section p {
+  margin-bottom: 0.9rem;
+  color: var(--muted);
+}
+
+.home-section p:last-child {
+  margin-bottom: 0;
+}
+
+.home-proof {
+  max-width: 48rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.home-proof .actions {
+  margin-top: 1.25rem;
+}
+
+.home-contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.home-contact p {
+  margin-bottom: 0;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .grid {
@@ -361,6 +437,28 @@ h3 {
   .home-about,
   .gallery {
     grid-template-columns: 1fr;
+  }
+
+  .home-hero {
+    margin-bottom: 2.5rem;
+    padding-top: 0;
+  }
+
+  .home-hero .actions,
+  .home-proof .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .home-hero .actions > a,
+  .home-proof .actions > a,
+  .home-contact > a {
+    width: 100%;
+  }
+
+  .home-contact {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .avatar {
