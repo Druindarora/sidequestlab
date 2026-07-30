@@ -323,17 +323,6 @@ h3 {
   color: #ffffff;
 }
 
-.button--outline {
-  border-color: var(--accent);
-  background: transparent;
-  color: var(--accent);
-}
-
-.button--outline:hover {
-  background: #eef2ff;
-  color: var(--accent-strong);
-}
-
 .section {
   margin-bottom: 2.5rem;
 }
@@ -562,6 +551,20 @@ h3 {
   font-size: 0.92rem;
 }
 
+.memoquiz-actions {
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.memoquiz-actions__link {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.memoquiz-actions__link:hover {
+  color: var(--accent-strong);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -689,6 +692,7 @@ h3 {
 
   .home-hero .actions,
   .home-proof .actions,
+  .memoquiz-actions,
   .portfolio-card .actions,
   .portfolio-proof .actions,
   .profile-header .actions,
@@ -699,6 +703,7 @@ h3 {
 
   .home-hero .actions > a,
   .home-proof .actions > a,
+  .memoquiz-actions > a,
   .portfolio-card .actions > a,
   .portfolio-proof .actions > a,
   .profile-header .actions > a,
