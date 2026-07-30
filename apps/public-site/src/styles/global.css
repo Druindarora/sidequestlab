@@ -116,13 +116,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: var(--accent);
-  text-underline-offset: 0.18em;
-}
+@layer base {
+  a {
+    color: var(--accent);
+    text-underline-offset: 0.18em;
+  }
 
-a:hover {
-  color: var(--accent-strong);
+  a:hover {
+    color: var(--accent-strong);
+  }
 }
 
 h1,
