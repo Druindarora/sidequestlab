@@ -167,11 +167,20 @@ h3 {
 }
 
 .home-hero {
-  max-width: 52rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 19rem);
+  gap: 2.5rem;
+  align-items: center;
+  max-width: 64rem;
   margin-right: auto;
   margin-bottom: 3.5rem;
   margin-left: auto;
   padding-top: 1rem;
+  text-align: left;
+}
+
+.home-hero__content {
+  min-width: 0;
 }
 
 .hero__kicker {
@@ -220,7 +229,32 @@ h3 {
 
 .home-hero .actions {
   align-items: stretch;
+  justify-content: flex-start;
   margin-top: 1.5rem;
+}
+
+.home-hero .actions,
+.home-hero .hero__subtitle {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.home-hero__portrait {
+  width: min(100%, 19rem);
+  margin: 0;
+  justify-self: end;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.home-hero__portrait img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .home-hero__primary {
@@ -604,8 +638,15 @@ h3 {
   }
 
   .home-hero {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
     margin-bottom: 2.5rem;
     padding-top: 0;
+  }
+
+  .home-hero__portrait {
+    width: min(100%, 17rem);
+    justify-self: center;
   }
 
   .home-hero .actions,
