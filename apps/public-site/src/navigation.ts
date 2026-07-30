@@ -12,28 +12,26 @@ const currentYear = new Date().getFullYear();
 export const headerData = {
   links: [
     { text: 'Accueil', href: getPermalink('/') },
-    { text: 'À propos', href: getPermalink('/profil') },
+    { text: 'Profil', href: getPermalink('/profil') },
     { text: 'Portfolio', href: getPermalink('/portfolio') },
-    { text: 'Démo MémoQuiz', href: getPermalink('/demo-memoquiz') },
   ],
-  actions: [{ text: 'Se connecter', href: PRIVATE_APP_URL, variant: 'secondary' as const }],
+  utilityLinks: [
+    { text: 'Démo MémoQuiz', href: getPermalink('/demo-memoquiz') },
+    { text: 'Se connecter', href: PRIVATE_APP_URL },
+  ],
+  actions: [{ text: 'Me contacter', href: 'mailto:contact@imaginecodebuild.dev', variant: 'primary' as const }],
 };
 
 export const footerData = {
-  links: [],
-  secondaryLinks: [
-    { text: 'Email', href: 'mailto:contact@imaginecodebuild.dev' },
-    { text: 'GitHub', href: 'https://github.com/Druindarora' },
-    { text: 'LinkedIn', href: 'https://www.linkedin.com/in/st%C3%A9phane-boivin-94909997/' },
-  ],
-  socialLinks: [
-    { ariaLabel: 'Email', icon: 'tabler:mail', href: 'mailto:contact@imaginecodebuild.dev' },
-    { ariaLabel: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/Druindarora' },
+  links: [
+    { text: 'Email', icon: 'tabler:mail', href: 'mailto:contact@imaginecodebuild.dev' },
+    { text: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/Druindarora', target: '_blank' },
     {
-      ariaLabel: 'LinkedIn',
+      text: 'LinkedIn',
       icon: 'tabler:brand-linkedin',
       href: 'https://www.linkedin.com/in/st%C3%A9phane-boivin-94909997/',
+      target: '_blank',
     },
   ],
-  footNote: `© ${currentYear} Stéphane - SideQuestLab`,
+  footNote: `© ${currentYear} Stéphane Boivin — Imagine Code & Build`,
 };
