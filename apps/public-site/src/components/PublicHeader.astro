@@ -1,5 +1,6 @@
 ---
 import { PRIVATE_APP_URL } from '../config/urls';
+import { SITE } from '../config/site';
 
 const pathname = Astro.url.pathname;
 
@@ -13,8 +14,7 @@ const navItems = [
 
 <header class="site-header">
   <a class="site-brand" href="/" aria-label="Aller à l'accueil">
-    <span class="site-brand__main">imagine, code &amp; build</span>
-    <span class="site-brand__sub">.dev</span>
+    <span class="site-brand__main">{SITE.name}</span>
   </a>
 
   <nav class="site-nav" aria-label="Navigation principale">

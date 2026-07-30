@@ -1,7 +1,9 @@
 ---
 import PublicFooter from '../components/PublicFooter.astro';
 import PublicHeader from '../components/PublicHeader.astro';
+import { SITE } from '../config/site';
 import '../styles/global.css';
+import '@fontsource-variable/inter';
 
 interface Props {
   description: string;
@@ -9,16 +11,25 @@ interface Props {
 }
 
 const { description, title } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 ---
 
 <!doctype html>
-<html lang="fr">
+<html lang={SITE.lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/avatar.png" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description || SITE.description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta name="twitter:card" content="summary" />
     <title>{title}</title>
   </head>
   <body>
