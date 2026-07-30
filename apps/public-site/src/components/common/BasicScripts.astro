@@ -1,0 +1,80 @@
+---
+/*
+ * Adapted from AstroWind 1.0.0-beta.63.
+ * Source: https://github.com/onwidget/astrowind at 5cea946d2d244ba97b5e84f9509ca9dcdeb9a41b
+ * License: MIT.
+ */
+---
+
+<script is:inline>
+  if (window.basic_script) {
+    return;
+  }
+
+  window.basic_script = true;
+
+  function attachEvent(selector, event, fn) {
+    const matches = typeof selector === 'string' ? document.querySelectorAll(selector) : selector;
+    if (matches && matches.length) {
+      matches.forEach((elem) => {
+        elem.addEventListener(event, (e) => fn(e, elem), false);
+      });
+    }
+  }
+
+  const closeMobileMenu = function () {
+    document.querySelector('[data-aw-toggle-menu]')?.classList.remove('expanded');
+    document.body.classList.remove('overflow-hidden');
+    document.getElementById('header')?.classList.remove('h-screen');
+    document.getElementById('header')?.classList.remove('expanded');
+    document.getElementById('header')?.classList.remove('bg-page');
+    document.querySelector('#header nav')?.classList.add('hidden');
+    document.querySelector('#header > div > div:last-child')?.classList.add('hidden');
+  };
+
+  const onLoad = function () {
+    let lastKnownScrollPosition = window.scrollY;
+    let ticking = true;
+
+    attachEvent('#header nav', 'click', closeMobileMenu);
+
+    attachEvent('[data-aw-toggle-menu]', 'click', function (_, elem) {
+      elem.classList.toggle('expanded');
+      document.body.classList.toggle('overflow-hidden');
+      document.getElementById('header')?.classList.toggle('h-screen');
+      document.getElementById('header')?.classList.toggle('expanded');
+      document.getElementById('header')?.classList.toggle('bg-page');
+      document.querySelector('#header nav')?.classList.toggle('hidden');
+      document.querySelector('#header > div > div:last-child')?.classList.toggle('hidden');
+    });
+
+    const screenSize = window.matchMedia('(max-width: 767px)');
+    screenSize.addEventListener('change', closeMobileMenu);
+
+    function applyHeaderStylesOnScroll() {
+      const header = document.querySelector('#header[data-aw-sticky-header]');
+      if (!header) return;
+      if (lastKnownScrollPosition > 60 && !header.classList.contains('scroll')) {
+        header.classList.add('scroll');
+      } else if (lastKnownScrollPosition <= 60 && header.classList.contains('scroll')) {
+        header.classList.remove('scroll');
+      }
+      ticking = false;
+    }
+    applyHeaderStylesOnScroll();
+
+    attachEvent([document], 'scroll', function () {
+      lastKnownScrollPosition = window.scrollY;
+
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          applyHeaderStylesOnScroll();
+        });
+        ticking = true;
+      }
+    });
+  };
+
+  window.onload = onLoad;
+  window.onpageshow = closeMobileMenu;
+</script>

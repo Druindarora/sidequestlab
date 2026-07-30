@@ -1,0 +1,41 @@
+---
+/*
+ * Adapted from AstroWind 1.0.0-beta.63.
+ * Source: https://github.com/onwidget/astrowind at 5cea946d2d244ba97b5e84f9509ca9dcdeb9a41b
+ * License: MIT.
+ */
+
+import '~/styles/global.css';
+
+import { I18N } from '~/config/site';
+
+import CommonMeta from '~/components/common/CommonMeta.astro';
+import Favicons from '~/components/Favicons.astro';
+import CustomStyles from '~/components/CustomStyles.astro';
+import Metadata from '~/components/common/Metadata.astro';
+import BasicScripts from '~/components/common/BasicScripts.astro';
+
+import type { MetaData as MetaDataType } from '~/types';
+
+export interface Props {
+  metadata?: MetaDataType;
+}
+
+const { metadata = {} } = Astro.props;
+const { language, textDirection } = I18N;
+---
+
+<!doctype html>
+<html lang={language} dir={textDirection} class="2xl:text-[20px]">
+  <head>
+    <CommonMeta />
+    <Favicons />
+    <CustomStyles />
+    <Metadata {...metadata} />
+  </head>
+
+  <body class="antialiased text-default bg-page tracking-tight">
+    <slot />
+    <BasicScripts />
+  </body>
+</html>
