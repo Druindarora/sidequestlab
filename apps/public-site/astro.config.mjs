@@ -13,7 +13,7 @@ export default defineConfig({
     sitemap(),
     icon({
       include: {
-        tabler: ['brand-github', 'brand-linkedin', 'chevron-down', 'mail'],
+        tabler: ['brand-github', 'brand-linkedin', 'chevron-down', 'lock', 'mail'],
       },
     }),
   ],

@@ -17,7 +17,6 @@ export const headerData = {
   ],
   utilityLinks: [
     { text: 'Démo MémoQuiz', href: getPermalink('/demo-memoquiz') },
-    { text: 'Se connecter', href: PRIVATE_APP_URL },
   ],
   actions: [{ text: 'Me contacter', href: 'mailto:contact@imaginecodebuild.dev', variant: 'primary' as const }],
 };
@@ -31,6 +30,12 @@ export const footerData = {
       icon: 'tabler:brand-linkedin',
       href: 'https://www.linkedin.com/in/st%C3%A9phane-boivin-94909997/',
       target: '_blank',
+    },
+    {
+      text: 'Espace privé',
+      ariaLabel: "Accéder à l'espace privé",
+      icon: 'tabler:lock',
+      href: PRIVATE_APP_URL,
     },
   ],
   footNote: `© ${currentYear} Stéphane Boivin — Imagine Code & Build`,
