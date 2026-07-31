@@ -1,0 +1,52 @@
+---
+/*
+ * Adapted from AstroWind 1.0.0-beta.63.
+ * Source: https://github.com/onwidget/astrowind at 5cea946d2d244ba97b5e84f9509ca9dcdeb9a41b
+ * License: MIT.
+ */
+
+import { Icon } from 'astro-icon/components';
+
+interface Link {
+  text?: string;
+  href?: string;
+  ariaLabel?: string;
+  icon?: string;
+  target?: string;
+}
+
+export interface Props {
+  links: Array<Link>;
+  footNote?: string;
+  theme?: string;
+}
+
+const { links = [], footNote = '' } = Astro.props;
+---
+
+<footer class="relative border-t border-gray-200 bg-white not-prose">
+  <div
+    class="relative max-w-7xl mx-auto px-4 sm:px-6 py-5 text-slate-700 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+  >
+    <div class="text-sm text-muted">
+      <Fragment set:html={footNote} />
+    </div>
+    <ul class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium">
+      {
+        links.map(({ ariaLabel, href, target, text, icon }) => (
+          <li>
+            <a
+              class="inline-flex min-h-10 items-center gap-2 text-muted hover:text-primary transition duration-150 ease-in-out"
+              aria-label={ariaLabel ?? text}
+              href={href}
+              {...(target ? { target, rel: 'noopener noreferrer' } : {})}
+            >
+              {icon && <Icon name={icon} class="w-4 h-4" aria-hidden="true" />}
+              <Fragment set:html={text} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</footer>

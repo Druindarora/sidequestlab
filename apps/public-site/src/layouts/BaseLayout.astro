@@ -1,7 +1,5 @@
 ---
-import PublicFooter from '../components/PublicFooter.astro';
-import PublicHeader from '../components/PublicHeader.astro';
-import '../styles/global.css';
+import PageLayout from '~/layouts/PageLayout.astro';
 
 interface Props {
   description: string;
@@ -9,23 +7,9 @@ interface Props {
 }
 
 const { description, title } = Astro.props;
+const metadata = { title, description };
 ---
 
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/avatar.png" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-  </head>
-  <body>
-    <PublicHeader />
-    <div class="site-content">
-      <slot />
-    </div>
-    <PublicFooter />
-  </body>
-</html>
+<PageLayout metadata={metadata}>
+  <slot />
+</PageLayout>
