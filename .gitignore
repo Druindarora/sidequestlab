@@ -17,3 +17,8 @@ frontend/dist/
 
 # security reports
 reports/
+
+# Local npm caches
+.npm-cache/
+**/node_modules/
+**/dist/
