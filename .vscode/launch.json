@@ -15,9 +15,15 @@
         },
         {
             "type": "node-terminal",
-            "name": "Sidequestlab - Frontend (dev)",
+            "name": "Sidequestlab - Frontend Angular (dev)",
             "request": "launch",
             "command": "cd frontend && npm run start"
+        },
+        {
+            "type": "node-terminal",
+            "name": "Sidequestlab - Frontend Public (dev)",
+            "request": "launch",
+            "command": "cd apps/public-site && npm run dev"
         }
     ],
     "compounds": [
@@ -25,7 +31,8 @@
             "name": "Sidequestlab - Full Stack (dev)",
             "configurations": [
                 "Sidequestlab - Spring Boot (dev)",
-                "Sidequestlab - Frontend (dev)"
+                "Sidequestlab - Frontend Angular (dev)",
+                "Sidequestlab - Frontend Public (dev)"
             ]
         }
     ]
