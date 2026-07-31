@@ -588,6 +588,27 @@ h3 {
   padding-left: 1.2rem;
 }
 
+.profile-skills .card ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text);
+  list-style: disc outside;
+}
+
+.profile-skills .card li {
+  padding-left: 0.15rem;
+  margin-bottom: 0.45rem;
+}
+
+.profile-skills .card li:last-child {
+  margin-bottom: 0;
+}
+
+.profile-skills .card li::marker {
+  color: var(--accent);
+  font-size: 0.85em;
+}
+
 .home-about {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
