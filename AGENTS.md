@@ -11,25 +11,24 @@ Deliver small, reviewable changes with CI green. Prefer minimal diffs, no refact
 - Backend rules: `backend/AGENTS.md`
   If you modify files under `apps/public-site/`, `frontend/`, or `backend/`, you must follow the applicable local guidance.
 
-## Branching & PR (mandatory)
+## Branching & PR
 
-- Never commit on `main` or `dev`.
-- Start from `dev` and create `work/<topic>` branch.
-- Open a PR targeting `dev`.
+- Branch creation, commit, push, and PR creation may be handled by an external orchestrator.
+- Do not create branches, commit, push, or open PRs unless explicitly requested by the user prompt.
+- If publishing is explicitly requested, never commit on `main` or `dev`; start from `dev`, create a `work/<topic>` branch, and open a PR targeting `dev`.
 
 ## Work loop (mandatory)
 
 1. Plan (max 5 bullets): what will change + files impacted + checks to run.
 2. Implement minimal changes.
 3. Run `./scripts/check.sh`.
-4. If red: fix and rerun until green.
-5. Commit, push, and open PR.
+4. If red: fix once and rerun.
 
 ## Definition of Done (required before final message)
 
 - `./scripts/check.sh` is green.
 - No forbidden changes (see sub-agents).
-- PR is small and focused.
+- If publishing was explicitly requested, PR is small and focused.
 
 ## Safety guardrails
 
@@ -50,4 +49,5 @@ At the end, report:
 - files modified
 - commands executed
 - manual verification steps (UI if relevant)
-- commit hash + PR link
+- commit message
+- commit hash + PR link, only when publishing was explicitly requested

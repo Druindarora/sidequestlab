@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
 
 const screenshots = [
   { src: '/memoquiz/dashboard.png', caption: 'Dashboard du jour' },
@@ -13,7 +14,7 @@ const screenshots = [
   title="Démo MémoQuiz | SideQuestLab"
   description="Aperçu en captures d’écran de l’application MémoQuiz."
 >
-  <main class="page page--wide">
+  <div class="page page--wide">
     <section class="page-header section">
       <div class="title-row">
         <h1>Démo MémoQuiz</h1>
@@ -55,13 +56,14 @@ const screenshots = [
       </div>
     </section>
 
-    <section class="actions">
-      <a class="button button--outline" href="/portfolio">Retour au portfolio</a>
+    <section class="actions memoquiz-actions">
+      <Button variant="secondary" href="/portfolio" text="Retour au portfolio" />
       <a
+        class="memoquiz-actions__link"
         href="https://github.com/Druindarora/sidequestlab"
         target="_blank"
-        rel="noopener noreferrer">Voir le code (SideQuestLab)</a
+        rel="noopener noreferrer">Voir le repo SideQuestLab</a
       >
     </section>
-  </main>
+  </div>
 </BaseLayout>

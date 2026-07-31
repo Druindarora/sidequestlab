@@ -1,0 +1,54 @@
+---
+/*
+ * Adapted from AstroWind 1.0.0-beta.63.
+ * Source: https://github.com/onwidget/astrowind at 5cea946d2d244ba97b5e84f9509ca9dcdeb9a41b
+ * License: MIT.
+ */
+
+import { I18N, METADATA, SITE } from '~/config/site';
+import type { MetaData, MetaDataOpenGraph } from '~/types';
+import { getCanonical } from '~/utils/permalinks';
+
+export interface Props extends MetaData {}
+
+const {
+  title,
+  ignoreTitleTemplate = false,
+  canonical = String(getCanonical(String(Astro.url.pathname))),
+  robots = {},
+  description,
+  openGraph = {},
+  twitter = {},
+} = Astro.props;
+
+const pageTitle = title || METADATA.title.default;
+const renderedTitle = ignoreTitleTemplate
+  ? pageTitle
+  : METADATA.title.template.replace('%s', pageTitle);
+const pageDescription = description || METADATA.description;
+const mergedOg: MetaDataOpenGraph = {
+  url: canonical,
+  siteName: SITE.name,
+  locale: I18N.language,
+  type: 'website',
+  ...METADATA.openGraph,
+  ...openGraph,
+};
+const shouldIndex = robots.index ?? METADATA.robots.index;
+const shouldFollow = robots.follow ?? METADATA.robots.follow;
+const robotsContent = `${shouldIndex ? 'index' : 'noindex'},${shouldFollow ? 'follow' : 'nofollow'}`;
+const twitterCard = twitter.cardType || METADATA.twitter.cardType;
+---
+
+<title>{renderedTitle}</title>
+<meta name="description" content={pageDescription} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={robotsContent} />
+<meta name="generator" content={Astro.generator} />
+<meta property="og:site_name" content={mergedOg.siteName} />
+<meta property="og:locale" content={mergedOg.locale} />
+<meta property="og:type" content={mergedOg.type} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={pageDescription} />
+<meta property="og:url" content={mergedOg.url} />
+<meta name="twitter:card" content={twitterCard} />

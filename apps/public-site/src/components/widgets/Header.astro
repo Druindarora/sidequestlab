@@ -1,0 +1,193 @@
+---
+/*
+ * Adapted from AstroWind 1.0.0-beta.63.
+ * Source: https://github.com/onwidget/astrowind at 5cea946d2d244ba97b5e84f9509ca9dcdeb9a41b
+ * License: MIT.
+ */
+
+import { Icon } from 'astro-icon/components';
+import Logo from '~/components/Logo.astro';
+import ToggleMenu from '~/components/common/ToggleMenu.astro';
+import Button from '~/components/ui/Button.astro';
+
+import { getHomePermalink } from '~/utils/permalinks';
+import { trimSlash } from '~/utils/permalinks';
+import type { CallToAction } from '~/types';
+
+interface Link {
+  text?: string;
+  href?: string;
+  ariaLabel?: string;
+  icon?: string;
+}
+
+interface MenuLink extends Link {
+  links?: Array<MenuLink>;
+}
+
+export interface Props {
+  id?: string;
+  links?: Array<MenuLink>;
+  utilityLinks?: Array<Link>;
+  actions?: Array<CallToAction>;
+  isSticky?: boolean;
+  isDark?: boolean;
+  isFullWidth?: boolean;
+  position?: string;
+}
+
+const {
+  id = 'header',
+  links = [],
+  utilityLinks = [],
+  actions = [],
+  isSticky = false,
+  isDark = false,
+  isFullWidth = false,
+  position = 'center',
+} = Astro.props;
+
+const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
+---
+
+<header
+  class:list={[
+    { sticky: isSticky, relative: !isSticky },
+    'top-0 z-40 flex-none mx-auto w-full border-b border-gray-200 bg-white transition-shadow ease-in-out',
+  ]}
+  {...isSticky ? { 'data-aw-sticky-header': true } : {}}
+  {...id ? { id } : {}}
+>
+  <div class="absolute inset-0 bg-white pointer-events-none"></div>
+  <div
+    class:list={[
+      'relative text-default py-3 px-3 md:px-6 mx-auto w-full',
+      {
+        'md:flex md:justify-between': position !== 'center',
+      },
+      {
+        'md:grid md:grid-cols-3 md:items-center': position === 'center',
+      },
+      {
+        'max-w-7xl': !isFullWidth,
+      },
+    ]}
+  >
+    <div class:list={[{ 'mr-auto': position === 'right' }, 'flex justify-between']}>
+      <a class="flex items-center" href={getHomePermalink()}>
+        <Logo />
+      </a>
+      <div class="flex items-center md:hidden">
+        <ToggleMenu />
+      </div>
+    </div>
+    <nav
+      id="mobile-navigation"
+      class="items-center w-full md:w-auto hidden md:flex md:mx-5 text-default overflow-y-auto overflow-x-hidden md:overflow-visible md:justify-self-center"
+      aria-label="Navigation principale"
+    >
+      <ul
+        class="flex flex-col md:flex-row md:self-center w-full md:w-auto text-xl md:text-[0.9375rem] tracking-[0.01rem] font-medium md:justify-center"
+      >
+        {
+          links.map(({ text, href, links }) => (
+            <li class={links?.length ? 'dropdown' : ''}>
+              {links?.length ? (
+                <>
+                  <button type="button" class="hover:text-link px-4 py-3 flex items-center whitespace-nowrap">
+                    {text}{' '}
+                    <Icon name="tabler:chevron-down" class="w-3.5 h-3.5 ml-0.5 hidden md:inline" />
+                  </button>
+                  <ul class="dropdown-menu md:backdrop-blur-md rounded md:absolute pl-4 md:pl-0 md:hidden font-medium md:bg-white/90 md:min-w-[200px] drop-shadow-xl">
+                    {links.map(({ text: text2, href: href2 }) => (
+                      <li>
+                        <a
+                          class:list={[
+                            'first:rounded-t last:rounded-b md:hover:bg-gray-100 hover:text-link py-2 px-5 block whitespace-no-wrap',
+                            { 'aw-link-active': href2 === currentPath },
+                          ]}
+                          href={href2}
+                          {...href2 === currentPath ? { 'aria-current': 'page' } : {}}
+                        >
+                          {text2}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <a
+                  class:list={[
+                    'hover:text-link px-4 py-3 flex items-center whitespace-nowrap',
+                    { 'aw-link-active': href === currentPath },
+                  ]}
+                  href={href}
+                  {...href === currentPath ? { 'aria-current': 'page' } : {}}
+                >
+                  {text}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-5 border-t border-gray-200 pt-5 md:hidden">
+        <ul class="flex flex-col text-xl tracking-[0.01rem] font-medium">
+          {
+            utilityLinks.map(({ text, href }) => (
+              <li>
+                <a class="hover:text-link px-4 py-3 flex items-center whitespace-nowrap text-muted" href={href}>
+                  {text}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        {
+          actions?.length ? (
+            <div class="px-4 pt-3">
+              {actions.map((btnProps) => (
+                <Button {...btnProps} class="w-full py-3 px-5 font-semibold shadow-none text-base" />
+              ))}
+            </div>
+          ) : (
+            ''
+          )
+        }
+      </div>
+    </nav>
+    <div
+      class:list={[
+        { 'ml-auto': position === 'left' },
+        'hidden md:self-center md:flex items-center md:mb-0 fixed w-full md:w-auto md:static justify-end left-0 bottom-0 p-3 md:p-0 md:justify-self-end',
+      ]}
+    >
+      <div class="items-center flex justify-between w-full md:w-auto">
+        {
+          utilityLinks?.length ? (
+            <span class="flex items-center gap-1 text-sm font-medium">
+              {utilityLinks.map(({ text, href }) => (
+                <a class="px-3 py-2 text-muted hover:text-primary whitespace-nowrap" href={href}>
+                  {text}
+                </a>
+              ))}
+            </span>
+          ) : (
+            ''
+          )
+        }
+        {
+          actions?.length ? (
+            <span class="ml-2">
+              {actions.map((btnProps) => (
+                <Button {...btnProps} class="ml-2 py-2.5 px-5.5 md:px-6 font-semibold shadow-none text-sm w-auto" />
+              ))}
+            </span>
+          ) : (
+            ''
+          )
+        }
+      </div>
+    </div>
+  </div>
+</header>

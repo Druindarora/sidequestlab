@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.imaginecodebuild.dev/sitemap-index.xml
