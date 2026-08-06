@@ -1,0 +1,16 @@
+---
+const isProduction = import.meta.env.PROD;
+---
+
+<script define:vars={{ isProduction }}>
+  const allowedHostname = 'www.imaginecodebuild.dev';
+
+  if (isProduction && window.location.hostname === allowedHostname) {
+    const script = document.createElement('script');
+
+    script.async = true;
+    script.src = 'https://gc.zgo.at/count.js';
+    script.dataset.goatcounter = 'https://druindarora.goatcounter.com/count';
+    document.head.appendChild(script);
+  }
+</script>

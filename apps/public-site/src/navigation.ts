@@ -37,6 +37,7 @@ export const footerData = {
       icon: 'tabler:lock',
       href: PRIVATE_APP_URL,
     },
+    { text: 'Confidentialité', icon: 'tabler:lock', href: getPermalink('/confidentialite') },
   ],
   footNote: `© ${currentYear} Stéphane Boivin — Imagine Code & Build`,
 };
