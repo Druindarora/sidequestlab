@@ -100,3 +100,5 @@ cd frontend && npm test -- --watch=false
 cd apps/public-site && npm ci
 cd apps/public-site && npm run build
 ```
+
+> Note: keep this README up to date as the project evolves.
