@@ -54,6 +54,7 @@ Source: generated client under `frontend/src/app/api/api/*.service.ts`, derived 
 - Auth:
   - `GET /api/auth/csrf`
   - `POST /api/auth/login`
+  - `POST /api/auth/logout`
   - `GET /api/auth/me`
   - `POST /api/auth/change-password`
 - MemoQuiz dashboard/session:
@@ -74,7 +75,7 @@ Source: generated client under `frontend/src/app/api/api/*.service.ts`, derived 
   - `POST /api/memoquiz/quizzes/default/cards/{cardId}`
   - `DELETE /api/memoquiz/quizzes/default/cards/{cardId}`
 
-Auth endpoints are generated, but the app's auth flow currently uses `AuthService` with manual `HttpClient` calls. MemoQuiz pages use generated services.
+Auth controller endpoints are present in the generated OpenAPI client except logout. `POST /api/auth/logout` is provided by Spring Security configuration, and the Angular app currently uses the manual `AuthService`/`HttpClient` flow for all auth operations. MemoQuiz pages use generated services.
 
 ## Known Limits
 

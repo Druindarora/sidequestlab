@@ -52,7 +52,7 @@ MemoQuiz schedule data is loaded from `backend/src/main/resources/memoquiz/study
 - API base URL comes from `frontend/src/environments/*`; the frontend expects the `/api` prefix.
 - Astro links to the private app through `PUBLIC_APP_URL`.
 - `backendAuthInterceptor` sends credentials and adds `X-XSRF-TOKEN` for mutating backend requests when a token is available.
-- Auth endpoints exist in the generated OpenAPI client, but the Angular app currently uses the manual `AuthService`/`HttpClient` flow for CSRF, login, logout, session restore, and password changes.
+- Auth controller endpoints are present in the generated OpenAPI client except logout. `POST /api/auth/logout` is provided by Spring Security configuration, and the Angular app currently uses the manual `AuthService`/`HttpClient` flow for all auth operations.
 - MemoQuiz domain endpoints are consumed through generated OpenAPI services.
 - OpenAPI generation command: `cd frontend && npm run generate:api` with the backend serving `/v3/api-docs`.
 
