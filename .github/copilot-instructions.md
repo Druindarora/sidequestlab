@@ -1,31 +1,11 @@
-# SidequestLab / MemoQuiz – Copilot Instructions
+# SideQuestLab Copilot Instructions
 
-## Global
+Use `AGENTS.md` as the source of truth for repository policy.
 
-- Do not edit generated code in `front-end/src/app/api/**` (OpenAPI Generator output).
-- Prefer small, readable code. No over-engineering.
+- Read the root `AGENTS.md` before making changes.
+- When touching `apps/public-site/`, `frontend/`, or `backend/`, also follow the nested `AGENTS.md` in that area.
+- Keep changes small, scoped, and aligned with the requested slice.
+- Do not edit generated OpenAPI files in `frontend/src/app/api/**` by hand.
+- Use `./scripts/check.sh` as the repository validation entry point unless the task explicitly says otherwise.
 
-## Backend (Spring Boot 3, Java 21)
-
-- Controllers must be thin:
-  - no business logic
-  - no try/catch for request handling (errors handled by GlobalExceptionHandler)
-  - use `@Validated` on controller class and `@Valid` on `@RequestBody`
-- DTOs must use `jakarta.validation` annotations:
-  - `@NotNull`, `@NotBlank`, `@Size`, `@Min`, `@Max` where relevant
-- Error handling must be standard:
-  - use RFC7807 `ProblemDetail`
-  - map validation errors to HTTP 400
-  - map malformed JSON to HTTP 400
-  - unexpected errors to HTTP 500 with generic message
-- Logging:
-  - use SLF4J (`private static final Logger log = LoggerFactory.getLogger(...)`)
-  - log at INFO for high-level actions, DEBUG for details, WARN for recoverable issues, ERROR for exceptions
-  - do not log secrets / tokens
-
-## Frontend (Angular)
-
-- Use the generated OpenAPI client in a dedicated wrapper service (do not call it directly from components).
-- All HTTP calls must handle errors:
-  - map errors into user-friendly states (no UI crash)
-  - prefer centralized handling (interceptor or shared error handler)
+This file is intentionally minimal to avoid duplicating or contradicting the AGENTS instructions.
