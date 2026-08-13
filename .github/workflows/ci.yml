@@ -86,3 +86,33 @@ jobs:
         run: |
           cd frontend
           if npm run | grep -q "test"; then npm test -- --watch=false; else echo "No test script, skipping"; fi
+
+  public-site:
+    name: Public site (Astro)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-public-site-${{ hashFiles('apps/public-site/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-public-site-
+
+      - name: Install dependencies
+        working-directory: apps/public-site
+        run: npm ci
+
+      - name: Build
+        working-directory: apps/public-site
+        env:
+          ASTRO_TELEMETRY_DISABLED: 1
+        run: npm run build
