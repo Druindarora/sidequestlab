@@ -10,8 +10,7 @@ import Logo from '~/components/Logo.astro';
 import ToggleMenu from '~/components/common/ToggleMenu.astro';
 import Button from '~/components/ui/Button.astro';
 
-import { getHomePermalink } from '~/utils/permalinks';
-import { trimSlash } from '~/utils/permalinks';
+import { getHomePermalink, getPermalink, trimSlash } from '~/utils/permalinks';
 import type { CallToAction } from '~/types';
 
 interface Link {
@@ -48,6 +47,8 @@ const {
 } = Astro.props;
 
 const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
+const isActive = (href?: string) =>
+  href === currentPath || (href === getPermalink('/portfolio') && currentPath.startsWith(`${href}/`));
 ---
 
 <header
@@ -104,10 +105,10 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
                         <a
                           class:list={[
                             'first:rounded-t last:rounded-b md:hover:bg-gray-100 hover:text-link py-2 px-5 block whitespace-no-wrap',
-                            { 'aw-link-active': href2 === currentPath },
+                            { 'aw-link-active': isActive(href2) },
                           ]}
                           href={href2}
-                          {...href2 === currentPath ? { 'aria-current': 'page' } : {}}
+                          {...isActive(href2) ? { 'aria-current': 'page' } : {}}
                         >
                           {text2}
                         </a>
@@ -119,10 +120,10 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
                 <a
                   class:list={[
                     'hover:text-link px-4 py-3 flex items-center whitespace-nowrap',
-                    { 'aw-link-active': href === currentPath },
+                    { 'aw-link-active': isActive(href) },
                   ]}
                   href={href}
-                  {...href === currentPath ? { 'aria-current': 'page' } : {}}
+                  {...isActive(href) ? { 'aria-current': 'page' } : {}}
                 >
                   {text}
                 </a>

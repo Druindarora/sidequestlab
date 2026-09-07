@@ -496,11 +496,73 @@ h3 {
   margin-bottom: 0;
 }
 
+.portfolio-families,
 .portfolio-projects,
+.portfolio-workflows,
 .portfolio-proof {
   max-width: 52rem;
   margin-right: auto;
   margin-left: auto;
+}
+
+.portfolio-families {
+  margin-bottom: 2.5rem;
+}
+
+.portfolio-families h2 {
+  margin-bottom: 1rem;
+  font-size: 1.35rem;
+}
+
+.portfolio-family-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.portfolio-family-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.portfolio-family-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0.5rem 1.25rem rgba(79, 70, 229, 0.12);
+  color: var(--text);
+  transform: translateY(-0.15rem);
+}
+
+.portfolio-family-card h3,
+.portfolio-family-card p {
+  margin-bottom: 0;
+}
+
+.portfolio-family-card h3 {
+  font-size: 1.25rem;
+}
+
+.portfolio-family-card p {
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+
+.portfolio-family-card span {
+  margin-top: auto;
+  padding-top: 1rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+#applications,
+#workflows {
+  scroll-margin-top: 5.5rem;
 }
 
 .portfolio-grid {
@@ -515,7 +577,7 @@ h3 {
   gap: 0.75rem;
 }
 
-.portfolio-card h2 {
+.portfolio-card h3 {
   margin-bottom: 0;
   font-size: 1.25rem;
 }
@@ -549,6 +611,192 @@ h3 {
   max-width: 52rem;
   margin: -0.75rem auto 2.5rem;
   font-size: 0.92rem;
+}
+
+.workflow-page {
+  max-width: 1120px;
+}
+
+.workflow-page__header {
+  margin-bottom: 2rem;
+}
+
+.workflow-page__header h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.workflow-page__summary {
+  margin: 0.85rem 0 0.35rem;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.workflow-page__meta {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.workflow-layout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.workflow-navigation {
+  position: sticky;
+  top: 6rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.workflow-navigation-mobile {
+  display: none;
+}
+
+.workflow-navigation__label,
+.workflow-navigation__group-title {
+  margin-bottom: 0.6rem;
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 750;
+}
+
+.workflow-navigation__list,
+.workflow-navigation__versions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow-navigation__versions {
+  margin-top: -0.2rem;
+  padding-left: 0.75rem;
+}
+
+.workflow-navigation__link {
+  display: block;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.94rem;
+  text-decoration: none;
+}
+
+.workflow-navigation__link:hover,
+.workflow-navigation__link.is-active {
+  color: var(--accent-strong);
+  background: #eef2ff;
+}
+
+.workflow-article {
+  min-width: 0;
+  max-width: 46rem;
+}
+
+.workflow-article h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.4rem;
+}
+
+.workflow-article h2:first-child {
+  margin-top: 0;
+}
+
+.workflow-article p {
+  margin-bottom: 1rem;
+}
+
+.workflow-article__image {
+  cursor: zoom-in;
+}
+
+body.lightbox-open {
+  overflow: hidden;
+}
+
+.workflow-lightbox {
+  position: fixed;
+  inset: 0;
+  display: none;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  background: rgb(15 23 42 / 94%);
+  color: #ffffff;
+}
+
+.workflow-lightbox[open] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
+.workflow-lightbox__toolbar {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.workflow-lightbox__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.workflow-lightbox__image {
+  grid-column: 2;
+  width: auto;
+  max-width: 100%;
+  max-height: calc(100dvh - 5.5rem);
+  justify-self: center;
+  object-fit: contain;
+}
+
+.workflow-lightbox__close,
+.workflow-lightbox__navigation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 999px;
+  background: rgb(15 23 42 / 55%);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.workflow-lightbox__close:hover,
+.workflow-lightbox__navigation:hover {
+  background: rgb(255 255 255 / 18%);
+}
+
+.workflow-lightbox__navigation {
+  grid-row: 2;
+}
+
+.workflow-lightbox__navigation[data-lightbox-previous] {
+  grid-column: 1;
+}
+
+.workflow-lightbox__navigation[data-lightbox-next] {
+  grid-column: 3;
 }
 
 .memoquiz-actions {
@@ -691,9 +939,59 @@ h3 {
 }
 
 @media (max-width: 900px) {
+  .workflow-layout {
+    display: block;
+  }
+
+  .workflow-article {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .workflow-navigation {
+    display: none;
+  }
+
+  .workflow-navigation-mobile {
+    display: block;
+    max-width: 46rem;
+    margin: 0 auto 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .workflow-navigation-mobile summary {
+    cursor: pointer;
+    color: #0f172a;
+    font-weight: 750;
+  }
+
+  .workflow-navigation-mobile nav {
+    margin-top: 0.75rem;
+  }
 }
 
 @media (max-width: 700px) {
+  .workflow-lightbox {
+    padding: 0.75rem;
+  }
+
+  .workflow-lightbox[open] {
+    gap: 0.5rem;
+  }
+
+  .workflow-lightbox__image {
+    max-height: calc(100dvh - 5rem);
+  }
+
+  .workflow-lightbox__close,
+  .workflow-lightbox__navigation {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
   .home-about,
   .gallery {
     grid-template-columns: 1fr;
@@ -734,6 +1032,10 @@ h3 {
   }
 
   .portfolio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-family-grid {
     grid-template-columns: 1fr;
   }
 

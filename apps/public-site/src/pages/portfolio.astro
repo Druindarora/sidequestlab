@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/ui/Button.astro';
+import { getCollection } from 'astro:content';
+
+const workflows = (await getCollection('workflows', ({ data }) => data.status === 'published')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <BaseLayout
@@ -16,10 +21,30 @@ import Button from '../components/ui/Button.astro';
       </p>
     </section>
 
-    <section class="section portfolio-projects" aria-label="Projets publics">
+    <nav class="portfolio-families" aria-label="Explorer les familles du portfolio">
+      <h2>Explorer le portfolio</h2>
+      <div class="portfolio-family-grid">
+        <a class="card portfolio-family-card" href="#applications">
+          <h3>Applications</h3>
+          <p>Des applications web et produits livrés, conçus de la base technique à l’expérience.</p>
+          <span aria-hidden="true">Voir les applications →</span>
+        </a>
+        <a class="card portfolio-family-card" href="#workflows">
+          <h3>Workflows &amp; automatisations</h3>
+          <p>
+            Des démonstrations d’automatisation, de développement assisté par IA, de qualité et de
+            pratiques d’ingénierie.
+          </p>
+          <span aria-hidden="true">Voir les workflows →</span>
+        </a>
+      </div>
+    </nav>
+
+    <section id="applications" class="section portfolio-projects" aria-labelledby="applications-title">
+      <h2 id="applications-title">Applications</h2>
       <div class="portfolio-grid">
         <article class="card portfolio-card">
-          <h2>SideQuestLab</h2>
+          <h3>SideQuestLab</h3>
           <p class="tag">Angular · Java / Spring Boot · PostgreSQL</p>
           <p>
             monorepo &amp; labo public — Angular, Java/Spring Boot, PostgreSQL. Architecture
@@ -36,7 +61,7 @@ import Button from '../components/ui/Button.astro';
         </article>
 
         <article class="card portfolio-card">
-          <h2>MémoQuiz</h2>
+          <h3>MémoQuiz</h3>
           <p class="tag">Angular · Java / Spring Boot · PostgreSQL</p>
           <p>
             Méthode de Leitner (répétition espacée). Gestion des cartes, sessions de révision,
@@ -46,6 +71,28 @@ import Button from '../components/ui/Button.astro';
             <Button variant="secondary" href="/demo-memoquiz" text="Voir la démo" />
           </div>
         </article>
+      </div>
+    </section>
+
+    <section id="workflows" class="section portfolio-workflows" aria-labelledby="workflows-title">
+      <h2 id="workflows-title">Workflows &amp; automatisations</h2>
+      <div class="portfolio-grid">
+        {
+          workflows.map((workflow) => (
+            <article class="card portfolio-card">
+              <h3>{workflow.data.title}</h3>
+              <p class="tag">Workflow · {workflow.data.version.toUpperCase()}</p>
+              <p>{workflow.data.summary}</p>
+              <div class="actions">
+                <Button
+                  variant="secondary"
+                  href={`/portfolio/workflows/${workflow.data.workflowSlug}/${workflow.data.version}`}
+                  text="Découvrir le workflow"
+                />
+              </div>
+            </article>
+          ))
+        }
       </div>
     </section>
 
