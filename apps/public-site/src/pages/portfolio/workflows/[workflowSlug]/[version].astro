@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content';
+import WorkflowLayout from '../../../../layouts/WorkflowLayout.astro';
+
+export async function getStaticPaths() {
+  const workflows = await getCollection('workflows', ({ data }) => data.status === 'published');
+
+  return workflows.map((entry) => ({
+    params: {
+      workflowSlug: entry.data.workflowSlug,
+      version: entry.data.version,
+    },
+    props: { entry, workflows },
+  }));
+}
+
+const { entry, workflows } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<WorkflowLayout entry={entry} workflows={workflows}>
+  <Content />
+</WorkflowLayout>

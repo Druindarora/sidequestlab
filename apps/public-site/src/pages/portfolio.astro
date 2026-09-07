@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/ui/Button.astro';
+import { getCollection } from 'astro:content';
+
+const workflows = (await getCollection('workflows', ({ data }) => data.status === 'published')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <BaseLayout
@@ -16,7 +21,8 @@ import Button from '../components/ui/Button.astro';
       </p>
     </section>
 
-    <section class="section portfolio-projects" aria-label="Projets publics">
+    <section class="section portfolio-projects" aria-labelledby="applications-title">
+      <h2 id="applications-title">Applications</h2>
       <div class="portfolio-grid">
         <article class="card portfolio-card">
           <h2>SideQuestLab</h2>
@@ -46,6 +52,28 @@ import Button from '../components/ui/Button.astro';
             <Button variant="secondary" href="/demo-memoquiz" text="Voir la démo" />
           </div>
         </article>
+      </div>
+    </section>
+
+    <section class="section portfolio-workflows" aria-labelledby="workflows-title">
+      <h2 id="workflows-title">Workflows &amp; automatisations</h2>
+      <div class="portfolio-grid">
+        {
+          workflows.map((workflow) => (
+            <article class="card portfolio-card">
+              <h3>{workflow.data.title}</h3>
+              <p class="tag">Workflow · {workflow.data.version.toUpperCase()}</p>
+              <p>{workflow.data.summary}</p>
+              <div class="actions">
+                <Button
+                  variant="secondary"
+                  href={`/portfolio/workflows/${workflow.data.workflowSlug}/${workflow.data.version}`}
+                  text="Découvrir le workflow"
+                />
+              </div>
+            </article>
+          ))
+        }
       </div>
     </section>
 

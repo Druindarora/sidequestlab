@@ -497,6 +497,7 @@ h3 {
 }
 
 .portfolio-projects,
+.portfolio-workflows,
 .portfolio-proof {
   max-width: 52rem;
   margin-right: auto;
@@ -549,6 +550,105 @@ h3 {
   max-width: 52rem;
   margin: -0.75rem auto 2.5rem;
   font-size: 0.92rem;
+}
+
+.workflow-page {
+  max-width: 1120px;
+}
+
+.workflow-page__header {
+  max-width: 46rem;
+  margin: 0 auto 2rem;
+}
+
+.workflow-page__header h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.workflow-page__summary {
+  margin: 0.85rem 0 0.35rem;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.workflow-page__meta {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.workflow-layout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.workflow-navigation {
+  position: sticky;
+  top: 6rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.workflow-navigation-mobile {
+  display: none;
+}
+
+.workflow-navigation__label,
+.workflow-navigation__group-title {
+  margin-bottom: 0.6rem;
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 750;
+}
+
+.workflow-navigation__list,
+.workflow-navigation__versions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow-navigation__versions {
+  margin-top: -0.2rem;
+  padding-left: 0.75rem;
+}
+
+.workflow-navigation__link {
+  display: block;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.94rem;
+  text-decoration: none;
+}
+
+.workflow-navigation__link:hover,
+.workflow-navigation__link.is-active {
+  color: var(--accent-strong);
+  background: #eef2ff;
+}
+
+.workflow-article {
+  min-width: 0;
+  max-width: 46rem;
+}
+
+.workflow-article h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.4rem;
+}
+
+.workflow-article h2:first-child {
+  margin-top: 0;
+}
+
+.workflow-article p {
+  margin-bottom: 1rem;
 }
 
 .memoquiz-actions {
@@ -691,6 +791,33 @@ h3 {
 }
 
 @media (max-width: 900px) {
+  .workflow-layout {
+    display: block;
+  }
+
+  .workflow-navigation {
+    display: none;
+  }
+
+  .workflow-navigation-mobile {
+    display: block;
+    max-width: 46rem;
+    margin: 0 auto 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .workflow-navigation-mobile summary {
+    cursor: pointer;
+    color: #0f172a;
+    font-weight: 750;
+  }
+
+  .workflow-navigation-mobile nav {
+    margin-top: 0.75rem;
+  }
 }
 
 @media (max-width: 700px) {

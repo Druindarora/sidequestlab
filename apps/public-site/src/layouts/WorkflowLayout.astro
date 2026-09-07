@@ -1,0 +1,126 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  entry: CollectionEntry<'workflows'>;
+  workflows: CollectionEntry<'workflows'>[];
+}
+
+const { entry, workflows } = Astro.props;
+const currentPath = Astro.url.pathname;
+const workflowGroups = Array.from(
+  workflows.reduce((groups, workflow) => {
+    const versions = groups.get(workflow.data.workflowId) ?? [];
+    versions.push(workflow);
+    groups.set(workflow.data.workflowId, versions);
+    return groups;
+  }, new Map<string, CollectionEntry<'workflows'>[]>()),
+)
+  .map(([, versions]) => versions.sort((a, b) => a.data.version.localeCompare(b.data.version)))
+  .sort((a, b) => a[0].data.order - b[0].data.order);
+
+const workflowHref = (workflow: CollectionEntry<'workflows'>) =>
+  `/portfolio/workflows/${workflow.data.workflowSlug}/${workflow.data.version}`;
+const publishedDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(entry.data.publishedAt);
+---
+
+<BaseLayout title={`${entry.data.title} — ${entry.data.version} — Imagine Code & Build`} description={entry.data.summary}>
+  <div class="page page--wide workflow-page">
+    <header class="workflow-page__header">
+      <p class="hero__kicker">Workflow &amp; automatisation</p>
+      <div class="title-row">
+        <h1>{entry.data.title}</h1>
+        <span class="status">{entry.data.version.toUpperCase()}</span>
+      </div>
+      <p class="workflow-page__summary">{entry.data.summary}</p>
+      <p class="workflow-page__meta">Publié le {publishedDate}</p>
+    </header>
+
+    <details class="workflow-navigation-mobile">
+      <summary>Navigation des workflows</summary>
+      <nav aria-label="Navigation des workflows">
+        <ul class="workflow-navigation__list">
+          {
+            workflowGroups.map((versions) => (
+              <li>
+                {versions.length === 1 ? (
+                  <a
+                    class:list={{ 'workflow-navigation__link': true, 'is-active': workflowHref(versions[0]) === currentPath }}
+                    href={workflowHref(versions[0])}
+                    aria-current={workflowHref(versions[0]) === currentPath ? 'page' : undefined}
+                  >
+                    {versions[0].data.navTitle}
+                  </a>
+                ) : (
+                  <>
+                    <p class="workflow-navigation__group-title">{versions[0].data.navTitle}</p>
+                    <ul class="workflow-navigation__versions" aria-label={`Versions de ${versions[0].data.navTitle}`}>
+                      {versions.map((workflow) => (
+                        <li>
+                          <a
+                            class:list={{ 'workflow-navigation__link': true, 'is-active': workflowHref(workflow) === currentPath }}
+                            href={workflowHref(workflow)}
+                            aria-current={workflowHref(workflow) === currentPath ? 'page' : undefined}
+                          >
+                            {workflow.data.version.toUpperCase()}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </details>
+
+    <div class="workflow-layout">
+      <aside class="workflow-navigation">
+        <p class="workflow-navigation__label">Workflows &amp; automatisations</p>
+        <nav aria-label="Navigation des workflows">
+          <ul class="workflow-navigation__list">
+            {
+              workflowGroups.map((versions) => (
+                <li>
+                  {versions.length === 1 ? (
+                    <a
+                      class:list={{ 'workflow-navigation__link': true, 'is-active': workflowHref(versions[0]) === currentPath }}
+                      href={workflowHref(versions[0])}
+                      aria-current={workflowHref(versions[0]) === currentPath ? 'page' : undefined}
+                    >
+                      {versions[0].data.navTitle}
+                    </a>
+                  ) : (
+                    <>
+                      <p class="workflow-navigation__group-title">{versions[0].data.navTitle}</p>
+                      <ul class="workflow-navigation__versions" aria-label={`Versions de ${versions[0].data.navTitle}`}>
+                        {versions.map((workflow) => (
+                          <li>
+                            <a
+                              class:list={{ 'workflow-navigation__link': true, 'is-active': workflowHref(workflow) === currentPath }}
+                              href={workflowHref(workflow)}
+                              aria-current={workflowHref(workflow) === currentPath ? 'page' : undefined}
+                            >
+                              {workflow.data.version.toUpperCase()}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </aside>
+
+      <article class="workflow-article">
+        <slot />
+      </article>
+    </div>
+  </div>
+</BaseLayout>
