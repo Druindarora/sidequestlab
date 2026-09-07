@@ -496,12 +496,73 @@ h3 {
   margin-bottom: 0;
 }
 
+.portfolio-families,
 .portfolio-projects,
 .portfolio-workflows,
 .portfolio-proof {
   max-width: 52rem;
   margin-right: auto;
   margin-left: auto;
+}
+
+.portfolio-families {
+  margin-bottom: 2.5rem;
+}
+
+.portfolio-families h2 {
+  margin-bottom: 1rem;
+  font-size: 1.35rem;
+}
+
+.portfolio-family-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.portfolio-family-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.portfolio-family-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0.5rem 1.25rem rgba(79, 70, 229, 0.12);
+  color: var(--text);
+  transform: translateY(-0.15rem);
+}
+
+.portfolio-family-card h3,
+.portfolio-family-card p {
+  margin-bottom: 0;
+}
+
+.portfolio-family-card h3 {
+  font-size: 1.25rem;
+}
+
+.portfolio-family-card p {
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+
+.portfolio-family-card span {
+  margin-top: auto;
+  padding-top: 1rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+#applications,
+#workflows {
+  scroll-margin-top: 5.5rem;
 }
 
 .portfolio-grid {
@@ -865,6 +926,10 @@ h3 {
   }
 
   .portfolio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-family-grid {
     grid-template-columns: 1fr;
   }
 

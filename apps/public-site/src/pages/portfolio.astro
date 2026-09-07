@@ -21,7 +21,26 @@ const workflows = (await getCollection('workflows', ({ data }) => data.status ==
       </p>
     </section>
 
-    <section class="section portfolio-projects" aria-labelledby="applications-title">
+    <nav class="portfolio-families" aria-label="Explorer les familles du portfolio">
+      <h2>Explorer le portfolio</h2>
+      <div class="portfolio-family-grid">
+        <a class="card portfolio-family-card" href="#applications">
+          <h3>Applications</h3>
+          <p>Des applications web et produits livrés, conçus de la base technique à l’expérience.</p>
+          <span aria-hidden="true">Voir les applications →</span>
+        </a>
+        <a class="card portfolio-family-card" href="#workflows">
+          <h3>Workflows &amp; automatisations</h3>
+          <p>
+            Des démonstrations d’automatisation, de développement assisté par IA, de qualité et de
+            pratiques d’ingénierie.
+          </p>
+          <span aria-hidden="true">Voir les workflows →</span>
+        </a>
+      </div>
+    </nav>
+
+    <section id="applications" class="section portfolio-projects" aria-labelledby="applications-title">
       <h2 id="applications-title">Applications</h2>
       <div class="portfolio-grid">
         <article class="card portfolio-card">
@@ -55,7 +74,7 @@ const workflows = (await getCollection('workflows', ({ data }) => data.status ==
       </div>
     </section>
 
-    <section class="section portfolio-workflows" aria-labelledby="workflows-title">
+    <section id="workflows" class="section portfolio-workflows" aria-labelledby="workflows-title">
       <h2 id="workflows-title">Workflows &amp; automatisations</h2>
       <div class="portfolio-grid">
         {
