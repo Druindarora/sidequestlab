@@ -27,16 +27,6 @@ const publishedDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).fo
 
 <BaseLayout title={`${entry.data.title} — ${entry.data.version} — Imagine Code & Build`} description={entry.data.summary}>
   <div class="page page--wide workflow-page">
-    <header class="workflow-page__header">
-      <p class="hero__kicker">Workflow &amp; automatisation</p>
-      <div class="title-row">
-        <h1>{entry.data.title}</h1>
-        <span class="status">{entry.data.version.toUpperCase()}</span>
-      </div>
-      <p class="workflow-page__summary">{entry.data.summary}</p>
-      <p class="workflow-page__meta">Publié le {publishedDate}</p>
-    </header>
-
     <details class="workflow-navigation-mobile">
       <summary>Navigation des workflows</summary>
       <nav aria-label="Navigation des workflows">
@@ -119,6 +109,15 @@ const publishedDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).fo
       </aside>
 
       <article class="workflow-article">
+        <header class="workflow-page__header">
+          <p class="hero__kicker">Workflow &amp; automatisation</p>
+          <div class="title-row">
+            <h1>{entry.data.title}</h1>
+            <span class="status">{entry.data.version.toUpperCase()}</span>
+          </div>
+          <p class="workflow-page__summary">{entry.data.summary}</p>
+          <p class="workflow-page__meta">Publié le {publishedDate}</p>
+        </header>
         <slot />
       </article>
     </div>
