@@ -404,6 +404,7 @@ def build_summary(frontend_lcov: str, backend_jacoco_xml: str, root_dir: str, to
             },
             "priorityComponents": frontend_priority_components,
             "weakComponents": frontend_weak_units,
+            "components": frontend_all_units,
         },
         "backend": {
             "totals": {
@@ -427,6 +428,7 @@ def build_summary(frontend_lcov: str, backend_jacoco_xml: str, root_dir: str, to
             },
             "priorityPackages": backend_packages,
             "weakClasses": backend_weak_classes,
+            "classes": backend_classes_full,
         },
     }
 
