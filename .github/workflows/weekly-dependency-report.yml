@@ -276,16 +276,53 @@ jobs:
           }
 
           const mavenLine = /^\s*\[INFO\]\s+(.+?)\s+\.{2,}\s+(.+?)\s+->\s+(.+?)\s*$/;
+          const mavenWrappedIdentifierLine = /^\s*\[INFO\]\s+((?:\$\{[^}\s]+\}|[^\s:]+:[^\s]+))\s+\.{2,}\s*$/;
+          const mavenWrappedVersionsLine = /^\s*\[INFO\]\s+(\S+)\s+->\s+(\S+)\s*$/;
+
+          function reconstructMavenUpdateLines(outputLines) {
+            const reconstructedLines = [];
+            let pendingIdentifier = null;
+            for (const line of outputLines) {
+              if (mavenLine.test(line)) {
+                reconstructedLines.push(line);
+                pendingIdentifier = null;
+                continue;
+              }
+              const identifierMatch = line.match(mavenWrappedIdentifierLine);
+              if (identifierMatch) {
+                pendingIdentifier = identifierMatch[1];
+                continue;
+              }
+              const versionsMatch = line.match(mavenWrappedVersionsLine);
+              if (versionsMatch && pendingIdentifier) {
+                reconstructedLines.push(
+                  `[INFO] ${pendingIdentifier} ... ${versionsMatch[1]} -> ${versionsMatch[2]}`,
+                );
+                pendingIdentifier = null;
+                continue;
+              }
+              reconstructedLines.push(line);
+              pendingIdentifier = null;
+            }
+            return reconstructedLines;
+          }
 
           function collectMavenCategory(category, goal) {
             const command = runCommand({
               id: `backend/maven-${category}`,
               command: 'bash',
-              args: ['./mvnw', '-B', '-DskipTests', '-DallowSnapshots=false', goal],
+              args: [
+                './mvnw',
+                '-B',
+                '-DskipTests',
+                '-DallowSnapshots=false',
+                '-Dversions.outputLineWidth=10000',
+                goal,
+              ],
               cwd: 'backend',
               expectedExitCodes: [0],
             });
-            const outputLines = command.stdout.split(/\r?\n/);
+            const outputLines = reconstructMavenUpdateLines(command.stdout.split(/\r?\n/));
             const candidateLines = outputLines.filter((line) => /^\s*\[INFO\].+\s->\s/.test(line));
             const unparsedUpdateLines = candidateLines.filter((line) => !mavenLine.test(line));
             const entries = outputLines.flatMap((line) => {
