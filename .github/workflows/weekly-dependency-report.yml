@@ -5,324 +5,602 @@ on:
     - cron: "0 2 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  frontend-deps:
-    name: Frontend dependency report
+  dependency-report:
+    name: Collect dependency report for dev
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout dev
         uses: actions/checkout@v4
+        with:
+          ref: dev
 
       - name: Use Node.js LTS
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-
-      - name: Install
-        run: |
-          cd frontend
-          npm ci
-
-      - name: Run npm audit (non-failing)
-        run: |
-          cd frontend
-          npm audit --json > ../frontend-audit.json || true
-
-      - name: Run npm outdated (non-failing)
-        run: |
-          cd frontend
-          npm outdated --json > ../frontend-outdated.json || true
-
-      - name: Build frontend dependency summaries
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-
-          const now = new Date().toISOString();
-          const severities = ['critical', 'high', 'moderate', 'low'];
-
-          function readJsonObject(path, allowEmpty = false) {
-            try {
-              const raw = fs.readFileSync(path, 'utf8');
-              if (allowEmpty && raw.trim() === '') {
-                return { value: {}, parseError: null };
-              }
-              return { value: JSON.parse(raw), parseError: null };
-            } catch (error) {
-              return { value: {}, parseError: error.message };
-            }
-          }
-
-          const auditSource = 'frontend-audit.json';
-          const auditRead = readJsonObject(auditSource);
-          const vulnerabilityCounts = { critical: 0, high: 0, moderate: 0, low: 0 };
-
-          if (!auditRead.parseError) {
-            const audit = auditRead.value;
-            if (audit?.metadata?.vulnerabilities) {
-              for (const severity of severities) {
-                vulnerabilityCounts[severity] = Number(audit.metadata.vulnerabilities[severity] || 0);
-              }
-            } else if (audit?.advisories) {
-              for (const advisory of Object.values(audit.advisories)) {
-                const severity = advisory?.severity;
-                if (severities.includes(severity)) vulnerabilityCounts[severity] += 1;
-              }
-            }
-          }
-
-          const auditSummary = {
-            critical: vulnerabilityCounts.critical,
-            high: vulnerabilityCounts.high,
-            moderate: vulnerabilityCounts.moderate,
-            low: vulnerabilityCounts.low,
-            total: severities.reduce((sum, severity) => sum + vulnerabilityCounts[severity], 0),
-            parse_error: auditRead.parseError,
-            generated_at: now,
-            source_file: auditSource,
-          };
-
-          fs.writeFileSync('frontend-audit-summary.json', `${JSON.stringify(auditSummary, null, 2)}\n`);
-
-          const outdatedSource = 'frontend-outdated.json';
-          const outdatedRead = readJsonObject(outdatedSource, true);
-          const packageJsonRead = readJsonObject('frontend/package.json');
-          const packageJson = packageJsonRead.value || {};
-          const dependencyTypes = [
-            ['dependencies', 'dependencies'],
-            ['devDependencies', 'devDependencies'],
-            ['optionalDependencies', 'optionalDependencies'],
-          ];
-
-          const outdatedEntries = Object.entries(outdatedRead.value || {}).map(([name, entry]) => {
-            let type = entry?.type || null;
-            if (!type) {
-              for (const [packageField, inferredType] of dependencyTypes) {
-                if (packageJson?.[packageField]?.[name]) {
-                  type = inferredType;
-                  break;
-                }
-              }
-            }
-
-            return {
-              name,
-              current: entry?.current || null,
-              wanted: entry?.wanted || null,
-              latest: entry?.latest || null,
-              type,
-              location: entry?.location || null,
-            };
-          });
-
-          const countByType = (types) => outdatedEntries.filter((entry) => types.includes(entry.type)).length;
-          const outdatedSummary = {
-            total_outdated: outdatedEntries.length,
-            direct_dependencies_outdated: countByType(['dependencies', 'direct']),
-            dev_dependencies_outdated: countByType(['devDependencies', 'dev']),
-            optional_dependencies_outdated: countByType(['optionalDependencies', 'optional']),
-            dependency_names: outdatedEntries.map((entry) => entry.name).sort(),
-            entries: outdatedEntries.sort((a, b) => a.name.localeCompare(b.name)),
-            parse_error: outdatedRead.parseError,
-            generated_at: now,
-            source_file: outdatedSource,
-          };
-
-          fs.writeFileSync('frontend-outdated-summary.json', `${JSON.stringify(outdatedSummary, null, 2)}\n`);
-          NODE
-
-      - name: Upload frontend dependency reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dependency-reports
-          path: |
-            frontend-audit.json
-            frontend-outdated.json
-            frontend-audit-summary.json
-            frontend-outdated-summary.json
-
-  backend-deps:
-    name: Backend dependency update report
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            apps/public-site/package-lock.json
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: "temurin"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
 
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/backend/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-
-      - name: Generate dependency update report
-        working-directory: backend
-        run: |
-          chmod +x ./mvnw
-          ./mvnw -B -DskipTests -DallowSnapshots=false versions:display-dependency-updates | tee ../backend-updates.txt || true
-
-      - name: Generate plugin update report
-        working-directory: backend
-        run: |
-          chmod +x ./mvnw
-          ./mvnw -B -DskipTests -DallowSnapshots=false versions:display-plugin-updates | tee ../backend-plugins-updates.txt || true
-
-      - name: Generate property update report (optional)
-        working-directory: backend
-        run: |
-          chmod +x ./mvnw
-          ./mvnw -B -DskipTests -DallowSnapshots=false versions:display-property-updates | tee ../backend-properties-updates.txt || true
-
-      - name: Build backend update summary
+      - name: Collect and normalize dependency data
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANALYZED_BRANCH: dev
         run: |
           node <<'NODE'
           const fs = require('fs');
+          const path = require('path');
+          const { spawnSync } = require('child_process');
 
-          const now = new Date().toISOString();
-          const sources = {
-            dependency: 'backend-updates.txt',
-            plugin: 'backend-plugins-updates.txt',
-            property: 'backend-properties-updates.txt',
-          };
-          const unstableVersion = /(?:^|[-.])(M|RC|rc)\d*|SNAPSHOT|alpha|beta/i;
-          const updateLine = /^\s*\[INFO\]\s+(.+?)\s+\.{2,}\s+(.+?)\s+->\s+(.+?)\s*$/;
+          const schemaVersion = '1.0.0';
+          const generatedAt = new Date().toISOString();
+          const rawRoot = 'dependency-report-raw';
+          fs.mkdirSync(rawRoot, { recursive: true });
 
-          function stable(version) {
-            return !unstableVersion.test(version);
+          function writeJson(file, value) {
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
           }
 
-          function parseEntries(category, sourceFile) {
-            const lines = fs.readFileSync(sourceFile, 'utf8').split(/\r?\n/);
-            return lines.flatMap((line) => {
-              const match = line.match(updateLine);
-              if (!match) return [];
-              const newerVersion = match[3].trim();
-              if (!stable(newerVersion)) return [];
+          function parseJson(text) {
+            try {
+              return { value: JSON.parse(text), error: null };
+            } catch (error) {
+              return { value: null, error: error.message };
+            }
+          }
 
+          function runCommand({ id, command, args, cwd = '.', expectedExitCodes = [0] }) {
+            const rawDir = path.join(rawRoot, id);
+            fs.mkdirSync(rawDir, { recursive: true });
+            const result = spawnSync(command, args, {
+              cwd,
+              encoding: 'utf8',
+              maxBuffer: 50 * 1024 * 1024,
+              env: process.env,
+            });
+            const stdout = result.stdout || '';
+            const stderr = result.stderr || '';
+            const exitCode = Number.isInteger(result.status) ? result.status : null;
+            const metadata = {
+              command,
+              arguments: args,
+              working_directory: cwd,
+              exit_code: exitCode,
+              signal: result.signal || null,
+              spawn_error: result.error?.message || null,
+              expected_exit_code: exitCode !== null && expectedExitCodes.includes(exitCode),
+            };
+            fs.writeFileSync(path.join(rawDir, 'stdout.txt'), stdout);
+            fs.writeFileSync(path.join(rawDir, 'stderr.txt'), stderr);
+            writeJson(path.join(rawDir, 'command.json'), metadata);
+            return { stdout, stderr, ...metadata, raw_directory: rawDir };
+          }
+
+          function parseVersion(version) {
+            if (typeof version !== 'string') return null;
+            const match = version.trim().replace(/^v/i, '').match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
+            if (!match) return null;
+            return [Number(match[1]), Number(match[2] || 0), Number(match[3] || 0)];
+          }
+
+          function classifyUpdate(current, available) {
+            const from = parseVersion(current);
+            const to = parseVersion(available);
+            if (!from || !to) return 'unknown';
+            if (to[0] !== from[0]) return 'major';
+            if (to[1] !== from[1]) return 'minor';
+            if (to[2] !== from[2]) return 'patch';
+            return 'unknown';
+          }
+
+          function aggregateStatus(statuses) {
+            if (statuses.length === 0) return 'failed';
+            if (statuses.every((status) => status === 'success')) return 'success';
+            if (statuses.every((status) => status === 'failed')) return 'failed';
+            return 'degraded';
+          }
+
+          function npmRole(packageJson, name, reportedType) {
+            const roles = [
+              ['dependencies', 'runtime/direct'],
+              ['devDependencies', 'dev'],
+              ['optionalDependencies', 'optional'],
+              ['peerDependencies', 'peer'],
+              ['bundledDependencies', 'bundled'],
+              ['bundleDependencies', 'bundled'],
+            ];
+            for (const [field, role] of roles) {
+              const collection = packageJson[field];
+              if (Array.isArray(collection) ? collection.includes(name) : collection?.[name]) return role;
+            }
+            const reportedRoles = {
+              dependencies: 'runtime/direct',
+              devDependencies: 'dev',
+              optionalDependencies: 'optional',
+              peerDependencies: 'peer',
+            };
+            return reportedRoles[reportedType] || 'transitive/other';
+          }
+
+          function normalizeAudit(audit) {
+            const counts = { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 };
+            const metadataCounts = audit?.metadata?.vulnerabilities || {};
+            for (const severity of ['info', 'low', 'moderate', 'high', 'critical']) {
+              counts[severity] = Number(metadataCounts[severity] || 0);
+            }
+            counts.total = Number(metadataCounts.total ||
+              counts.info + counts.low + counts.moderate + counts.high + counts.critical);
+            const vulnerabilities = Object.entries(audit?.vulnerabilities || {}).map(([name, item]) => ({
+              name,
+              severity: item?.severity || 'unknown',
+              direct: typeof item?.isDirect === 'boolean' ? item.isDirect : null,
+              via: Array.isArray(item?.via) ? item.via.map((via) => typeof via === 'string' ? via : {
+                source: via?.source || null,
+                name: via?.name || null,
+                title: via?.title || null,
+                url: via?.url || null,
+                severity: via?.severity || null,
+                range: via?.range || null,
+              }) : [],
+              effects: Array.isArray(item?.effects) ? item.effects : [],
+              range: item?.range || null,
+              nodes: Array.isArray(item?.nodes) ? item.nodes : [],
+              fix_available: item?.fixAvailable ?? null,
+            })).sort((a, b) => a.name.localeCompare(b.name));
+            return { counts, vulnerabilities };
+          }
+
+          function collectNpm(component, directory) {
+            const packageJson = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf8'));
+            const installCommand = runCommand({
+              id: `${component}/npm-ci`,
+              command: 'npm',
+              args: ['ci', '--ignore-scripts'],
+              cwd: directory,
+              expectedExitCodes: [0],
+            });
+            const installStatus = installCommand.expected_exit_code ? 'success' : 'failed';
+            const outdatedCommand = runCommand({
+              id: `${component}/npm-outdated`,
+              command: 'npm',
+              args: ['outdated', '--json', '--long'],
+              cwd: directory,
+              expectedExitCodes: [0, 1],
+            });
+            const outdatedOutput = outdatedCommand.stdout.trim();
+            const outdatedRead = outdatedOutput === '' && outdatedCommand.exit_code === 0
+              ? { value: {}, error: null }
+              : outdatedOutput === ''
+                ? { value: null, error: 'npm outdated returned no JSON for a non-zero exit code' }
+                : parseJson(outdatedOutput);
+            const outdatedHasError = Boolean(outdatedRead.value?.error);
+            const outdatedStatus = outdatedRead.error
+              ? 'failed'
+              : outdatedCommand.expected_exit_code && !outdatedHasError
+                ? 'success'
+                : 'degraded';
+            const updates = outdatedRead.error || outdatedHasError ? [] :
+              Object.entries(outdatedRead.value || {}).map(([name, item]) => ({
+                id: `npm:${component}:${name}`,
+                component,
+                ecosystem: 'npm',
+                name,
+                category: npmRole(packageJson, name, item?.type),
+                direct: npmRole(packageJson, name, item?.type) !== 'transitive/other',
+                current_version: item?.current || null,
+                wanted_version: item?.wanted || null,
+                available_version: item?.latest || null,
+                update_type: classifyUpdate(item?.current, item?.latest),
+                wanted_update_type: classifyUpdate(item?.current, item?.wanted),
+                location: item?.location || null,
+                dependent: item?.dependent || null,
+                source: `${rawRoot}/${component}/npm-outdated/stdout.txt`,
+              })).sort((a, b) => a.name.localeCompare(b.name));
+
+            const auditCommand = runCommand({
+              id: `${component}/npm-audit`,
+              command: 'npm',
+              args: ['audit', '--json'],
+              cwd: directory,
+              expectedExitCodes: [0, 1],
+            });
+            const auditRead = parseJson(auditCommand.stdout.trim());
+            const auditHasError = Boolean(auditRead.value?.error);
+            const auditStatus = auditRead.error
+              ? 'failed'
+              : auditCommand.expected_exit_code && !auditHasError
+                ? 'success'
+                : 'degraded';
+            const audit = auditRead.error || auditHasError
+              ? { counts: null, vulnerabilities: [] }
+              : normalizeAudit(auditRead.value);
+
+            return {
+              component: {
+                id: component,
+                path: directory,
+                ecosystem: 'npm',
+                collection: {
+                  status: aggregateStatus([installStatus, outdatedStatus, auditStatus]),
+                  install: {
+                    status: installStatus,
+                    exit_code: installCommand.exit_code,
+                    command_error: installCommand.spawn_error,
+                    source: `${rawRoot}/${component}/npm-ci`,
+                  },
+                  updates: {
+                    status: outdatedStatus,
+                    exit_code: outdatedCommand.exit_code,
+                    parse_error: outdatedRead.error,
+                    command_error: outdatedRead.value?.error || outdatedCommand.spawn_error,
+                    source: `${rawRoot}/${component}/npm-outdated`,
+                  },
+                  vulnerabilities: {
+                    status: auditStatus,
+                    exit_code: auditCommand.exit_code,
+                    parse_error: auditRead.error,
+                    command_error: auditRead.value?.error || auditCommand.spawn_error,
+                    source: `${rawRoot}/${component}/npm-audit`,
+                  },
+                },
+                update_count: updates.length,
+                updates,
+                vulnerabilities: {
+                  available: auditStatus !== 'failed',
+                  ...audit,
+                  source: `${rawRoot}/${component}/npm-audit/stdout.txt`,
+                },
+              },
+              updates,
+              statuses: [installStatus, outdatedStatus, auditStatus],
+            };
+          }
+
+          const mavenLine = /^\s*\[INFO\]\s+(.+?)\s+\.{2,}\s+(.+?)\s+->\s+(.+?)\s*$/;
+
+          function collectMavenCategory(category, goal) {
+            const command = runCommand({
+              id: `backend/maven-${category}`,
+              command: 'bash',
+              args: ['./mvnw', '-B', '-DskipTests', '-DallowSnapshots=false', goal],
+              cwd: 'backend',
+              expectedExitCodes: [0],
+            });
+            const outputLines = command.stdout.split(/\r?\n/);
+            const candidateLines = outputLines.filter((line) => /^\s*\[INFO\].+\s->\s/.test(line));
+            const unparsedUpdateLines = candidateLines.filter((line) => !mavenLine.test(line));
+            const entries = outputLines.flatMap((line) => {
+              const match = line.match(mavenLine);
+              if (!match) return [];
+              const identifier = match[1].trim();
+              const current = match[2].trim();
+              const available = match[3].trim();
               return [{
-                category,
-                raw_line: line.trim(),
-                current_version: match[2].trim() || null,
-                newer_version: newerVersion || null,
+                id: `maven:backend:${category}:${identifier}`,
+                component: 'backend',
+                ecosystem: 'maven',
+                name: identifier,
+                category: category === 'dependency' ? 'runtime/direct' : category,
+                direct: category === 'dependency',
+                current_version: current || null,
+                wanted_version: null,
+                available_version: available || null,
+                update_type: classifyUpdate(current, available),
+                wanted_update_type: null,
+                location: 'backend/pom.xml',
+                dependent: null,
+                source: `${rawRoot}/backend/maven-${category}/stdout.txt`,
               }];
             });
+            const status = command.expected_exit_code && unparsedUpdateLines.length === 0
+              ? 'success'
+              : entries.length > 0 || unparsedUpdateLines.length > 0
+                ? 'degraded'
+                : 'failed';
+            return {
+              category,
+              status,
+              exit_code: command.exit_code,
+              command_error: command.spawn_error,
+              parse_error: unparsedUpdateLines.length > 0
+                ? `${unparsedUpdateLines.length} update line(s) did not match the Maven parser`
+                : null,
+              unparsed_update_lines: unparsedUpdateLines,
+              source: `${rawRoot}/backend/maven-${category}`,
+              entries,
+            };
           }
 
-          const entries = Object.entries(sources).flatMap(([category, sourceFile]) =>
-            parseEntries(category, sourceFile)
-          );
-          const count = (category) => entries.filter((entry) => entry.category === category).length;
-
-          const summary = {
-            dependencies_with_updates: count('dependency'),
-            plugins_with_updates: count('plugin'),
-            properties_with_updates: count('property'),
-            total_with_updates: entries.length,
-            generated_at: now,
-            source_files: Object.values(sources),
-            stable_updates_only: true,
-            entries,
-          };
-
-          fs.writeFileSync('backend-updates-summary.json', `${JSON.stringify(summary, null, 2)}\n`);
-          NODE
-
-      - name: Upload backend dependency reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-dependency-reports
-          path: |
-            backend-updates.txt
-            backend-plugins-updates.txt
-            backend-properties-updates.txt
-            backend-updates-summary.json
-
-  dependency-report:
-    name: Dependency report summary
-    runs-on: ubuntu-latest
-    needs:
-      - frontend-deps
-      - backend-deps
-    steps:
-      - name: Download frontend reports
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dependency-reports
-          path: reports/frontend
-
-      - name: Download backend reports
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-dependency-reports
-          path: reports/backend
-
-      - name: Build dependency report
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-
-          function readJson(path) {
-            return JSON.parse(fs.readFileSync(path, 'utf8'));
+          function collectBackend() {
+            const collections = [
+              collectMavenCategory('dependency', 'versions:display-dependency-updates'),
+              collectMavenCategory('plugin', 'versions:display-plugin-updates'),
+              collectMavenCategory('property', 'versions:display-property-updates'),
+            ];
+            const updates = collections.flatMap((collection) => collection.entries)
+              .sort((a, b) => a.id.localeCompare(b.id));
+            return {
+              component: {
+                id: 'backend',
+                path: 'backend',
+                ecosystem: 'maven',
+                collection: {
+                  status: aggregateStatus(collections.map(({ status }) => status)),
+                  updates: Object.fromEntries(collections.map(({ category, entries, ...metadata }) => [
+                    category,
+                    { ...metadata, update_count: entries.length },
+                  ])),
+                },
+                update_count: updates.length,
+                updates,
+                vulnerabilities: {
+                  available: false,
+                  reason: 'not_collected_by_design',
+                },
+              },
+              updates,
+              statuses: collections.map(({ status }) => status),
+            };
           }
 
-          const artifactNames = [
-            'frontend-dependency-reports',
-            'backend-dependency-reports',
-            'dependency-report',
+          function flattenPages(value) {
+            if (!Array.isArray(value)) return [];
+            return value.flatMap((page) => Array.isArray(page) ? page : [page]);
+          }
+
+          function githubApi(id, endpoint) {
+            const command = runCommand({
+              id: `github/${id}`,
+              command: 'gh',
+              args: ['api', '--paginate', '--slurp', '-H', 'Accept: application/vnd.github+json', endpoint],
+              expectedExitCodes: [0],
+            });
+            const parsed = parseJson(command.stdout.trim());
+            const status = parsed.error
+              ? 'failed'
+              : command.expected_exit_code
+                ? 'success'
+                : 'degraded';
+            return { command, parsed, status, values: parsed.error ? [] : flattenPages(parsed.value) };
+          }
+
+          function componentForFile(filename) {
+            if (filename.startsWith('frontend/')) return 'frontend';
+            if (filename.startsWith('backend/')) return 'backend';
+            if (filename.startsWith('apps/public-site/')) return 'public-site';
+            return null;
+          }
+
+          function collectDependabotPullRequests() {
+            const repository = process.env.GITHUB_REPOSITORY;
+            const pulls = githubApi(
+              'dependabot-pulls',
+              `/repos/${repository}/pulls?state=open&base=${process.env.ANALYZED_BRANCH}&per_page=100`,
+            );
+            if (pulls.status === 'failed') {
+              return {
+                status: 'failed',
+                parse_error: pulls.parsed.error,
+                exit_code: pulls.command.exit_code,
+                source: `${rawRoot}/github/dependabot-pulls`,
+                pull_requests: [],
+              };
+            }
+
+            const dependabotPulls = pulls.values.filter((pull) =>
+              ['dependabot[bot]', 'app/dependabot'].includes(pull?.user?.login)
+            );
+            const detailStatuses = [];
+            const pullRequests = dependabotPulls.map((pull) => {
+              const filesResult = githubApi(`pr-${pull.number}-files`,
+                `/repos/${repository}/pulls/${pull.number}/files?per_page=100`);
+              const runsResult = githubApi(`pr-${pull.number}-ci-runs`,
+                `/repos/${repository}/actions/workflows/ci.yml/runs?event=pull_request&head_sha=${pull.head.sha}&per_page=100`);
+              detailStatuses.push(filesResult.status, runsResult.status);
+
+              const files = filesResult.values.map((file) => ({
+                filename: file.filename,
+                status: file.status,
+                additions: file.additions,
+                deletions: file.deletions,
+                changes: file.changes,
+              })).sort((a, b) => a.filename.localeCompare(b.filename));
+              const components = [...new Set(files.map((file) => componentForFile(file.filename)).filter(Boolean))].sort();
+              const workflowRuns = runsResult.values
+                .flatMap((page) => Array.isArray(page?.workflow_runs) ? page.workflow_runs : [])
+                .filter((run) => run?.head_sha === pull.head.sha)
+                .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+              const latestRun = workflowRuns[0] || null;
+
+              return {
+                number: pull.number,
+                title: pull.title,
+                url: pull.html_url,
+                state: pull.state,
+                target_branch: pull.base.ref,
+                head_ref: pull.head.ref,
+                head_sha: pull.head.sha,
+                author: pull.user.login,
+                draft: Boolean(pull.draft),
+                created_at: pull.created_at,
+                updated_at: pull.updated_at,
+                components,
+                files_collection: {
+                  status: filesResult.status,
+                  exit_code: filesResult.command.exit_code,
+                  parse_error: filesResult.parsed.error,
+                  source: `${rawRoot}/github/pr-${pull.number}-files`,
+                },
+                files,
+                ci: {
+                  workflow: 'CI',
+                  collection: {
+                    status: runsResult.status,
+                    exit_code: runsResult.command.exit_code,
+                    parse_error: runsResult.parsed.error,
+                    source: `${rawRoot}/github/pr-${pull.number}-ci-runs`,
+                  },
+                  available: Boolean(latestRun),
+                  status: latestRun?.status || null,
+                  conclusion: latestRun?.conclusion || null,
+                  run_id: latestRun?.id || null,
+                  url: latestRun?.html_url || null,
+                  created_at: latestRun?.created_at || null,
+                  updated_at: latestRun?.updated_at || null,
+                },
+              };
+            }).sort((a, b) => a.number - b.number);
+
+            return {
+              status: aggregateStatus([pulls.status, ...detailStatuses]),
+              exit_code: pulls.command.exit_code,
+              parse_error: pulls.parsed.error,
+              source: `${rawRoot}/github/dependabot-pulls`,
+              pull_requests: pullRequests,
+            };
+          }
+
+          const frontend = collectNpm('frontend', 'frontend');
+          const backend = collectBackend();
+          const publicSite = collectNpm('public-site', 'apps/public-site');
+          const dependabot = collectDependabotPullRequests();
+          const components = [frontend.component, backend.component, publicSite.component];
+          const updates = [...frontend.updates, ...backend.updates, ...publicSite.updates]
+            .sort((a, b) => a.id.localeCompare(b.id));
+          const primaryStatuses = [
+            ...frontend.statuses,
+            ...backend.statuses,
+            ...publicSite.statuses,
+            dependabot.status,
           ];
-          const frontendAudit = readJson('reports/frontend/frontend-audit-summary.json');
-          const frontendOutdated = readJson('reports/frontend/frontend-outdated-summary.json');
-          const backend = readJson('reports/backend/backend-updates-summary.json');
+          const analyzedShaResult = spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' });
 
           const report = {
-            repository: process.env.GITHUB_REPOSITORY,
-            workflow_name: process.env.GITHUB_WORKFLOW,
-            run_id: process.env.GITHUB_RUN_ID,
-            run_number: Number(process.env.GITHUB_RUN_NUMBER),
-            commit_sha: process.env.GITHUB_SHA,
-            branch_ref: process.env.GITHUB_REF,
-            generated_at: new Date().toISOString(),
-            artifact_names: artifactNames,
-            frontend_audit_summary: frontendAudit,
-            frontend_outdated_summary: frontendOutdated,
-            backend_summary: backend,
+            schema_version: schemaVersion,
+            repository: {
+              full_name: process.env.GITHUB_REPOSITORY,
+              server_url: process.env.GITHUB_SERVER_URL,
+              api_url: process.env.GITHUB_API_URL,
+            },
+            workflow: {
+              name: process.env.GITHUB_WORKFLOW,
+              ref: process.env.GITHUB_REF,
+              event: process.env.GITHUB_EVENT_NAME,
+              run_id: process.env.GITHUB_RUN_ID,
+              run_number: Number(process.env.GITHUB_RUN_NUMBER),
+              run_attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+              triggering_sha: process.env.GITHUB_SHA,
+              run_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+            },
+            analyzed_branch: process.env.ANALYZED_BRANCH,
+            analyzed_sha: analyzedShaResult.status === 0 ? analyzedShaResult.stdout.trim() : null,
+            generated_at: generatedAt,
+            collection: {
+              status: aggregateStatus(primaryStatuses),
+              component_statuses: Object.fromEntries(components.map((component) => [
+                component.id,
+                component.collection.status,
+              ])),
+              dependabot_pull_requests_status: dependabot.status,
+            },
+            components,
+            updates,
+            dependabot_pull_requests: {
+              collection: {
+                status: dependabot.status,
+                exit_code: dependabot.exit_code,
+                parse_error: dependabot.parse_error,
+                source: dependabot.source,
+              },
+              count: dependabot.pull_requests.length,
+              items: dependabot.pull_requests,
+            },
+            artifacts: [
+              {
+                name: 'dependency-report',
+                kind: 'normalized_report',
+                paths: ['dependency-report.json'],
+              },
+              {
+                name: 'dependency-report-raw',
+                kind: 'raw_collection_data',
+                paths: [`${rawRoot}/`],
+              },
+            ],
           };
+          writeJson('dependency-report.json', report);
 
-          fs.writeFileSync('dependency-report.json', `${JSON.stringify(report, null, 2)}\n`);
-
-          const lines = [
+          const updateTypes = ['patch', 'minor', 'major', 'unknown'];
+          const summary = [
             '# Weekly Dependency Report',
             '',
-            '## Frontend',
-            `- Vulnerabilities: critical ${frontendAudit.critical}, high ${frontendAudit.high}, moderate ${frontendAudit.moderate}, low ${frontendAudit.low}, total ${frontendAudit.total}`,
-            `- Outdated dependencies: ${frontendOutdated.total_outdated}`,
+            `- Analyzed branch: \`${report.analyzed_branch}\``,
+            `- Collection status: **${report.collection.status}**`,
             '',
-            '## Backend',
-            `- Dependency updates: ${backend.dependencies_with_updates}`,
-            `- Plugin updates: ${backend.plugins_with_updates}`,
-            `- Property updates: ${backend.properties_with_updates}`,
-            `- Total updates: ${backend.total_with_updates}`,
+            '## Collections and updates',
             '',
-            '## Artifacts',
-            ...artifactNames.map((name) => `- ${name}`),
+            '| Component | Collection | Updates | Patch | Minor | Major | Unknown |',
+            '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
+            ...components.map((component) => {
+              const counts = Object.fromEntries(updateTypes.map((type) => [
+                type,
+                component.updates.filter((update) => update.update_type === type).length,
+              ]));
+              return `| ${component.id} | ${component.collection.status} | ${component.update_count} | ${counts.patch} | ${counts.minor} | ${counts.major} | ${counts.unknown} |`;
+            }),
+            '',
+            '## npm vulnerabilities',
+            '',
+            '| Component | Collection | Total | Critical | High | Moderate | Low |',
+            '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
+            ...components.filter((component) => component.ecosystem === 'npm').map((component) => {
+              const counts = component.vulnerabilities.counts;
+              return `| ${component.id} | ${component.collection.vulnerabilities.status} | ${counts?.total ?? 'n/a'} | ${counts?.critical ?? 'n/a'} | ${counts?.high ?? 'n/a'} | ${counts?.moderate ?? 'n/a'} | ${counts?.low ?? 'n/a'} |`;
+            }),
+            '',
+            '## Open Dependabot pull requests targeting dev',
+            '',
+            `Collection: **${dependabot.status}** — detected: **${dependabot.pull_requests.length}**`,
+            '',
+            '| PR | Components | CI status | CI conclusion |',
+            '| --- | --- | --- | --- |',
+            ...(dependabot.pull_requests.length > 0
+              ? dependabot.pull_requests.map((pull) =>
+                `| [#${pull.number}](${pull.url}) ${pull.title.replace(/\|/g, '\\|')} | ${pull.components.join(', ') || 'unmapped'} | ${pull.ci.status || 'unavailable'} | ${pull.ci.conclusion || 'unavailable'} |`)
+              : ['| — | — | — | — |']),
           ];
-
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary.join('\n')}\n`);
           NODE
 
-      - name: Upload dependency report
+      - name: Upload normalized dependency report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-report
           path: dependency-report.json
+          if-no-files-found: error
+
+      - name: Upload raw dependency data
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report-raw
+          path: dependency-report-raw/
+          if-no-files-found: error
