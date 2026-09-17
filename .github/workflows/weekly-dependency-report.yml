@@ -316,6 +316,7 @@ jobs:
                 '-B',
                 '-DskipTests',
                 '-DallowSnapshots=false',
+                '-Dmaven.version.ignore=(?i).+-(?:M|RC)\\d+',
                 '-Dversions.outputLineWidth=10000',
                 ...(category === 'dependency' ? [
                   '-DprocessDependencyManagement=false',
