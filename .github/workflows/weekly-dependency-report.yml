@@ -317,6 +317,13 @@ jobs:
                 '-DskipTests',
                 '-DallowSnapshots=false',
                 '-Dversions.outputLineWidth=10000',
+                ...(category === 'dependency' ? [
+                  '-DprocessDependencyManagement=false',
+                  '-DprocessDependencyManagementTransitive=false',
+                  '-DshowVersionless=false',
+                  '-DprocessPluginDependencies=false',
+                  '-DprocessPluginDependenciesInPluginManagement=false',
+                ] : []),
                 goal,
               ],
               cwd: 'backend',
@@ -369,7 +376,10 @@ jobs:
 
           function collectBackend() {
             const collections = [
-              collectMavenCategory('dependency', 'versions:display-dependency-updates'),
+              collectMavenCategory(
+                'dependency',
+                'org.codehaus.mojo:versions-maven-plugin:2.19.1:display-dependency-updates',
+              ),
               collectMavenCategory('plugin', 'versions:display-plugin-updates'),
               collectMavenCategory('property', 'versions:display-property-updates'),
             ];
