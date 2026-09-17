@@ -275,7 +275,7 @@ jobs:
             };
           }
 
-          const mavenLine = /^\s*\[INFO\]\s+(.+?)\s+\.{2,}\s+(.+?)\s+->\s+(.+?)\s*$/;
+          const mavenLine = /^\s*\[INFO\]\s+(.+?)(?:\s+\.{2,}\s+|\s{2,})(.+?)\s+->\s+(.+?)\s*$/;
           const mavenWrappedIdentifierLine = /^\s*\[INFO\]\s+((?:\$\{[^}\s]+\}|[^\s:]+:[^\s]+))\s+\.{2,}\s*$/;
           const mavenWrappedVersionsLine = /^\s*\[INFO\]\s+(\S+)\s+->\s+(\S+)\s*$/;
 
@@ -344,7 +344,7 @@ jobs:
                 ecosystem: 'maven',
                 name: identifier,
                 category: category === 'dependency' ? 'runtime/direct' : category,
-                direct: category === 'dependency',
+                direct: ['dependency', 'parent'].includes(category),
                 current_version: current || null,
                 wanted_version: null,
                 available_version: available || null,
@@ -380,6 +380,7 @@ jobs:
                 'dependency',
                 'org.codehaus.mojo:versions-maven-plugin:2.19.1:display-dependency-updates',
               ),
+              collectMavenCategory('parent', 'versions:display-parent-updates'),
               collectMavenCategory('plugin', 'versions:display-plugin-updates'),
               collectMavenCategory('property', 'versions:display-property-updates'),
             ];
